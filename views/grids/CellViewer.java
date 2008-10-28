@@ -59,7 +59,7 @@ public abstract class CellViewer implements Drawable {
 
 	protected Object observeAttribute(){
 
-		return cell.inquire(attribute);
+		return cell.handelInquire(attribute);
 	}
 	
 

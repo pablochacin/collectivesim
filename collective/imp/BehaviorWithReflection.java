@@ -5,8 +5,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import edu.upc.cnds.collectivesim.models.Action;
-import edu.upc.cnds.collectivesim.models.BasicModel;
+import edu.upc.cnds.collectivesim.models.imp.Action;
+import edu.upc.cnds.collectivesim.models.imp.BasicModel;
 
 import uchicago.src.sim.util.SimUtilities;
 
@@ -61,7 +61,7 @@ public class BehaviorWithReflection {
 	 * Default constructor
 	 * @param name a String that identifies this behavior
 	 * @param model the simulation Model on which this behavior inhabits
-	 * @param realm the AgentRealm on which resides the agents this behavior will be applied to
+	 * @param collective the AgentRealm on which resides the agents this behavior will be applied to
 	 * @param method a String array with the name of the methods to be execute
 	 * @param active a boolean that indicates if the behavior must be inserted active
 	 *        or will be deactivated until the realm activates it.

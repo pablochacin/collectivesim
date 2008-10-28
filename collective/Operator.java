@@ -16,13 +16,13 @@ public interface Operator {
     
     /**
      * 
-     * @param agent Agent on which the operator must be applied
+     * @param value value on which the operator must be applied
      */
-    public void calculate(Agent agent);
+    public void calculate(Object value);
     
     /**
      * Returs the result of the calculation so far
      */
-    public Double getResult();
+    public Object getResult();
     
 }

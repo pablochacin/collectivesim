@@ -2,6 +2,8 @@ package edu.upc.cnds.collectivesim.collective;
 
 
 
+import java.util.Map;
+
 import edu.upc.cnds.collectivesim.agents.Agent;
 
 /**
@@ -13,46 +15,36 @@ import edu.upc.cnds.collectivesim.agents.Agent;
 public interface Collective {
 
 	/**
-	 * Adds an agent to the Realm.
+	 * Adds an agent to the Collective.
 	 * 
 	 * @return a boolean indicating if the agent could be
-	 *         added to the realm
+	 *         added to the Collective
 	 */
-	public boolean addAgent(Agent agent);
-
-	
-	/**
-     * Ads an observer to the ralm
-     * 
-     * @param obsever a RealmObserver which must observe the realm
-     * @param frequency a double that specifies the frequency of 
-     *        observation 
-	 */
-    void addObserver(CollectiveObserver observer, double frequency);
+	public void addAgent(Agent agent);
     
+    /**
+     * Visit all agents on the Realm, executing a given method
+     */
+    public void visit(String method,Object[] arguments);
         
-   
-   /**
+    
+    /**
      * Inquires an attribute from all agents in the realm
      * 
      * @param attribute a String with the name of the attribute to inquire
      * 
      * @return an object with the result of the inquire 
      */
-    public Object inquire(String attribute);
+    public Object handelInquire(String attribute);
     
     
     /**
-     * Visit all agents on the Realm, executing a given method
+     * Inquires an attribute from all agents in the realm
+     * 
+     * @param attributes an array of Strings with the name of the attributes 
+     *        to inquire
+     * 
+     * @return a Map with the result of the inquire 
      */
-    public void visit(String method);
-    
-    
-    /**
-     * Visit all agents on the Realm, executin for each of them
-     * a series of methods.
-     */
-    public void visit(String[] methods);
-    
-    
+    public Map inquire(String[] attributes);
 }

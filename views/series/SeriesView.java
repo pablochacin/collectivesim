@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import edu.upc.cnds.collectivesim.collective.Collective;
-import edu.upc.cnds.collectivesim.models.Action;
-import edu.upc.cnds.collectivesim.models.BasicModel;
 import edu.upc.cnds.collectivesim.models.Model;
+import edu.upc.cnds.collectivesim.models.imp.Action;
+import edu.upc.cnds.collectivesim.models.imp.BasicModel;
 import edu.upc.cnds.collectivesim.views.View;
 
 import uchicago.src.sim.analysis.OpenHistogram;
@@ -78,7 +78,7 @@ public class SeriesView implements View {
         for(int i = 0;i<series.size();i++){
             ArrayList valuesList = (ArrayList)values.get(series.get(i));
             valuesList.clear();
-            valuesList.addAll(realm.inquire((String)series.get(i)));
+            valuesList.addAll(realm.handelInquire((String)series.get(i)));
         }
         
         //update the graph

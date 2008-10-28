@@ -1,8 +1,8 @@
 package edu.upc.cnds.collectivesim.collective;
 
-import edu.upc.cnds.collectivesim.models.Action;
-import edu.upc.cnds.collectivesim.models.BasicModel;
 import edu.upc.cnds.collectivesim.models.Model;
+import edu.upc.cnds.collectivesim.models.imp.Action;
+import edu.upc.cnds.collectivesim.models.imp.BasicModel;
 
 
 /**

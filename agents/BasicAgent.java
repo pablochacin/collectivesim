@@ -10,19 +10,19 @@ import edu.upc.cnds.collectivesim.models.Model;
 public class BasicAgent implements Agent {
 
 	protected Identifier id;
-	
+
 	protected Model model;
-	
+
 	protected Node node;
-	
+
 	/**
 	 * Default constructor withour arguments
 	 *
 	 */
 	public BasicAgent() {
-		
+
 	}
-	
+
 	/**
 	 * Constructor with full arguments
 	 * @param id Identifier of the agent
@@ -34,52 +34,52 @@ public class BasicAgent implements Agent {
 		this.model = model;
 		this.node = node;
 	}
-	
-    public String getAgentType(){
-        return this.getClass().getName();
-    }
 
-    public Object getAttribute(String attribute) throws AgentException{
-               Method method;
-            Object result = null;
-            try {
-                method = this.getClass().getMethod("get"+attribute, null);
-                result = method.invoke(this, null);
-            } catch (Exception e) {
-            	throw new AgentException("Exception accessing attribute "+attribute,e);
-            } 
-            
-            return result;
-        }
+	public String getAgentType(){
+		return this.getClass().getName();
+	}
+
+	public Object handelInquire(String attribute) throws AgentException{
+
+		try {
+
+			Method method = this.getClass().getMethod("get"+attribute, (Class[])(null));
+			Object result = method.invoke(this, (Object[])(null));
+			return result;
+
+		} catch (Exception e) {
+			throw new AgentException("Exception accessing attribute "+attribute,e);
+		} 
+
+	}
 
 
-    public Object execute(Collective collective, String methodName) throws AgentException {
-    	return execute(collective,methodName,null);
-    }
-    
-    
-    public Object execute(Collective collective, String methodName,Object[] arguments) throws AgentException {
-        
-        try {
-            Object[] arg = {collective};
-            
-            Method method = this.getClass().getMethod(methodName, Collective.class);
-            
-            return method.invoke(this, arg);
-            
-        } catch (Exception e) {
-        	throw new AgentException("Exception accessing executing method " + methodName,e);
-        } 
-       
-    }
+	public void handleVisit(Collective collective, String methodName) throws AgentException {
+		handleVisit(collective,methodName,null);
+	}
 
-    /**
-     * Returns the agent's hashCode as an Integer object to be used for
-     * identification
-     */
-    
+
+	public void handleVisit(Collective collective, String methodName,Object[] arguments) throws AgentException {
+
+		try {
+
+			Method method = this.getClass().getMethod(methodName, arguments);
+
+			method.invoke(this, arg);
+
+		} catch (Exception e) {
+			throw new AgentException("Exception accessing executing method " + methodName,e);
+		} 
+
+	}
+
+	/**
+	 * Returns the agent's hashCode as an Integer object to be used for
+	 * identification
+	 */
+
 	public Identifier getId() {
-		 return id;
+		return id;
 	}
 
 	public Model getModel() {
@@ -95,7 +95,7 @@ public class BasicAgent implements Agent {
 	}
 
 	public void setNode(Node node) {
-	
+
 		this.node = node;
 	}
 }

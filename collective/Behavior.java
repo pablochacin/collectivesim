@@ -1,22 +1,23 @@
 package edu.upc.cnds.collectivesim.collective;
 
-import edu.upc.cnds.collectivesim.models.Action;
-import edu.upc.cnds.collectivesim.models.BasicModel;
+import java.util.List;
+
+import edu.upc.cnds.collectivesim.collective.imp.CollectiveAgent;
 import edu.upc.cnds.collectivesim.models.Model;
+import edu.upc.cnds.collectivesim.models.Stream;
+import edu.upc.cnds.collectivesim.models.imp.Action;
 
 
 /**
+ * 
+ * Represents the Collective on each Node and serves as an intermediary. 
+ * From the perspective of the Node, is an Agent. From the perspective of the
+ * Agent, represent the Collective
  * 
  * @author pchacin
  *
  */
 public class Behavior {
-
-    /**
-     * Order of execution of methods of the behavior
-     */
-    public static long BEHAVIOR_ORDER_BY_AGENT = 0;
-    public static long BEHAVIOR_ORDER_BY_METHOD = 1;
 
 
     /**
@@ -27,7 +28,7 @@ public class Behavior {
     /**
      * Realm on which the agents this model applies to, reside
      */
-    Collective realm;
+    CollectiveManager collective;
     /**
      * Frequency of execution of the behavior
      */
@@ -36,18 +37,20 @@ public class Behavior {
     /**
      * Name of the methods to be executed
      */
-    private String[] methods;
+    private String method;
 
+    
+    /**
+     * Strems to feed the arguments for the method
+     */
+    private Stream[] streams;
+    
     /**
      * name of the mehavior
      */
     private String name;
 
-    /**
-     * order of execution of methods
-     */
-    private long order;
-    
+ 
     
     /**
      * Indicates if the behavior is active
@@ -58,21 +61,21 @@ public class Behavior {
      * Default constructor
      * @param name a String that identifies this behavior
      * @param model the simulation Model on which this behavior inhabits
-     * @param realm the AgentRealm on which resides the agents this behavior will be applied to
-     * @param methods a String array with the name of the methods to be execute
+     * @param collective the AgentRealm on which resides the agents this behavior will be applied to
+     * @param method a String the name of the method to be execute
+     * @param streams an array of Streams to feed the arguments of the method
      * @param active a boolean that indicates if the behavior must be inserted active
      *        or will be deactivated until the realm activates it.
      * @param frequency a long with the frequency, in ticks, of execution
-     * @param order order of execution (by agent or by method)
+
      */
-    protected Behavior(String name, Model model,Collective realm,String[] methods, boolean active,
-            double frequency, long order){
+    protected Behavior(String name, Model model,CollectiveManager collective,String method, Stream[] streams, boolean active,
+            double frequency){
         this.name = name;
-        this.methods = methods;
+        this.method = method;
         this.frequency = frequency;
         this.model = model;
-        this.realm = realm;
-        this.order = order;
+        this.collective = collective;
 
         //if behavior must be created active
         if(active){
@@ -107,58 +110,31 @@ public class Behavior {
      *
      */
     private void schedule(){
-       Action execute = new Action(this,"step",frequency,true);
+       Action execute = new Action(this,"run",frequency,true);
        model.scheduleAction(execute);
     }
     
-    /**
-     * Schedulled method. Execute behavior's actions. 
-     */
-    public void step(){
-        preProcessing();
-        execute();
-        postProcessing();
-    }
-    
     
     /**
-     * executes the methods on all agents
+     * This method is periodically executed
      *
      */
-    public void execute(){
-
-        //decide how to execute behavior: by agent or by method
-        if(order == BEHAVIOR_ORDER_BY_AGENT){
-            realm.visit(methods);
-        }
-        else{
-            if(order == BEHAVIOR_ORDER_BY_METHOD){
-                for(int i=0;i<methods.length;i++){
-                    realm.visit(methods[i]);
-                }
-            }
-            else{
-                //TODO: handle this error!
-            }
-        }
-
+    public void run() {
+    	List<CollectiveAgent> nodes = CollectiveManager.getNodes();
+   
+    	for(CollectiveAgent n: nodes) {
+    	//construct an argument list for the method invocation
+    	Object[] arguments = new Object[streams.length];
+    	for(int i=0;i<arguments.length;i++) {
+    		arguments[i] = streams[i].getValue();
+    	}
+    	
+    	n.handleVisit(method,arguments);
+    	}
+    	
     }
     
-    
-    /**
-     * Prepare for this step.
-     *
-     */
-    public void preProcessing(){
-        //This method can be extended by subclasses
-    }
-
-    /**
-     * Clean up after step.
-     */
-    public void postProcessing(){
-        //This method can be extended by subclasses
-    }
+  
 
 
 }

@@ -4,9 +4,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
 
-import edu.upc.cnds.collectivesim.models.Action;
-import edu.upc.cnds.collectivesim.models.BasicModel;
 import edu.upc.cnds.collectivesim.models.Model;
+import edu.upc.cnds.collectivesim.models.imp.Action;
+import edu.upc.cnds.collectivesim.models.imp.BasicModel;
 import edu.upc.cnds.collectivesim.topology.grid2d.Grid2D;
 import edu.upc.cnds.collectivesim.views.View;
 import edu.upc.cnds.collectivesim.views.grids.CellViewer;

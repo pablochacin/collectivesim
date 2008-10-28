@@ -3,6 +3,7 @@ package edu.upc.cnds.collectivesim.models;
 import java.util.Map;
 
 import edu.upc.cnds.collectivesim.metrics.Metric;
+import edu.upc.cnds.collectivesim.models.imp.Action;
 
 
 public interface Model {
@@ -61,8 +62,21 @@ public interface Model {
 	/**
 	 * Schedules an action
 	 *
+	 * @param target an Object on which the action will be executed
+	 * @param methodName a String with the name of method to be scheduled
+	 * @param arguments an array of Objects to be passed as arguments to the method
+	 * @param delay time between executions
+	 * @param repetitive indicates if the action is repetitive
+	 *
 	 */
-	public abstract void scheduleAction(Action action);
+	 public void scheduleAction(Object target, String method,Object[] arguments,long delay,boolean isRepetitive);
+	
+	/**
+	 * Terminates the execution of the given action.
+	 * 
+	 * @param action
+	 */
+	public abstract void cancelAction(Action action);
     
     /**
      * Returns the next value of a random stream

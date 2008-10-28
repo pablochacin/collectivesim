@@ -7,8 +7,8 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import edu.upc.cnds.collectivesim.models.BasicModel;
 import edu.upc.cnds.collectivesim.models.Model;
+import edu.upc.cnds.collectivesim.models.imp.BasicModel;
 
 
 /**

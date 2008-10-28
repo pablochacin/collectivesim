@@ -4,7 +4,7 @@
  * 
  * (c) Pablo Chacin 2006
  */
-package edu.upc.cnds.collectivesim.models;
+package edu.upc.cnds.collectivesim.models.imp;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Random;
 
 
+import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimInit;
 import uchicago.src.sim.engine.SimModelImpl;
@@ -24,6 +25,7 @@ import cern.jet.random.engine.RandomEngine;
 import edu.upc.cnds.collectivesim.agents.Agent;
 import edu.upc.cnds.collectivesim.metrics.Metric;
 import edu.upc.cnds.collectivesim.metrics.MetricsReporter;
+import edu.upc.cnds.collectivesim.models.Model;
 import edu.upc.cnds.collectivesim.views.View;
 
 /**
@@ -218,15 +220,16 @@ private RandomEngine randomGenerator = new MersenneTwister();
   /* (non-Javadoc)
  * @see simrealms.models.Schedule#scheduleAction(simrealms.models.Action)
  */
-  public void scheduleAction(Action action){
-      if(action.isRepetitive()){
-          schedule.scheduleActionAtInterval(action.getFrequency(),action.getTarget(),action.getMethod());
-      }
-      else{
-          schedule.scheduleActionAt(action.getFrequency(),action.getTarget(),action.getMethod());
-      }
+  public void scheduleAction(Object target, String method,Object[] arguments,long delay,boolean isRepetitive) {
+      
+	  Action action = new Action(schedule,target,method,arguments,delay,isRepetitive);
+	  
+	  action.start();
+	  
   }
   
+  
+
   
   /* (non-Javadoc)
  * @see simrealms.models.Model#getRandomDouble()
@@ -254,34 +257,6 @@ public String getStringProperty(String property) {
     return (String)getObjectProperty(property);
 }
 
-/* (non-Javadoc)
- * @see simrealms.models.ModelInterface#getObjectProperty(java.lang.String)
- */
-public Object getObjectProperty(String property) {
-    Method method;
-    Object result = null;
-    try {
-        method = this.getClass().getMethod("get"+property, null);
-        result = method.invoke(this, null);
-    } catch (SecurityException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    } catch (NoSuchMethodException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    } catch (IllegalArgumentException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    } catch (IllegalAccessException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    } catch (InvocationTargetException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    }
-    
-    return result;
-}
 
 
 /* (non-Javadoc)

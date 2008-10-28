@@ -3,9 +3,9 @@ package edu.upc.cnds.collectivesim.views.histograms;
 import java.util.ArrayList;
 
 import edu.upc.cnds.collectivesim.collective.Collective;
-import edu.upc.cnds.collectivesim.models.Action;
-import edu.upc.cnds.collectivesim.models.BasicModel;
 import edu.upc.cnds.collectivesim.models.Model;
+import edu.upc.cnds.collectivesim.models.imp.Action;
+import edu.upc.cnds.collectivesim.models.imp.BasicModel;
 import edu.upc.cnds.collectivesim.views.View;
 
 import uchicago.src.sim.analysis.OpenHistogram;
@@ -57,7 +57,7 @@ public class HistogramView implements View {
         this.attribute = attribute;
 		
         //get attribute values from realm
-        values = realm.inquire(attribute);
+        values = realm.handelInquire(attribute);
         
         //bind the histogram with the agents in the realm
         HistogramDataVisitor valueVisitor = new HistogramDataVisitor();
@@ -95,7 +95,7 @@ public class HistogramView implements View {
 	@SuppressWarnings("unchecked")
     public void refresh(){
         values.clear();
-        values.addAll(realm.inquire(this.attribute));
+        values.addAll(realm.handelInquire(this.attribute));
         histogram.step();
 	}
 }

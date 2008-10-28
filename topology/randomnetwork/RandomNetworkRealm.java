@@ -6,7 +6,7 @@ import java.util.Vector;
 
 import edu.upc.cnds.collectivesim.agents.Agent;
 import edu.upc.cnds.collectivesim.collective.BasicRealm;
-import edu.upc.cnds.collectivesim.models.BasicModel;
+import edu.upc.cnds.collectivesim.models.imp.BasicModel;
 import edu.upc.cnds.collectivesim.topology.Node;
 import edu.upc.cnds.collectivesim.topology.grid2d.Cell;
 import edu.upc.cnds.collectivesim.topology.grid2d.Grid2D;

@@ -3,6 +3,7 @@ package edu.upc.cnds.collectivesim.collective;
 import java.util.List;
 
 import edu.upc.cnds.collectivesim.agents.Agent;
+import edu.upc.cnds.collectivesim.agents.AgentException;
 
 import uchicago.src.sim.analysis.DataSource;
 import uchicago.src.sim.analysis.Sequence;
@@ -30,7 +31,9 @@ public class CollectiveObserver implements DataSource, Sequence {
     /**
      * Agent attribute being observed
      */
-    double attribute;
+    String attribute;
+    
+    Object value;
     
     /**
      * Default constructor
@@ -38,6 +41,7 @@ public class CollectiveObserver implements DataSource, Sequence {
     public CollectiveObserver(Operator operator){
         this.operator = operator;
         operator.reset();
+        
     }
 
    
@@ -50,18 +54,21 @@ public class CollectiveObserver implements DataSource, Sequence {
      * 
      */
     private void calculateAttribute(List<Agent> agents) {
-         
-         
+                
          //iterate over all agents and calculate an operator
          operator.reset();
          
-         for(int i=0;i<agents.size();i++){
-           Agent agent = agents.get(i);
-           operator.calculate(agent);
+         for(Agent a: agents) {
+        	 try {
+				operator.calculate(a.handelInquire(attribute));
+			} catch (AgentException e) {
+				operator.reset();
+				break;
+			}
         }
         
          //return result of the operator
-         attribute = operator.getResult();
+         value = operator.getResult();
          
      }
 
@@ -72,7 +79,7 @@ public class CollectiveObserver implements DataSource, Sequence {
     * @see uchicago.src.sim.analysis.DataSource
     */
      public Object execute() {
-         return new Double(attribute);
+         return value;
      }
      
      
@@ -85,6 +92,6 @@ public class CollectiveObserver implements DataSource, Sequence {
       * @return the value to be plotted.
         */
        public double getSValue() {
-          return attribute;
+          return (Double)value;
        }
 }
