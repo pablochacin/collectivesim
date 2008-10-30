@@ -26,6 +26,7 @@ import edu.upc.cnds.collectivesim.agents.Agent;
 import edu.upc.cnds.collectivesim.metrics.Metric;
 import edu.upc.cnds.collectivesim.metrics.MetricsReporter;
 import edu.upc.cnds.collectivesim.models.Model;
+import edu.upc.cnds.collectivesim.models.Stream;
 import edu.upc.cnds.collectivesim.views.View;
 
 /**
@@ -220,15 +221,21 @@ private RandomEngine randomGenerator = new MersenneTwister();
   /* (non-Javadoc)
  * @see simrealms.models.Schedule#scheduleAction(simrealms.models.Action)
  */
-  public void scheduleAction(Object target, String method,Object[] arguments,long delay,boolean isRepetitive) {
+  public void scheduleAction(Runnable target, long delay) {
       
-	  Action action = new Action(schedule,target,method,arguments,delay,isRepetitive);
-	  
-	  action.start();
-	  
+	  SingleAction action = new SingleAction(target,delay);
+
+      schedule.scheduleActionAt(delay,action);
   }
   
   
+  public void scheduleAction(Runnable target,Stream distribution) {
+	  
+	  RepetitiveAction action = new RepetitiveAction(schedule,target,distribution);
+	  
+      //Schedule execution
+      schedule.scheduleActionAtInterval((Double)distribution.getValue(), action);
+  }
 
   
   /* (non-Javadoc)

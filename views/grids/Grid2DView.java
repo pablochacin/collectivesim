@@ -5,7 +5,7 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 
 import edu.upc.cnds.collectivesim.models.Model;
-import edu.upc.cnds.collectivesim.models.imp.Action;
+import edu.upc.cnds.collectivesim.models.imp.SingleAction;
 import edu.upc.cnds.collectivesim.models.imp.BasicModel;
 import edu.upc.cnds.collectivesim.topology.grid2d.Grid2D;
 import edu.upc.cnds.collectivesim.views.View;
@@ -74,7 +74,7 @@ public class Grid2DView implements View, Discrete2DSpace,BaseMatrix  {
          model.registerDisplaySurface(title,displaySurf);
          
          //create an action to schedule the refreshment
-         Action  refresh = new Action(this,"refresh",frequency,true);
+         SingleAction  refresh = new SingleAction(this,"refresh",frequency,true);
          model.scheduleAction(refresh);
     }
 

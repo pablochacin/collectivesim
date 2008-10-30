@@ -14,37 +14,38 @@ import edu.upc.cnds.collectivesim.agents.Agent;
  */
 public interface Collective {
 
-	/**
-	 * Adds an agent to the Collective.
-	 * 
-	 * @return a boolean indicating if the agent could be
-	 *         added to the Collective
-	 */
-	public void addAgent(Agent agent);
     
     /**
      * Visit all agents on the Realm, executing a given method
      */
     public void visit(String method,Object[] arguments);
-        
+            
     
     /**
-     * Inquires an attribute from all agents in the realm
+     * Inquires an attribute from all agents in the collective
      * 
-     * @param attribute a String with the name of the attribute to inquire
-     * 
-     * @return an object with the result of the inquire 
-     */
-    public Object handelInquire(String attribute);
-    
-    
-    /**
-     * Inquires an attribute from all agents in the realm
-     * 
-     * @param attributes an array of Strings with the name of the attributes 
+     * @param attribute a Strings with the name of the attribute
      *        to inquire
      * 
      * @return a Map with the result of the inquire 
      */
-    public Map inquire(String[] attributes);
+    public Object inquire(String attributes);
+    
+    
+    /**
+     * Registers an object as handler of an action. The object must implement a method
+     * with the same name of the action
+     * 
+     * @param action name of the action
+     * @param target object tha will handle the request for the action
+
+     */
+    public void registerAction(String action, Object target);
+    
+    /**
+     * Registers an object as handler of an specific attribute
+     * 
+     * @param attribute
+     */
+    public void registerAttribute(String attribute,Object target);
 }

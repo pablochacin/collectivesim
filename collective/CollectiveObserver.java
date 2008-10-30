@@ -2,11 +2,10 @@ package edu.upc.cnds.collectivesim.collective;
 
 import java.util.List;
 
-import edu.upc.cnds.collectivesim.agents.Agent;
-import edu.upc.cnds.collectivesim.agents.AgentException;
-
 import uchicago.src.sim.analysis.DataSource;
 import uchicago.src.sim.analysis.Sequence;
+import edu.upc.cnds.collectivesim.agents.AgentException;
+import edu.upc.cnds.collectivesim.collective.imp.CollectiveAgent;
 
 /**
  * Observes the realm and calculates an attribute from applying an operator
@@ -15,13 +14,17 @@ import uchicago.src.sim.analysis.Sequence;
  * @author Pablo Chacin
  *
  */
-public class CollectiveObserver implements DataSource, Sequence {
+public class CollectiveObserver implements Runnable,Observer {
 
    /**
     * collective that this observer observes
     */
-    Collective collective;
+    private CollectiveManager collective;
     
+    /**
+     * Name of the observer
+     */
+    private String name;
    
     /**
      * Operator to be applied on the attibute
@@ -33,18 +36,31 @@ public class CollectiveObserver implements DataSource, Sequence {
      */
     String attribute;
     
+    /**
+     * Currrent value
+     */
     Object value;
     
     /**
      * Default constructor
      */
-    public CollectiveObserver(Operator operator){
+    public CollectiveObserver(CollectiveManager collective,String name,Operator operator,String attribute){
+        this.collective = collective;
+    	this.name = name;
         this.operator = operator;
+        this.attribute = attribute;
         operator.reset();
         
     }
 
    
+    
+    /**
+     *Periodic update of the Observer
+     */
+    public void run() {
+    	calculateAttribute(collective.getAgents());
+    }
   
     
     /**
@@ -53,14 +69,14 @@ public class CollectiveObserver implements DataSource, Sequence {
      * Collective
      * 
      */
-    private void calculateAttribute(List<Agent> agents) {
+    private void calculateAttribute(List<CollectiveAgent> agents) {
                 
          //iterate over all agents and calculate an operator
          operator.reset();
          
-         for(Agent a: agents) {
+         for(CollectiveAgent a: agents) {
         	 try {
-				operator.calculate(a.handelInquire(attribute));
+				operator.calculate(a.handleInquire(attribute));
 			} catch (AgentException e) {
 				operator.reset();
 				break;

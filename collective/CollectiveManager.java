@@ -2,51 +2,43 @@ package edu.upc.cnds.collectivesim.collective;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
-import edu.upc.cnds.collectives.identifier.Identifier;
-import edu.upc.cnds.collectives.node.Node;
+import edu.upc.cnds.collectives.protocol.Protocol;
 import edu.upc.cnds.collectivesim.agents.Agent;
-import edu.upc.cnds.collectivesim.collective.Behavior;
-import edu.upc.cnds.collectivesim.collective.Collective;
+import edu.upc.cnds.collectivesim.collective.imp.Behavior;
+import edu.upc.cnds.collectivesim.collective.imp.CollectiveAgent;
+import edu.upc.cnds.collectivesim.collective.imp.Event;
 import edu.upc.cnds.collectivesim.models.Model;
 import edu.upc.cnds.collectivesim.models.Stream;
-import edu.upc.cnds.collectivesim.models.imp.Action;
-import edu.upc.cnds.collectivesim.models.imp.BasicModel;
-import edu.upc.cnds.collectivesim.topology.discrete2D.Discrete2DLocation;
-import edu.upc.cnds.collectivesim.util.TypedMap;
-
-import uchicago.src.sim.util.SimUtilities;
+import edu.upc.cnds.collectivesim.models.imp.SingleValueStream;
 
 
 /**
- * Manages the simulation of a Collective by means of behaviors that occur on the agent
- * periodically, events that are trigered according to a probability distribution. The manager
- * allows also to observe the attributes of the agents in the collective.
+ * Manages the simulation of a Collective by means of Behaviors that occur on the agent
+ * periodically and Events that are trigered following a certain probability distribution. 
+ * 
+ * The CollectiveManager allows also to observe the attributes of the agents in the collective.
  *  
+ * The CollectiveManager 
  * @author Pablo Chacin
  *
  */
 
-public class CollectiveManager  {
+public class CollectiveManager implements CollectiveConfig {
 
 
 
 	/**
 	 * List of active agents
 	 */
-	private ArrayList agents;
+	private List<CollectiveAgent> agents;
 
 	/**
 	 * behaviors currently registered in the realm
 	 */
-	private HashMap behaviors;
-
-	/**
-	 * Events currently active in the realm
-	 */
-	private Map events;
+	private HashMap<String,Behavior> behaviors;
 
 	/**
 	 * Model on which this realm inhabits
@@ -56,17 +48,16 @@ public class CollectiveManager  {
 	/**
 	 * list of active observers 
 	 */
-	private ArrayList observers;
+	private Map<String,CollectiveObserver> observers;
 
 	/**
 	 * Constructor
 	 */
 	public CollectiveManager(Model model){
 		this.model = model;
-		this.agents = new ArrayList();
-		this.behaviors = new HashMap();
-		this.observers = new ArrayList();
-		this.events = new HashMap();
+		this.agents = new ArrayList<CollectiveAgent>();
+		this.behaviors = new HashMap<String,Behavior>();
+		this.observers = new HashMap<String, CollectiveObserver>();
 	}
 
 
@@ -84,39 +75,50 @@ public class CollectiveManager  {
 	 *         or will be deactivated until the realm activates it.
 	 * @param frequency a double that specifies the frequency of execution of the behaviors
 	 */
-	public void addBehavior(String name,String method,Stream[] streams,boolean active, double frequency){
-		Behavior behavior = new Behavior(name,this.model,(Collective)this,method, streams,active,frequency);
+	public void addBehavior(String name,String method,Stream[] streams,boolean active, long frequency){
+		Behavior behavior = new Behavior(name,this,method, streams,active,frequency);
 		behaviors.put(name,behavior);
+		
+		model.scheduleAction(behavior,new SingleValueStream(name,new Double(frequency)));	
 	}
 
 	/**
-	 * Adds an event to agents in the collective, defined as the execution of a of method at certain random intervals. 
+	 * Adds an event that will be triggered at a certain time 
 	 *
-	 * @param name a String that identifies this event
-	 * @param model the simulation Model on which this event occurs
-	 * @param realm the AgentRealm on which resides the agents this event will be applied to
-	 * @param method a String with the name of the methods to be execute
-	 * @param frequency a long with the frequency, in ticks, of execution
-	 * @param scope indicates if event occurs to all agent or to a sub-set of them
-	 * @param numEvents a long with the number of events to generate, 0 means  unlimited. 
-	 *        After this number is reached, the event is paused
+	 * @param agent CollectiveAgent that must execute the action
+	 * @param time a long with the time at which the event will be triggered
+	 * @param action a String with the name of the actions to be executed
+	 * @param args an array of Objects to be passed to the action
+     *
 	 */
-	public void addEvent(String name,String method,boolean active, String timeDistribution, long scope,long numEvents){
-		Event event = new Event(name,this.model,this,method,timeDistribution,true,scope,numEvents);
-		events.put(name,event);
+	public void addEvent(String name,AgentSampler sampler, Stream distribution, boolean active,String action,Stream...args){
+		Event event = new Event(name,this,sampler,active,action,args);
+		model.scheduleAction(event, distribution);
+
 	}
 
 
 
-	public void addObserver(CollectiveObserver observer, double frequency) {
-		observers.add(observer);
+	/**
+	 * Adds an observer to calculate an attribute over the agents of the collective
+	 * 
+	 * @param name a String with the name of the observer
+	 * @param operator the Operator used to calculate the attribute
+	 * @param attribute the name of the attribute
+	 * @param frequency the frequency of update
+	 */
+	public void addObserver(String name, Operator operator, String attribute,long frequency) {
 
-		//schedule observer
-		model.scheduleAction(new Action(observer,"calculateAttribute",frequency,true));
+		CollectiveObserver observer = new CollectiveObserver(this,name, operator, attribute);
+		
+		observers.put(name,observer);
+
+		//schedule observer at a fixed interval using a Stream with a fixed value
+		model.scheduleAction(observer,new SingleValueStream(name,new Double(frequency)));
 	}
 
 
-	public ArrayList getAgents() {
+	public List<CollectiveAgent> getAgents() {
 
 		return agents;
 	}
@@ -156,7 +158,16 @@ public class CollectiveManager  {
 	 }
 
 
+	public void registerAction(String action, Protocol protocol) {
+		// TODO Auto-generated method stub
+		
+	}
 
+
+	public void registerAttribute(String attribute, Protocol protocol) {
+		// TODO Auto-generated method stub
+		
+	}
 
 
 }

@@ -3,7 +3,7 @@ package edu.upc.cnds.collectivesim.models;
 import java.util.Map;
 
 import edu.upc.cnds.collectivesim.metrics.Metric;
-import edu.upc.cnds.collectivesim.models.imp.Action;
+import edu.upc.cnds.collectivesim.models.imp.SingleAction;
 
 
 public interface Model {
@@ -60,23 +60,30 @@ public interface Model {
 	public abstract Double getTime();
 
 	/**
-	 * Schedules an action
+	 * Schedules the execution of the target's run method at after a certain delay.
 	 *
-	 * @param target an Object on which the action will be executed
-	 * @param methodName a String with the name of method to be scheduled
-	 * @param arguments an array of Objects to be passed as arguments to the method
+	 * @param target an Runnable object on which the action will be executed
 	 * @param delay time between executions
-	 * @param repetitive indicates if the action is repetitive
 	 *
 	 */
-	 public void scheduleAction(Object target, String method,Object[] arguments,long delay,boolean isRepetitive);
+	 public void scheduleAction(Runnable target, long delay);
+	 
+	 
+	/** 
+	 * Schedules the execution of the target's run method on a repetitive way
+	 * following a given distribution in the time interval between sucessive executions.
+	 * 
+	 * @param target
+	 * @param distribution
+	 */
+	public abstract void scheduleAction(Runnable target, Stream distribution);
 	
 	/**
 	 * Terminates the execution of the given action.
 	 * 
 	 * @param action
 	 */
-	public abstract void cancelAction(Action action);
+	public abstract void cancelAction(SingleAction action);
     
     /**
      * Returns the next value of a random stream

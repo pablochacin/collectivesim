@@ -1,11 +1,12 @@
-package edu.upc.cnds.collectivesim.collective;
+package edu.upc.cnds.collectivesim.collective.imp;
 
 import java.util.List;
+import java.util.logging.Logger;
 
-import edu.upc.cnds.collectivesim.collective.imp.CollectiveAgent;
-import edu.upc.cnds.collectivesim.models.Model;
+import edu.upc.cnds.collectivesim.agents.AgentException;
+import edu.upc.cnds.collectivesim.collective.CollectiveManager;
 import edu.upc.cnds.collectivesim.models.Stream;
-import edu.upc.cnds.collectivesim.models.imp.Action;
+import edu.upc.cnds.util.FormatException;
 
 
 /**
@@ -17,14 +18,10 @@ import edu.upc.cnds.collectivesim.models.imp.Action;
  * @author pchacin
  *
  */
-public class Behavior {
+public class Behavior implements Runnable{
 
 
-    /**
-     * Model on which the behavior inhabits
-     */
-    Model model;
-
+	private static Logger log = Logger.getLogger("collectivesim.collective.behavior");
     /**
      * Realm on which the agents this model applies to, reside
      */
@@ -60,7 +57,6 @@ public class Behavior {
     /**
      * Default constructor
      * @param name a String that identifies this behavior
-     * @param model the simulation Model on which this behavior inhabits
      * @param collective the AgentRealm on which resides the agents this behavior will be applied to
      * @param method a String the name of the method to be execute
      * @param streams an array of Streams to feed the arguments of the method
@@ -69,12 +65,11 @@ public class Behavior {
      * @param frequency a long with the frequency, in ticks, of execution
 
      */
-    protected Behavior(String name, Model model,CollectiveManager collective,String method, Stream[] streams, boolean active,
+    public Behavior(String name, CollectiveManager collective,String method, Stream[] streams, boolean active,
             double frequency){
         this.name = name;
         this.method = method;
         this.frequency = frequency;
-        this.model = model;
         this.collective = collective;
 
         //if behavior must be created active
@@ -87,32 +82,16 @@ public class Behavior {
      * starts the execution of the behavior 
      */	
     public void start(){
-        //schedule the execution of the behavior with a repetitive action at 
-        //the given frequency 
-        if(!active){
           active = true;
-          schedule();
-        }
     }
 
     /**
      * pause the execution of the behavior
      */
     public void pause(){
-        if(active){
-          active = false;
-          //TODO: pause the behavior
-        }
+        active = false;
     }
 
-    /**
-     * Schedule the execution of the behavior
-     *
-     */
-    private void schedule(){
-       Action execute = new Action(this,"run",frequency,true);
-       model.scheduleAction(execute);
-    }
     
     
     /**
@@ -120,16 +99,26 @@ public class Behavior {
      *
      */
     public void run() {
-    	List<CollectiveAgent> nodes = CollectiveManager.getNodes();
    
-    	for(CollectiveAgent n: nodes) {
+    	if(!active) {
+    		return;
+    	}
+    	
+    	List<CollectiveAgent> agents = collective.getAgents();
+   
+    	for(CollectiveAgent a: agents) {
     	//construct an argument list for the method invocation
     	Object[] arguments = new Object[streams.length];
     	for(int i=0;i<arguments.length;i++) {
     		arguments[i] = streams[i].getValue();
     	}
     	
-    	n.handleVisit(method,arguments);
+    	try {
+			a.handleVisit(method,arguments);
+		} catch (AgentException e) {
+			log.severe("Exception invoking method" +method+": "+ FormatException.getStackTrace(e));
+			active = false;
+		}
     	}
     	
     }

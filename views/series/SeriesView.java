@@ -6,7 +6,7 @@ import java.util.Vector;
 
 import edu.upc.cnds.collectivesim.collective.Collective;
 import edu.upc.cnds.collectivesim.models.Model;
-import edu.upc.cnds.collectivesim.models.imp.Action;
+import edu.upc.cnds.collectivesim.models.imp.SingleAction;
 import edu.upc.cnds.collectivesim.models.imp.BasicModel;
 import edu.upc.cnds.collectivesim.views.View;
 
@@ -55,7 +55,7 @@ public class SeriesView implements View {
         this.title = title;
         
         //create an action to schedule the refreshment
-        Action  refresh = new Action(this,"refresh",frequency,true);
+        SingleAction  refresh = new SingleAction(this,"refresh",frequency,true);
         model.scheduleAction(refresh);
     }
     
