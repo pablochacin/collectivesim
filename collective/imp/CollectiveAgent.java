@@ -4,11 +4,12 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.upc.cnds.collectives.node.Node;
-import edu.upc.cnds.collectives.node.NodeAccessException;
+import edu.upc.cnds.collectives.collective.Collective;
+import edu.upc.cnds.collectives.collective.CollectiveAction;
+import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.agents.Agent;
 import edu.upc.cnds.collectivesim.agents.AgentException;
-import edu.upc.cnds.collectivesim.collective.Collective;
+import edu.upc.cnds.collectivesim.collective.CollectiveException;
 import edu.upc.cnds.collectivesim.overlay.Overlay;
 
 /**
@@ -23,7 +24,7 @@ public class CollectiveAgent implements Collective, Agent {
 	/**
 	 * Maps actions to objects that execute it
 	 */
-	private Map<String,Object> actions;
+	private Map<String,CollectiveAction> actions;
 
 	
 	/**
@@ -33,30 +34,26 @@ public class CollectiveAgent implements Collective, Agent {
 	
 	private Collective collective;
 	
-	private Node node;
+	private UnderlayNode node;
 	
 	private Overlay overlay;
 	
 	
-	public CollectiveAgent(Collective collective,Node node,Overlay overlay) {
+	public CollectiveAgent(Collective collective,UnderlayNode node,Overlay overlay) {
 		this.collective = collective;
 		this.node = node;
 		this.overlay = overlay;
-		this.actions = new HashMap<String,Object>();
+		this.actions = new HashMap<String,CollectiveAction>();
 		this.attributes = new HashMap<String,Object>();
 	}
 
 
 
-	public void visit(String method,Object[] arguments) {
+	public void visit(String actionName,Object[] arguments) throws CollectiveException{
 		
-		for(Node n: overlay.getNeighbors(node)) {
-			try {
-				n.visit(method, arguments);
-			} catch (NodeAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		CollectiveAction action = actions.get(actionName);
+		if(action == null) {
+			throw new CollectiveException("Unknown action "+actionName);
 		}
 		
 	}
@@ -67,38 +64,6 @@ public class CollectiveAgent implements Collective, Agent {
 	}
 
 	
-	/**
-	 * Allows the Collective to visit the agent in this node
-	 * 
-	 * @param action name of the action. The target registered with this action
-	 *        must implement a method of the same name
-	 * @param args an array of objects to be passed to the method
-	 * 
-	 * @throws AgentException if the method couldn't be executed or it thrown an exception 
-	 */
-	public void handleVisit(String action,Object[] args) throws AgentException{
-	
-		Object target = actions.get(action);
-		if(target == null) {
-		 throw new AgentException("Method not registered: "+action);	
-		}
-		
-		try {
-			Class[] classes = new Class[args.length];
-			for(int i=0;i <args.length;i++){
-				classes[i] = args[i].getClass();
-			}
-			
-			Method method = target.getClass().getMethod(action, classes);
-
-			method.invoke(target, args);
-
-		} catch (Exception e) {
-			throw new AgentException("Exception accessing executing method " + action,e);
-		} 
-
-	}
-
 	
 	public Object handleInquire(String attribute) throws AgentException {
 	
@@ -119,18 +84,25 @@ public class CollectiveAgent implements Collective, Agent {
 	}
 
 
-	public Node getNode() {
+	public UnderlayNode getNode() {
 		return node;
 	}
 
 
-	public void registerAction(String action, Object target) {
-		actions.put(action, target);
+	public void registerActionTarget(String action, Object  target) {
+		throw new UnsupportedOperationException();
 		
 	}
 
-	public void registerAttribute(String attribute, Object target) {
-		attributes.put(attribute, target);
+	public void registerAttributeTarget(String attribute, Object target) {
+		throw new UnsupportedOperationException();
+	}
+
+
+
+	public void handleVisit(String action, Object[] args) throws AgentException {
+		throw new UnsupportedOperationException();
+		
 	}
 
 

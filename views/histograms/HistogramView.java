@@ -2,7 +2,7 @@ package edu.upc.cnds.collectivesim.views.histograms;
 
 import java.util.ArrayList;
 
-import edu.upc.cnds.collectivesim.collective.Collective;
+import edu.upc.cnds.collectives.collective.Collective;
 import edu.upc.cnds.collectivesim.models.Model;
 import edu.upc.cnds.collectivesim.models.imp.SingleAction;
 import edu.upc.cnds.collectivesim.models.imp.BasicModel;

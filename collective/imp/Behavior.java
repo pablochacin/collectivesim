@@ -3,10 +3,10 @@ package edu.upc.cnds.collectivesim.collective.imp;
 import java.util.List;
 import java.util.logging.Logger;
 
+import edu.upc.cnds.collectives.util.FormatException;
 import edu.upc.cnds.collectivesim.agents.AgentException;
 import edu.upc.cnds.collectivesim.collective.CollectiveManager;
 import edu.upc.cnds.collectivesim.models.Stream;
-import edu.upc.cnds.util.FormatException;
 
 
 /**

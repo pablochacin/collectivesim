@@ -4,8 +4,8 @@ import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import edu.upc.cnds.collectives.util.ValueScale;
 import edu.upc.cnds.collectivesim.agents.Agent;
-import edu.upc.cnds.collectivesim.util.ValueScale;
 
 import uchicago.src.sim.gui.SimGraphics;
 
