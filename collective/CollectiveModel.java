@@ -6,11 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import edu.upc.cnds.collectives.protocol.Protocol;
-import edu.upc.cnds.collectivesim.agents.Agent;
 import edu.upc.cnds.collectivesim.collective.imp.Behavior;
-import edu.upc.cnds.collectivesim.collective.imp.CollectiveAgent;
 import edu.upc.cnds.collectivesim.collective.imp.Event;
-import edu.upc.cnds.collectivesim.models.Model;
+import edu.upc.cnds.collectivesim.models.SimulationModel;
 import edu.upc.cnds.collectivesim.models.Stream;
 import edu.upc.cnds.collectivesim.models.imp.SingleValueStream;
 
@@ -26,7 +24,7 @@ import edu.upc.cnds.collectivesim.models.imp.SingleValueStream;
  *
  */
 
-public class CollectiveManager implements CollectiveConfig {
+public class CollectiveModel implements CollectiveConfig {
 
 
 
@@ -43,7 +41,7 @@ public class CollectiveManager implements CollectiveConfig {
 	/**
 	 * Model on which this realm inhabits
 	 */
-	protected Model model;
+	protected SimulationModel model;
 
 	/**
 	 * list of active observers 
@@ -53,7 +51,7 @@ public class CollectiveManager implements CollectiveConfig {
 	/**
 	 * Constructor
 	 */
-	public CollectiveManager(Model model){
+	public CollectiveModel(SimulationModel model){
 		this.model = model;
 		this.agents = new ArrayList<CollectiveAgent>();
 		this.behaviors = new HashMap<String,Behavior>();
@@ -152,7 +150,7 @@ public class CollectiveManager implements CollectiveConfig {
 
 
 
-	 public boolean addAgent(Agent agent) {
+	 public boolean addAgent(CollectiveAgent agent) {
 		 // TODO Auto-generated method stub
 		 return false;
 	 }

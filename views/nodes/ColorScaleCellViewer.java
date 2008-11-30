@@ -1,13 +1,9 @@
-package edu.upc.cnds.collectivesim.views.grids;
+package edu.upc.cnds.collectivesim.views.nodes;
 
 import java.awt.Color;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.awt.Graphics;
 
 import edu.upc.cnds.collectives.util.ValueScale;
-import edu.upc.cnds.collectivesim.agents.Agent;
-
-import uchicago.src.sim.gui.SimGraphics;
 
 /**
  * A cell that can display an attribute of the agent in a color scale
@@ -15,7 +11,7 @@ import uchicago.src.sim.gui.SimGraphics;
  * @author Pablo Chacin
  *
  */
-public class ColorScaleCellViewer extends CellViewer {
+public class ColorScaleCellViewer extends NodeViewer {
 
 	//Color  Maps
 	/**
@@ -69,15 +65,17 @@ public class ColorScaleCellViewer extends CellViewer {
          
     }
     
+    public Color getBackgroundColor() {
+    	return this.backgroundColor;
+    }
 	/**
 	 * Draw the cell in the given dwawing space
 	 */
-	public void draw(SimGraphics g) {
+	public void draw(Graphics g,int x,int y,int sizeX,int sizeY) {
 		
         //if cell is non occupied, pait it of default color
         if(cell == null){
-            g.drawFastRect(backgroundColor);
-            return;
+        	drawRectangle(g,x,y,sizeX,sizeY,getBackgroundColor());
         }
        
 		//get agent's current attribute value
@@ -91,8 +89,9 @@ public class ColorScaleCellViewer extends CellViewer {
 		
 		//draw the cell as a rectangle of the color corresponding to
 		//its current value
-		g.drawFastRect(colorScale[scale.mapToScaleLevel(value.doubleValue())]);
+		drawRectangle(g,x,y,sizeX,sizeY,colorScale[scale.mapToScaleLevel(value.doubleValue())]);
 	}
 
+	
 	
 }

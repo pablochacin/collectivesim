@@ -4,11 +4,9 @@ import java.util.List;
 
 import uchicago.src.sim.analysis.DataSource;
 import uchicago.src.sim.analysis.Sequence;
-import edu.upc.cnds.collectivesim.agents.AgentException;
-import edu.upc.cnds.collectivesim.collective.imp.CollectiveAgent;
 
 /**
- * Observes the realm and calculates an attribute from applying an operator
+ * Observes the Collective and calculates an attribute from applying an operator
  * to the attribute on all agents (e.g. MAX, MIN)
  *  
  * @author Pablo Chacin
@@ -19,7 +17,7 @@ public class CollectiveObserver implements Runnable,Observer {
    /**
     * collective that this observer observes
     */
-    private CollectiveManager collective;
+    private CollectiveModel collective;
     
     /**
      * Name of the observer
@@ -44,7 +42,7 @@ public class CollectiveObserver implements Runnable,Observer {
     /**
      * Default constructor
      */
-    public CollectiveObserver(CollectiveManager collective,String name,Operator operator,String attribute){
+    public CollectiveObserver(CollectiveModel collective,String name,Operator operator,String attribute){
         this.collective = collective;
     	this.name = name;
         this.operator = operator;
@@ -76,8 +74,8 @@ public class CollectiveObserver implements Runnable,Observer {
          
          for(CollectiveAgent a: agents) {
         	 try {
-				operator.calculate(a.handleInquire(attribute));
-			} catch (AgentException e) {
+				operator.calculate(a. inquireAttribute(attribute));
+			} catch (CollectiveException e) {
 				operator.reset();
 				break;
 			}

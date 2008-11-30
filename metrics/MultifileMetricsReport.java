@@ -6,8 +6,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
-import edu.upc.cnds.collectivesim.models.Model;
+import edu.upc.cnds.collectives.events.Event;
+import edu.upc.cnds.collectives.events.EventFilter;
+import edu.upc.cnds.collectives.events.EventReporter;
+import edu.upc.cnds.collectives.metrics.Metric;
+import edu.upc.cnds.collectivesim.models.SimulationModel;
 import edu.upc.cnds.collectivesim.models.imp.BasicModel;
 
 
@@ -17,88 +22,63 @@ import edu.upc.cnds.collectivesim.models.imp.BasicModel;
  * @author Pablo Chacin
  *
  */
-public class MultifileMetricsReport implements MetricsReporter {
+public class MultifileMetricsReport implements EventReporter {
 
+	/**
+	 * A dummy filter that always return true, used when no filter is set. 
+	 */
+	 private class DummyFilter implements EventFilter {
 
+		public boolean filter(Event event) {
+			return true;
+		}
+		 
+	 }
         
-        /*
-         * implements a null output stream to receive data that will be discarted.
-         * Used as output stream for those output sinks that filed to open its output file.
-         */
-        private class NullOutputStream extends OutputStream {
-            
-            public void write(int b) {
-                
-            }
-            
-            public void write(byte[] data) {
-                
-            }
-            
-            public void write(byte[] data, int offset, int length) {
-                
-            }
-            
-        }
+	 	/**
+	 	 * Path to the event files
+	 	 */
+	 	private String path;
+	 	
+	 	/**
+	 	 * Map with the output streams 
+	 	 */
+        private Map<String,OutputStream> metricsFiles;
         
-        // member variables
-        private Model model;
-        private String path;
-        private String[] metrics;
-        private HashMap metricsFiles;
-        private HashSet ignoredMetrics;
-        private boolean open;
+        
+        private EventFilter filter;
         
         /*
          * Constructor. Creates a sink and initializes its output stream
          */
-        public MultifileMetricsReport(BasicModel model){
-            this.model = model;
+        public MultifileMetricsReport(String path){
+            this.filter = new DummyFilter();
             
-            this.path = model.getStringProperty("Path");
-            
-            //get list of metrics
-            String metricsList = model.getStringProperty("Metrics");
-            if(metricsList != null){
-                this.metrics = metricsList.split(",");    
-            }else{
-                metrics = new String[0];
-            }
-            
-            metricsFiles = new HashMap();
-            ignoredMetrics= new HashSet();
-            open = false;
-            
-            
+            this.path = path;
+                      
+            metricsFiles = new HashMap<String,OutputStream>();
+                        
         }
         
         
-        /*
-         * Open
-         * initializes the sink and prepares it to receive metrics
-         */
-        /* (non-Javadoc)
-         * @see simrealms.metrics.MetricsReporter#open()
-         */
-        public void open(){
-            open = true;
-            
-            //for each metric, create the output stream for the file
-            OutputStream outStream;
-            
-            for (int i = 0;i < metrics.length;i++){
-                try {
-                    outStream = new FileOutputStream(path+"/"+metrics[i]+".txt");
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                    
-                    outStream = new NullOutputStream();
-                }
-                
-                metricsFiles.put(metrics[i],outStream);
+
+        private OutputStream getOutputStream(String name) {
+        	
+        	OutputStream outStream = metricsFiles.get(name);
+        	
+            try {
+                outStream = new FileOutputStream(path+"/"+name+".txt");
+            } catch (FileNotFoundException e) {
+
             }
             
+            metricsFiles.put(name,outStream);
+            
+                        
+            return outStream;
         }
+
+    
         
         /*
          *  close
@@ -140,28 +120,18 @@ public class MultifileMetricsReport implements MetricsReporter {
         /* (non-Javadoc)
          * @see simrealms.metrics.MetricsReporter#writeMetric(simrealms.metrics.Metric)
          */
-        public void writeMetric(Metric metric){
+        public void fireEvent(Event metric){
+        	
             OutputStream outStream;
             
             
             //find the correspoding output stream for the metric
-            outStream = (OutputStream)metricsFiles.get(metric.getName());
+            outStream = (OutputStream)metricsFiles.get(metric.getType().getName());
             
-            //if no file defined for metric
-            if (outStream == null){
-                //if the first time this metric is reported, warns that
-                //no file was defined and put in a list to ignore future
-                //report of this metric
-                if(!ignoredMetrics.contains(metric.getName())){
-                    System.err.println("No outfile defined for metric: "+ metric.getName());
-                    ignoredMetrics.add(metric.getName());
-                }
-                return;             
-            }
-            
+ 
             
             //construct the metric record 
-            String metricRecord = format(metric);
+            String metricRecord = format((Metric)metric);
             
             // write metrics record to the corresponding file
             try {
@@ -170,11 +140,9 @@ public class MultifileMetricsReport implements MetricsReporter {
                 
             } catch (IOException e) {
                 e.printStackTrace();
-                System.err.println("Exception writing metrics to output Stream " + path);
+              log.error("Exception writing metrics to output Stream " + path);
                 e.printStackTrace();
                 
-                //nullify the output stream to avoid repeating errors
-                outStream = new NullOutputStream();
             }
             
             
@@ -198,4 +166,12 @@ public class MultifileMetricsReport implements MetricsReporter {
             return metricRecord;
             
         }
+
+
+
+
+		public void setFilter(EventFilter filter) {
+			this.filter = filter;
+			
+		}
     }   

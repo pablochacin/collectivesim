@@ -19,6 +19,9 @@ public class SingleValueStream implements Stream {
 		this.value = value;		
 	}
 	
+	public SingleValueStream(String name,long value) {
+		this(name,new Double(value));
+	}
 	
 	public String getName() {
 		return name;

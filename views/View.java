@@ -1,10 +1,8 @@
 package edu.upc.cnds.collectivesim.views;
 
-import uchicago.src.sim.gui.DisplaySurface;
-import uchicago.src.sim.gui.Displayable;
 
 /**
- * A view that allows the display of a Realm
+ * A view that allows the display of a Topology
  * 
  * @author Pablo Chacin
  *
@@ -14,17 +12,24 @@ public interface View {
 	/**
 	 * Dispose the view
 	 */
-	abstract public void dispose();
+	public void dispose();
 
 	/**
 	 * Displays the view
 	 */
-	abstract public void display();
+	public void display();
+	
+	
+	/**
+	 * Refresh the content of the view
+	 *
+	 */
+	public void refresh();
 	
 	/**
 	 *  Returns the View's title to be displayed
 	 */
-	abstract public String getTitle();
+	public String getTitle();
 
 
 }

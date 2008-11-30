@@ -1,6 +1,5 @@
 package edu.upc.cnds.collectivesim.collective;
 
-import edu.upc.cnds.collectivesim.agents.Agent;
 
 /**
  * 

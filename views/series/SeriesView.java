@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import edu.upc.cnds.collectives.collective.Collective;
-import edu.upc.cnds.collectivesim.models.Model;
+import edu.upc.cnds.collectivesim.models.SimulationModel;
 import edu.upc.cnds.collectivesim.models.imp.SingleAction;
 import edu.upc.cnds.collectivesim.models.imp.BasicModel;
 import edu.upc.cnds.collectivesim.views.View;
@@ -24,18 +24,7 @@ public class SeriesView implements View {
      * Repast's histogram object
      */
     private OpenSequenceGraph graph;
-    
-    /**
-     * Model on which this view inhabits
-     */
-    private Model model;
-    
-    /**
-     * Realm 
-     */
-    private Collective realm;
-    
-    
+       
     /**
      * A HashMap with the values of each series 
      */
@@ -43,9 +32,8 @@ public class SeriesView implements View {
 
     private Vector series;
     
-    public SeriesView(BasicModel model, Collective realm,String title, long frequency){
-        this.model = model;
-        this.realm = realm;
+    public SeriesView(String title, long frequency){
+
         
         //create histogram with two additioanal bins to make room at both sides
         this.graph = new OpenSequenceGraph(title, model);;
@@ -54,9 +42,7 @@ public class SeriesView implements View {
         this.series = new Vector();
         this.title = title;
         
-        //create an action to schedule the refreshment
-        SingleAction  refresh = new SingleAction(this,"refresh",frequency,true);
-        model.scheduleAction(refresh);
+;
     }
     
     public void display() {

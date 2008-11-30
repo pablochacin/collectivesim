@@ -6,39 +6,27 @@
  */
 package edu.upc.cnds.collectivesim.models.imp;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
-
-import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimInit;
 import uchicago.src.sim.engine.SimModelImpl;
-import uchicago.src.sim.gui.DisplaySurface;
-import cern.jet.random.*;
-import cern.jet.random.engine.MersenneTwister;
-import cern.jet.random.engine.RandomEngine;
-import edu.upc.cnds.collectivesim.agents.Agent;
-import edu.upc.cnds.collectivesim.metrics.Metric;
-import edu.upc.cnds.collectivesim.metrics.MetricsReporter;
-import edu.upc.cnds.collectivesim.models.Model;
+import edu.upc.cnds.collectives.events.EventReporter;
+import edu.upc.cnds.collectivesim.models.SimulationModel;
 import edu.upc.cnds.collectivesim.models.Stream;
 import edu.upc.cnds.collectivesim.views.View;
 
 /**
  * 
- * A Model represents the root of a simulation hierarchi. 
- * Is the anchor point for Realms and Views.
+ * A Model represents the root of a simulation hierarchy. 
  * Offers the interface to control del simulation.
  * Must be extended to fit an specific simulation model. 
  * 
  * @author Pablo Chacin <br>
  */
-public abstract class BasicModel extends SimModelImpl implements Model {
+public abstract class BasicModel extends SimModelImpl implements SimulationModel {
   
  /**
   * Repast's model Simulation schedule, used to schedule actions.
@@ -54,17 +42,8 @@ public abstract class BasicModel extends SimModelImpl implements Model {
   /**
    * Realms of this model
    */
-  private ArrayList realms;
+  private ArrayList collectives;
 
-  /**
-   * Agents of this model
-   */
-  private ArrayList agents;
-  
-  /**
-   * Random number generator
-   */
-  private Random rand = new Random();
 
   /**
    * Name of the model
@@ -74,31 +53,14 @@ public abstract class BasicModel extends SimModelImpl implements Model {
   /**
    * random streams defined in this model
    */
-  HashMap streams = new HashMap();
-  
-  /**
-   * Default metrics reporter
-   */
+  Map<String,Stream> streams = new HashMap();
   
   /**
    * Reporter used to report metrics
    */
-  private MetricsReporter reporter;
+  private EventReporter reporter;
   
-  /**
-   * Path to report metrics
-   */
-  private String metricsPath = ".";
  
-  /**
-   * List of metrics to collect
-   */    
-   private String metricsList = "";
-
-   /**
-    * Default random engine used to create random distributions
-    */
-private RandomEngine randomGenerator = new MersenneTwister();   
       
   /**
    * Get a String that serves as the name of the model
@@ -134,8 +96,8 @@ private RandomEngine randomGenerator = new MersenneTwister();
 	 * Create list of components (agents, realms, views)
 	 */
 	views  = new ArrayList();  
-    agents = new ArrayList();
-    realms = new ArrayList();
+    collectives = new ArrayList();
+    streams = new HashMap<String,Stream>();
     
     /*
      * create Repast's schedule
@@ -161,29 +123,11 @@ private RandomEngine randomGenerator = new MersenneTwister();
   }
 
   /**
-   * Populate the model with realms and agents
+   * Populate the model with collectives and agents.
    */
   public abstract void buildModel();
   
- 
-  /**
-   * Add a view to the model
-   */
-  public void addView(View view){
-	  //Register view
-	  views.add(view);
-     
-  }
-
-  /**
-   * Add a new agent to this model's agent list 
-   * TODO: Check if it is necessary to register agents.
-   */
-  private void addAgent(Agent a){
-    agents.add(a);
    
-  }
-  
   /**
    * Returns the Schedule object for this model; for use
    * internally by RePast
@@ -202,12 +146,6 @@ private RandomEngine randomGenerator = new MersenneTwister();
   abstract public String[] getInitParam();
   
 
-  /* (non-Javadoc)
- * @see simrealms.models.ModelInterface#getNumActiveAgents()
- */
-  public int getNumActiveAgents(){
-    return agents.size();
-  }
 
   /**
    * Initialize model method for this model object; this runs the model.
@@ -221,76 +159,26 @@ private RandomEngine randomGenerator = new MersenneTwister();
   /* (non-Javadoc)
  * @see simrealms.models.Schedule#scheduleAction(simrealms.models.Action)
  */
-  public void scheduleAction(Runnable target, long delay) {
+  public ScheduledAction scheduleAction(Runnable target, long delay) {
       
-	  SingleAction action = new SingleAction(target,delay);
+	  SingleAction action = new SingleAction(schedule,target,delay);
 
       schedule.scheduleActionAt(delay,action);
+      
+      return action;
   }
   
   
-  public void scheduleAction(Runnable target,Stream distribution) {
+  public ScheduledAction scheduleAction(Runnable target,Stream distribution) {
 	  
 	  RepetitiveAction action = new RepetitiveAction(schedule,target,distribution);
 	  
-      //Schedule execution
       schedule.scheduleActionAtInterval((Double)distribution.getValue(), action);
+      
+      return action;
   }
 
   
-  /* (non-Javadoc)
- * @see simrealms.models.Model#getRandomDouble()
- */
-  public Double getRandomDouble(){
-      return rand.nextDouble();
-  }
-
-/* (non-Javadoc)
- * @see simrealms.models.ModelInterface#getBooleanProperty(java.lang.String)
- */
-public Boolean getBooleanProperty(String property) {
-
-    return (Boolean)getObjectProperty(property);
-}
-
-/* (non-Javadoc)
- * @see simrealms.models.ModelInterface#getDoubleProperty(java.lang.String)
- */
-public Double getDoubleProperty(String property) {
-       return (Double)getObjectProperty(property);
-}
-
-public String getStringProperty(String property) {
-    return (String)getObjectProperty(property);
-}
-
-
-
-/* (non-Javadoc)
- * @see simrealms.models.ModelInterface#reportMetric(simrealms.metrics.Metric)
- */
-public void reportMetric(Metric metric){
-    reporter.writeMetric(metric);
-}
-
-
-
-
-/* (non-Javadoc)
- * @see simrealms.models.ModelInterface#reportMetric(java.lang.String, java.lang.String, java.util.Map)
- */
-public void reportMetric(String name,String value,Map attributes){
-    Metric metric = new Metric(name,value,schedule.getCurrentTime(),attributes);
-}
-
-/* (non-Javadoc)
- * @see simrealms.models.ModelInterface#reportMetric(java.lang.String, java.lang.String)
- */
-public final void reportMetric(String name, String value){
-    
-    //report the metrics 
-    reportMetric(name,value, new HashMap());
-}
 
 
 
@@ -298,49 +186,10 @@ public final void reportMetric(String name, String value){
  * Defines the metrics reporter
  */
 
-public void setReporter(MetricsReporter reporter){
+public void setReporter(EventReporter reporter){
     this.reporter = reporter;
 }
 
-/**
- * Opens the metrics reporter, 
- * 
- * @param metrics a String with the list of metrics to collect 
- * @param metricsPath path where the metrics must be collected
- *
- */
-public void openMetricsReporter(String metrics, String metricsPath){
-    this.reporter.open();
-}
-
-/**
- * get the current path for metrics 
- */
-public String getMetricsPath(){
-    return this.metricsPath;
-}
-
-public void setMetricsPath(String path){
-    this.metricsPath = path;
-}
-
-/**
- * Returns the list of metrics been collected
- * 
- * @return a strng with the name of the metrics, separated by commas
- */
-public String getMetricsList(){
-    return this.metricsList;
-}
-
-/**
- * Sets the list of metrics to collect
- * 
- * @param list a String with the name of the metrics,separated by commas
- */
-public void setMetricsList(String list){
-    this.metricsList = list;
-}
 
 
 /* (non-Javadoc)
@@ -351,33 +200,26 @@ public Double getTime(){
 }
 
 
-public Double getStreamValue(String stream){
-    
-    AbstractDistribution distribution = (AbstractDistribution)streams.get(stream);
-    if(distribution == null){
-        throw new IllegalStateException("Stream not initialized");
-    }
-    
-    return distribution.nextDouble();
-}
-
 /**
  * register a random stream 
  * @param name a String with the name of the stream
  * @param distribution an AbstractDistribution with the stream's random distribution
  */
-public void addStream(String name,AbstractDistribution distribution){
+public void addStream(String name,Stream distribution){
     streams.put(name,distribution);
 }
 
 
 /**
- * Returns a default random generator used as parameter to create random distributions
- * 
- * @return a RandomEngine 
+ * Adds a view, schedulling it refresh at the given frequency
+ * @param view View to add to the model
+ * @param frequency time between sucesive refreshs
  */
-public RandomEngine getRandomGenerator(){
-    return this.randomGenerator;
+public void addView(View view,long frequency) {
+
+	
+	scheduleAction(new ViewRefresher(view), new SingleValueStream(view.getTitle(),frequency));
+	
 }
 
 }

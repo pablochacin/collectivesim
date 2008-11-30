@@ -7,7 +7,7 @@ import edu.upc.cnds.collectivesim.models.Stream;
 import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 
-public class RepetitiveAction extends BasicAction {
+public class RepetitiveAction extends ScheduledAction {
 
 	private static Logger log = Logger.getLogger("collectivesim.models");
 	
@@ -39,7 +39,7 @@ public class RepetitiveAction extends BasicAction {
 	 * @param repetitive indicates if the action is repetitive
 	 */
 	public RepetitiveAction(Schedule schedule,Runnable target,Stream distribution) {
-		this.schedule = schedule;
+		super(schedule);
 		this.target = target;
         this.distribution = distribution;
 	   
@@ -71,12 +71,7 @@ public class RepetitiveAction extends BasicAction {
     	 //call the target
     	 target.run();
      }
-     
-    
-     public void cancel() {
-    	 schedule.removeAction(this);
-     }
-     
+          
      
      /**
       * Return the interval from the current time to the next execution

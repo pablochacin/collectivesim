@@ -1,15 +1,15 @@
-package edu.upc.cnds.collectivesim.views.grids;
+package edu.upc.cnds.collectivesim.views.topology;
 
 import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
 
-import edu.upc.cnds.collectivesim.models.Model;
+import edu.upc.cnds.collectivesim.models.SimulationModel;
 import edu.upc.cnds.collectivesim.models.imp.SingleAction;
 import edu.upc.cnds.collectivesim.models.imp.BasicModel;
-import edu.upc.cnds.collectivesim.topology.grid2d.Grid2D;
+import edu.upc.cnds.collectivesim.topology.Grid2D.Grid2D;
 import edu.upc.cnds.collectivesim.views.View;
-import edu.upc.cnds.collectivesim.views.grids.CellViewer;
+import edu.upc.cnds.collectivesim.views.nodes.NodeViewer;
 
 import uchicago.src.collection.BaseMatrix;
 import uchicago.src.sim.gui.DisplaySurface;
@@ -33,13 +33,13 @@ public class Grid2DView implements View, Discrete2DSpace,BaseMatrix  {
     /**
      * Model
      */
-    private Model model;
+    private SimulationModel model;
     
         
     /**
      * Viewer of each cell
      */
-    private CellViewer cellViewer;
+    private NodeViewer cellViewer;
 
      
     /**
@@ -56,7 +56,7 @@ public class Grid2DView implements View, Discrete2DSpace,BaseMatrix  {
     /**
      * Default constructor
      */
-    public Grid2DView(BasicModel model,Grid2D space,CellViewer cellViewer,String title,long frequency){
+    public Grid2DView(BasicModel model,Grid2D space,NodeViewer cellViewer,String title,long frequency){
 
         this.cellViewer = cellViewer;
         this.model = model;
@@ -73,9 +73,6 @@ public class Grid2DView implements View, Discrete2DSpace,BaseMatrix  {
         //register the display surface to be updated
          model.registerDisplaySurface(title,displaySurf);
          
-         //create an action to schedule the refreshment
-         SingleAction  refresh = new SingleAction(this,"refresh",frequency,true);
-         model.scheduleAction(refresh);
     }
 
 
@@ -107,7 +104,7 @@ public class Grid2DView implements View, Discrete2DSpace,BaseMatrix  {
     }
 
 
-    public void setCellViewer(CellViewer cellViewer){
+    public void setCellViewer(NodeViewer cellViewer){
         this.cellViewer = cellViewer; 
 
     }

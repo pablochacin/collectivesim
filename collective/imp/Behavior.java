@@ -4,8 +4,9 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import edu.upc.cnds.collectives.util.FormatException;
-import edu.upc.cnds.collectivesim.agents.AgentException;
-import edu.upc.cnds.collectivesim.collective.CollectiveManager;
+import edu.upc.cnds.collectivesim.collective.CollectiveAgent;
+import edu.upc.cnds.collectivesim.collective.CollectiveException;
+import edu.upc.cnds.collectivesim.collective.CollectiveModel;
 import edu.upc.cnds.collectivesim.models.Stream;
 
 
@@ -25,7 +26,7 @@ public class Behavior implements Runnable{
     /**
      * Realm on which the agents this model applies to, reside
      */
-    CollectiveManager collective;
+    CollectiveModel collective;
     /**
      * Frequency of execution of the behavior
      */
@@ -65,7 +66,7 @@ public class Behavior implements Runnable{
      * @param frequency a long with the frequency, in ticks, of execution
 
      */
-    public Behavior(String name, CollectiveManager collective,String method, Stream[] streams, boolean active,
+    public Behavior(String name, CollectiveModel collective,String method, Stream[] streams, boolean active,
             double frequency){
         this.name = name;
         this.method = method;
@@ -114,8 +115,8 @@ public class Behavior implements Runnable{
     	}
     	
     	try {
-			a.handleVisit(method,arguments);
-		} catch (AgentException e) {
+			a.executeAction(method,arguments);
+		} catch (CollectiveException e) {
 			log.severe("Exception invoking method" +method+": "+ FormatException.getStackTrace(e));
 			active = false;
 		}

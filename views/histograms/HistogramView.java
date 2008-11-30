@@ -3,7 +3,7 @@ package edu.upc.cnds.collectivesim.views.histograms;
 import java.util.ArrayList;
 
 import edu.upc.cnds.collectives.collective.Collective;
-import edu.upc.cnds.collectivesim.models.Model;
+import edu.upc.cnds.collectivesim.models.SimulationModel;
 import edu.upc.cnds.collectivesim.models.imp.SingleAction;
 import edu.upc.cnds.collectivesim.models.imp.BasicModel;
 import edu.upc.cnds.collectivesim.views.View;
@@ -22,7 +22,7 @@ public class HistogramView implements View {
 	/**
 	 * Model on which this view inhabits
 	 */
-	private Model model;
+	private SimulationModel model;
     
     /**
      * Realm 

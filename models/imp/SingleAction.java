@@ -1,16 +1,8 @@
 package edu.upc.cnds.collectivesim.models.imp;
 
-import java.util.logging.Logger;
-
-import edu.upc.cnds.collectivesim.models.Stream;
-
-import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 
-public class SingleAction extends BasicAction {
-
-	private static Logger log = Logger.getLogger("collectivesim.models");
-	
+public class SingleAction extends ScheduledAction {	
 	
 	/**
 	 * object on which the action will be executed
@@ -30,11 +22,11 @@ public class SingleAction extends BasicAction {
 	 * @param target an Object on which the action will be executed
 	 * @param delay time between executions
 	 */
-	public SingleAction(Runnable target,long delay) {
+	public SingleAction(Schedule schedule,Runnable target,long delay) {
+		super(schedule);
 		this.target = target;
         this.delay = delay;
         
-
 	}
 	
     
@@ -44,7 +36,7 @@ public class SingleAction extends BasicAction {
 	public double getDelay(){
 		return this.delay;
 	}
-	
+	     
 	/**
 	 * Return target object.
 	 * 
@@ -63,6 +55,4 @@ public class SingleAction extends BasicAction {
     	 
     	 target.run();
      }
-     
-    
 }

@@ -7,8 +7,7 @@ import java.util.Map;
 import edu.upc.cnds.collectives.collective.Collective;
 import edu.upc.cnds.collectives.collective.CollectiveAction;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
-import edu.upc.cnds.collectivesim.agents.Agent;
-import edu.upc.cnds.collectivesim.agents.AgentException;
+import edu.upc.cnds.collectivesim.collective.CollectiveAgent;
 import edu.upc.cnds.collectivesim.collective.CollectiveException;
 import edu.upc.cnds.collectivesim.overlay.Overlay;
 
@@ -19,7 +18,7 @@ import edu.upc.cnds.collectivesim.overlay.Overlay;
  * @author Pablo Chacin
  *
  */
-public class CollectiveAgent implements Collective, Agent {
+public class CollectiveAgentImp implements Collective, CollectiveAgent {
 
 	/**
 	 * Maps actions to objects that execute it
@@ -39,7 +38,7 @@ public class CollectiveAgent implements Collective, Agent {
 	private Overlay overlay;
 	
 	
-	public CollectiveAgent(Collective collective,UnderlayNode node,Overlay overlay) {
+	public CollectiveAgentImp(Collective collective,UnderlayNode node,Overlay overlay) {
 		this.collective = collective;
 		this.node = node;
 		this.overlay = overlay;
@@ -65,25 +64,6 @@ public class CollectiveAgent implements Collective, Agent {
 
 	
 	
-	public Object handleInquire(String attribute) throws AgentException {
-	
-		Object target = actions.get(attribute);
-		if(target == null) {
-		 throw new AgentException("Attributed not registered: "+attribute);	
-		}
-		
-		try {
-
-			Method method = target.getClass().getMethod("get"+attribute, (Class[])(null));
-			Object result = method.invoke(target, (Object[])(null));
-			return result;
-
-		} catch (Exception e) {
-			throw new AgentException("Exception accessing attribute "+attribute,e);
-		} 
-	}
-
-
 	public UnderlayNode getNode() {
 		return node;
 	}
@@ -100,10 +80,27 @@ public class CollectiveAgent implements Collective, Agent {
 
 
 
-	public void handleVisit(String action, Object[] args) throws AgentException {
+	public void executeAction(String action, Object[] args) throws CollectiveException {
 		throw new UnsupportedOperationException();
 		
 	}
 
 
+	public Object inquireAttribute(String attribute) throws CollectiveException {
+		
+		CollectiveAction action = actions.get(attribute);
+		if(attribute == null) {
+		 throw new CollectiveException("Attributed not registered: "+attribute);	
+		}
+		
+		try {
+
+			Method method = target.getClass().getMethod("get"+attribute, (Class[])(null));
+			Object result = method.invoke(target, (Object[])(null));
+			return result;
+
+		} catch (Exception e) {
+			throw new CollectiveException("Exception accessing attribute "+attribute,e);
+		} 
+	}
 }
