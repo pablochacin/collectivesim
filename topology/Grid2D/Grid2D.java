@@ -53,7 +53,7 @@ public class Grid2D  implements TopologyGenerator{
     
     private LocationStrategy locationStrategy;
     
-    private Map<Identifier,Grid2DTopology> topologies; 
+    private Map<Identifier,Grid2DTopologyNode> topologyNodes; 
     
   
     /**
@@ -69,7 +69,7 @@ public class Grid2D  implements TopologyGenerator{
         this.sizeY = sizeY;
         this.scope = scope;
         this.locationStrategy = strategy;
-        this.topologies = new HashMap<Identifier,Grid2DTopology>();       
+        this.topologyNodes = new HashMap<Identifier,Grid2DTopologyNode>();       
         
         //initialize the realm's space
         //create the Repast's Object2Dgrid that supports this space
@@ -112,17 +112,17 @@ public class Grid2D  implements TopologyGenerator{
 		try {
 			Grid2DLocation location = locationStrategy.getLocation(this);
 
-			Grid2DTopology topology = new Grid2DTopology(this,location,node);
+			Grid2DTopologyNode topology = new Grid2DTopologyNode(this,location,node);
 			
     		space.putObjectAt(location.getCoordX(),location.getCoordY(), topology);
     		
-    		topologies.put(node.getId(),topology);
+    		topologyNodes.put(node.getId(),topology);
     		
     		Vector neighbors = space.getMooreNeighbors(location.getCoordX(), location.getCoordY(), false);
     		
     		//Iform all neighbors of the new node
     		for(Object t : neighbors) {
-    			((Grid2DTopology)t).propose(node);
+    			((Grid2DTopologyNode)t).propose(node);
     		}
     	        
 		} catch (Grid2DException e) {
@@ -132,10 +132,13 @@ public class Grid2D  implements TopologyGenerator{
 	}
 
 
+	/**
+	 * Returns all the nodes in the topology
+	 */
 	public List<Node> getNodes() {
 		List<Node> nodes = new ArrayList<Node>();
 		
-		for(Grid2DTopology t : topologies.values()) {
+		for(Grid2DTopologyNode t : topologyNodes.values()) {
 			nodes.add(t.getLocalNode());
 		}
 	
@@ -143,19 +146,39 @@ public class Grid2D  implements TopologyGenerator{
 	}
 
 
+	/**
+	 * Returns the local topology for a Node
+	 */
 	public Topology getTopology(Node node) throws TopologyGeneratorException {
-		Grid2DTopology topology = topologies.get(node.getId());
-		if(topologies == null) {
-			throw new TopologyGeneratorException("node "+node.toString() + " not in the tology");
+		Grid2DTopologyNode topology = topologyNodes.get(node.getId());
+		if(topologyNodes == null) {
+			throw new TopologyGeneratorException("node "+node.toString() + " not in the topology");
 		}
 		return topology;
 		
 	}
 
 
+	/**
+	 * Removes the node from the topology. Informs the node's neighbors that the node
+	 * is leaving the topology.
+	 * 
+	 */
 	public void removeNode(Node node) throws TopologyGeneratorException {
+		Grid2DTopologyNode topology = topologyNodes.remove(node.getId());
+		if(topology == null) {
+			throw new TopologyGeneratorException("node "+node.toString() + " not in the topology");
+
+		}
 		
 		
+		Vector neighbors = space.getMooreNeighbors(topology.getLocation().getCoordX(), 
+												   topology.getLocation().getCoordY(), false);
+		
+		//Iform all neighbors of the new node
+		for(Object t : neighbors) {
+			((Grid2DTopologyNode)t).notAlive(node);
+		}
 	}
 
 }

@@ -21,7 +21,7 @@ import edu.upc.cnds.collectives.topology.imp.BasicView;
  * @author Pablo Chacin
  *
  */
-public class Grid2DTopology implements Topology {
+public class Grid2DTopologyNode implements Topology {
 
 	
 	private List<NodeViewObserver> observers;
@@ -32,13 +32,21 @@ public class Grid2DTopology implements Topology {
 	
 	private Node localNode;
 	
-	public Grid2DTopology(Grid2D grid,Grid2DLocation location,Node localNode) {
+	public Grid2DTopologyNode(Grid2D grid,Grid2DLocation location,Node localNode) {
 		this.grid = grid;
 		this.localNode = localNode;
 		this.location = location;
 		this.observers = new ArrayList<NodeViewObserver>();
 	}
 
+	/**
+	 * Returns the location of this topology node in the Topology
+	 * @return
+	 */
+	public Grid2DLocation getLocation() {
+		return location;
+	}
+	
 	public void addObserver(NodeViewObserver observer) {
 		observers.add(observer);
 	}
