@@ -1,23 +1,33 @@
 package edu.upc.cnds.collectivesim.topology.Grid2D;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Logger;
 
 import uchicago.src.sim.space.Object2DGrid;
 import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.node.Node;
-import edu.upc.cnds.collectives.node.NodeAddress;
-import edu.upc.cnds.collectives.node.imp.BasicNode;
 import edu.upc.cnds.collectives.topology.NodeView;
-import edu.upc.cnds.collectivesim.topology.TopologyException;
+import edu.upc.cnds.collectives.topology.NodeViewObserver;
+import edu.upc.cnds.collectives.topology.Topology;
+import edu.upc.cnds.collectives.topology.imp.BasicView;
+import edu.upc.cnds.collectivesim.topology.TopologyGenerator;
+import edu.upc.cnds.collectivesim.topology.TopologyGeneratorException;
 
-public class Grid2D  {
+/**
+ * Simulates a topology using a 
+ * @author pchacin
+ *
+ */
+public class Grid2D  implements TopologyGenerator{
 
     /**
      * Location strategies
      */
-    static public LocationStrategy RANDOM = new Random2DLocation();
+    static public LocationStrategy RANDOM = new Random2DLocationStrategy();
        
     
     private static Logger log = Logger.getLogger("collectivesim.topology.Grid2D");
@@ -43,6 +53,8 @@ public class Grid2D  {
     
     private LocationStrategy locationStrategy;
     
+    private Map<Identifier,Grid2DTopology> topologies; 
+    
   
     /**
      * Constructor with initial dimensions
@@ -57,64 +69,20 @@ public class Grid2D  {
         this.sizeY = sizeY;
         this.scope = scope;
         this.locationStrategy = strategy;
-               
+        this.topologies = new HashMap<Identifier,Grid2DTopology>();       
+        
         //initialize the realm's space
         //create the Repast's Object2Dgrid that supports this space
         space = new Object2DGrid(sizeX,sizeY);
                       
      }
         
-
-    /**
-     * Adds a node to the topology
-     * 
-     * @param agent
-     * @return
-     * @throws TopologyException 
-     * 
-     */
-    public Node getNode(Identifier id) throws TopologyException {
-
-        //create a location for the agent
-    	
-    	Node node = null;
-		try {
-			Grid2DAddress address = locationStrategy.getLocation(this);
-
-			 node = new BasicNode(id,address);
-
-    		space.putObjectAt(address.getX(),address.getY(), node);
-    	        
-        	return node;
-		} catch (Grid2DException e) {
-			throw new TopologyException("Unable to locate node for id "+id.toString());
-		}
-		
-    }
     
-    
-
-    public Node getNode(NodeAddress address) throws TopologyException{
- 
-    	Grid2DAddress address2D = (Grid2DAddress)address;
-    	
-    	Node node = (Node)space.getObjectAt(address2D.getX(),address2D.getY());
-    	
-    	if(node == null) {
-    		throw new TopologyException("Node not found");
-    	}
-    	
-       	return node;
-        
-    }
-
-
     public boolean isEmpty(int x, int y) {
 
         //check if the location is empty
         return (space.getObjectAt(x, y)== null);
     }
-
 
     
     public int getSizeX() {
@@ -124,20 +92,70 @@ public class Grid2D  {
         return space.getSizeY();
     }
 
-	public NodeView getView(Grid2DAddress address,int maxSize,int scope) {
-			return new Grid2DView(address,maxSize,scope,this);
-	}
 
 
-    public List<Node> getNeighbors(Grid2DAddress address) {
-    	Vector<Node> nodes = space.getMooreNeighbors(address.getX(),address.getY(), false);
+
+    public List<Node> getNeighbors(Grid2DLocation location) {
+    	Vector<Node> nodes = space.getMooreNeighbors(location.getCoordX(),location.getCoordY(), false);
     	 
     	return nodes;
 
     }
 
-    public Vector getNeighbors(Grid2DAddress address,int scope) {
-        return space.getMooreNeighbors(address.getX(),address.getY(), scope, scope,false);
+    public Vector getNeighbors(Grid2DLocation location,int scope) {
+        return space.getMooreNeighbors(location.getCoordX(),location.getCoordY(), scope, scope,false);
     }
+
+
+	public void addNode(Node node) throws TopologyGeneratorException {
+    	
+		try {
+			Grid2DLocation location = locationStrategy.getLocation(this);
+
+			Grid2DTopology topology = new Grid2DTopology(this,location,node);
+			
+    		space.putObjectAt(location.getCoordX(),location.getCoordY(), topology);
+    		
+    		topologies.put(node.getId(),topology);
+    		
+    		Vector neighbors = space.getMooreNeighbors(location.getCoordX(), location.getCoordY(), false);
+    		
+    		//Iform all neighbors of the new node
+    		for(Object t : neighbors) {
+    			((Grid2DTopology)t).propose(node);
+    		}
+    	        
+		} catch (Grid2DException e) {
+			throw new TopologyGeneratorException("Unable to locate node "+node.toString());
+		}
+		
+	}
+
+
+	public List<Node> getNodes() {
+		List<Node> nodes = new ArrayList<Node>();
+		
+		for(Grid2DTopology t : topologies.values()) {
+			nodes.add(t.getLocalNode());
+		}
+	
+		return nodes;
+	}
+
+
+	public Topology getTopology(Node node) throws TopologyGeneratorException {
+		Grid2DTopology topology = topologies.get(node.getId());
+		if(topologies == null) {
+			throw new TopologyGeneratorException("node "+node.toString() + " not in the tology");
+		}
+		return topology;
+		
+	}
+
+
+	public void removeNode(Node node) throws TopologyGeneratorException {
+		
+		
+	}
 
 }
