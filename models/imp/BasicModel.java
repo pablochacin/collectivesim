@@ -14,6 +14,7 @@ import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimInit;
 import uchicago.src.sim.engine.SimModelImpl;
 import edu.upc.cnds.collectives.events.EventReporter;
+import edu.upc.cnds.collectivesim.models.ScheduledAction;
 import edu.upc.cnds.collectivesim.models.SimulationModel;
 import edu.upc.cnds.collectivesim.models.Stream;
 import edu.upc.cnds.collectivesim.views.View;
@@ -169,7 +170,7 @@ public abstract class BasicModel extends SimModelImpl implements SimulationModel
   }
   
   
-  public ScheduledAction scheduleAction(Runnable target,Stream distribution) {
+  public ScheduledAction scheduleRepetitiveAction(Runnable target,Stream distribution) {
 	  
 	  RepetitiveAction action = new RepetitiveAction(schedule,target,distribution);
 	  
@@ -218,7 +219,7 @@ public void addStream(String name,Stream distribution){
 public void addView(View view,long frequency) {
 
 	
-	scheduleAction(new ViewRefresher(view), new SingleValueStream(view.getTitle(),frequency));
+	scheduleRepetitiveAction(new ViewRefresher(view), new SingleValueStream(view.getTitle(),frequency));
 	
 }
 

@@ -1,6 +1,5 @@
 package edu.upc.cnds.collectivesim.models;
 
-import edu.upc.cnds.collectivesim.models.imp.ScheduledAction;
 import edu.upc.cnds.collectivesim.models.imp.SingleAction;
 import edu.upc.cnds.collectivesim.views.View;
 import edu.upc.cnds.collectives.util.TypedMap;
@@ -45,7 +44,16 @@ public interface SimulationModel {
 	 * @param target
 	 * @param distribution
 	 */
-	public abstract ScheduledAction scheduleAction(Runnable target, Stream distribution);
+	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream distribution);
 	
+
+	/** 
+	 * Schedules the execution of the target's run method on a repetitive way
+	 * with a given period between invocations
+	 * 
+	 * @param target
+	 * @param period
+	 */
+	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, long period);
 
 }

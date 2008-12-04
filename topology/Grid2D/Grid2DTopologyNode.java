@@ -7,7 +7,7 @@ import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.topology.NodeFilter;
 import edu.upc.cnds.collectives.topology.NodeSampler;
 import edu.upc.cnds.collectives.topology.NodeView;
-import edu.upc.cnds.collectives.topology.NodeViewObserver;
+import edu.upc.cnds.collectives.topology.TopologyObserver;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.topology.imp.BasicView;
 
@@ -24,7 +24,7 @@ import edu.upc.cnds.collectives.topology.imp.BasicView;
 public class Grid2DTopologyNode implements Topology {
 
 	
-	private List<NodeViewObserver> observers;
+	private List<TopologyObserver> observers;
 	
 	private Grid2D grid;
 	
@@ -36,7 +36,7 @@ public class Grid2DTopologyNode implements Topology {
 		this.grid = grid;
 		this.localNode = localNode;
 		this.location = location;
-		this.observers = new ArrayList<NodeViewObserver>();
+		this.observers = new ArrayList<TopologyObserver>();
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class Grid2DTopologyNode implements Topology {
 		return location;
 	}
 	
-	public void addObserver(NodeViewObserver observer) {
+	public void addObserver(TopologyObserver observer) {
 		observers.add(observer);
 	}
 
@@ -70,7 +70,7 @@ public class Grid2DTopologyNode implements Topology {
 
 	public void notAlive(Node node) {
 
-		for(NodeViewObserver o: observers) {
+		for(TopologyObserver o: observers) {
 			o.leave(node);
 		}
 	}
@@ -82,17 +82,17 @@ public class Grid2DTopologyNode implements Topology {
 	}
 
 	public void propose(Node node) {
-		for(NodeViewObserver o: observers) {
+		for(TopologyObserver o: observers) {
 			o.join(node);
 		}
 	}
 
-	public void removeObserver(NodeViewObserver observer) {
+	public void removeObserver(TopologyObserver observer) {
 		observers.remove(observer);
 	}
 
 	public void removeView(NodeView view) {
-		removeObserver((NodeViewObserver) view);
+		removeObserver((TopologyObserver) view);
 	}
 
 	public int getSize() {

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import edu.upc.cnds.collectives.protocol.Protocol;
 import edu.upc.cnds.collectivesim.collective.imp.Behavior;
+import edu.upc.cnds.collectivesim.collective.imp.CollectiveObserver;
 import edu.upc.cnds.collectivesim.collective.imp.Event;
 import edu.upc.cnds.collectivesim.models.SimulationModel;
 import edu.upc.cnds.collectivesim.models.Stream;
@@ -77,7 +78,7 @@ public class CollectiveModel implements CollectiveConfig {
 		Behavior behavior = new Behavior(name,this,method, streams,active,frequency);
 		behaviors.put(name,behavior);
 		
-		model.scheduleAction(behavior,new SingleValueStream(name,new Double(frequency)));	
+		model.scheduleRepetitiveAction(behavior,new SingleValueStream(name,new Double(frequency)));	
 	}
 
 	/**
@@ -91,14 +92,15 @@ public class CollectiveModel implements CollectiveConfig {
 	 */
 	public void addEvent(String name,AgentSampler sampler, Stream distribution, boolean active,String action,Stream...args){
 		Event event = new Event(name,this,sampler,active,action,args);
-		model.scheduleAction(event, distribution);
+		model.scheduleRepetitiveAction(event, distribution);
 
 	}
 
 
 
 	/**
-	 * Adds an observer to calculate an attribute over the agents of the collective
+	 * Adds an observer to calculate an attribute over the agents of the collective and generate 
+	 * a DataSeries with the resulting values
 	 * 
 	 * @param name a String with the name of the observer
 	 * @param operator the Operator used to calculate the attribute
@@ -112,7 +114,7 @@ public class CollectiveModel implements CollectiveConfig {
 		observers.put(name,observer);
 
 		//schedule observer at a fixed interval using a Stream with a fixed value
-		model.scheduleAction(observer,new SingleValueStream(name,new Double(frequency)));
+		model.scheduleRepetitiveAction(observer,new SingleValueStream(name,new Double(frequency)));
 	}
 
 

@@ -6,10 +6,11 @@ import java.util.Map;
 
 import edu.upc.cnds.collectives.collective.Collective;
 import edu.upc.cnds.collectives.collective.CollectiveAction;
+import edu.upc.cnds.collectives.collective.imp.CollectiveActionImp;
+import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.collective.CollectiveAgent;
 import edu.upc.cnds.collectivesim.collective.CollectiveException;
-import edu.upc.cnds.collectivesim.overlay.Overlay;
 
 /**
  * Representes the local interface to the Collective for agents in a Node
@@ -25,25 +26,16 @@ public class CollectiveAgentImp implements Collective, CollectiveAgent {
 	 */
 	private Map<String,CollectiveAction> actions;
 
-	
-	/**
-	 * Maps attributes to objects that return it
-	 */
-	private Map<String,Object> attributes;
-	
-	private Collective collective;
-	
+		
 	private UnderlayNode node;
 	
 	private Overlay overlay;
 	
-	
-	public CollectiveAgentImp(Collective collective,UnderlayNode node,Overlay overlay) {
-		this.collective = collective;
+	public CollectiveAgentImp(UnderlayNode node,Overlay overlay) {
 		this.node = node;
 		this.overlay = overlay;
 		this.actions = new HashMap<String,CollectiveAction>();
-		this.attributes = new HashMap<String,Object>();
+
 	}
 
 
@@ -69,20 +61,36 @@ public class CollectiveAgentImp implements Collective, CollectiveAgent {
 	}
 
 
-	public void registerActionTarget(String action, Object  target) {
-		throw new UnsupportedOperationException();
+	public void registerActionTarget(String name, Object  target,String method) {
+		
+		CollectiveAction action = new CollectiveActionImp(name,target,method,null);
+		actions.put(name,action);
 		
 	}
 
-	public void registerAttributeTarget(String attribute, Object target) {
-		throw new UnsupportedOperationException();
+	public void registerAttributeTarget(String name, Object target,String attribute) {
+
+		CollectiveAction action = new CollectiveActionImp(name,target,"get"+attribute,null);
+		actions.put(name,action);
+
 	}
 
 
 
-	public void executeAction(String action, Object[] args) throws CollectiveException {
-		throw new UnsupportedOperationException();
+	public void executeAction(String name, Object[] args) throws CollectiveException {
 		
+		CollectiveAction action = actions.get(name);
+		if(action == null) {
+			 throw new CollectiveException("Action not registered: "+name);				
+		}
+		
+		try {
+
+			action.execute(args);
+			
+		} catch (Exception e) {
+			throw new CollectiveException("Exception executing action "+name,e);
+		} 
 	}
 
 
@@ -90,13 +98,13 @@ public class CollectiveAgentImp implements Collective, CollectiveAgent {
 		
 		CollectiveAction action = actions.get(attribute);
 		if(attribute == null) {
-		 throw new CollectiveException("Attributed not registered: "+attribute);	
+		 throw new CollectiveException("Attribute not registered: "+attribute);	
 		}
 		
 		try {
 
-			Method method = target.getClass().getMethod("get"+attribute, (Class[])(null));
-			Object result = method.invoke(target, (Object[])(null));
+			Object result = action.execute();
+			
 			return result;
 
 		} catch (Exception e) {

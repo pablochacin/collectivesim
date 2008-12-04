@@ -2,7 +2,7 @@ package edu.upc.cnds.collectivesim.models.imp;
 
 import uchicago.src.sim.engine.Schedule;
 
-public class SingleAction extends ScheduledAction {	
+public class SingleAction extends AbstractScheduledAction {	
 	
 	/**
 	 * object on which the action will be executed

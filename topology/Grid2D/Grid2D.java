@@ -11,7 +11,7 @@ import uchicago.src.sim.space.Object2DGrid;
 import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.topology.NodeView;
-import edu.upc.cnds.collectives.topology.NodeViewObserver;
+import edu.upc.cnds.collectives.topology.TopologyObserver;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.topology.imp.BasicView;
 import edu.upc.cnds.collectivesim.topology.TopologyGenerator;

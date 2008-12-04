@@ -7,7 +7,7 @@ import edu.upc.cnds.collectivesim.models.Stream;
 import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 
-public class RepetitiveAction extends ScheduledAction {
+public class RepetitiveAction extends AbstractScheduledAction {
 
 	private static Logger log = Logger.getLogger("collectivesim.models");
 	

@@ -4,12 +4,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
 
+import edu.upc.cnds.collectives.visualizer.nodes.NodeDrawer;
 import edu.upc.cnds.collectivesim.models.SimulationModel;
 import edu.upc.cnds.collectivesim.models.imp.SingleAction;
 import edu.upc.cnds.collectivesim.models.imp.BasicModel;
 import edu.upc.cnds.collectivesim.topology.Grid2D.Grid2D;
 import edu.upc.cnds.collectivesim.views.View;
-import edu.upc.cnds.collectivesim.views.nodes.NodeViewer;
 
 import uchicago.src.collection.BaseMatrix;
 import uchicago.src.sim.gui.DisplaySurface;
@@ -30,24 +30,8 @@ public class Grid2DView implements View, Discrete2DSpace,BaseMatrix  {
      */
     private DisplaySurface displaySurf;
 
-    /**
-     * Model
-     */
-    private SimulationModel model;
-    
-        
-    /**
-     * Viewer of each cell
-     */
-    private NodeViewer cellViewer;
-
-     
-    /**
-     *  space to be displayed 
-     */
-    Grid2D space;
-    
-    
+   private NodeDrawer nodeDrawer;        
+   
     /**
      * Title
      */
@@ -56,14 +40,11 @@ public class Grid2DView implements View, Discrete2DSpace,BaseMatrix  {
     /**
      * Default constructor
      */
-    public Grid2DView(BasicModel model,Grid2D space,NodeViewer cellViewer,String title,long frequency){
+    public Grid2DView(Grid2D topology,NodeDrawer nodeDrawer,String title,long frequency){
 
-        this.cellViewer = cellViewer;
-        this.model = model;
-        this.space = space;
+        this.nodeDrawer = nodeDrawer;
         this.title = title;
-        this.displaySurf = new DisplaySurface(model,title);
-        
+         
         //create a 2D grid for the realm and pass itself as an Object2DDisplay
         display = new Object2DDisplay(this);
         //display.setObjectList(space.getLocations());
@@ -71,6 +52,7 @@ public class Grid2DView implements View, Discrete2DSpace,BaseMatrix  {
         displaySurf.addDisplayableProbeable(display, title);
         
         //register the display surface to be updated
+      	 this.displaySurf = new DisplaySurface(model,title);
          model.registerDisplaySurface(title,displaySurf);
          
     }
@@ -104,7 +86,7 @@ public class Grid2DView implements View, Discrete2DSpace,BaseMatrix  {
     }
 
 
-    public void setCellViewer(NodeViewer cellViewer){
+    public void setCellViewer(NodeDrawer cellViewer){
         this.cellViewer = cellViewer; 
 
     }
@@ -120,7 +102,7 @@ public class Grid2DView implements View, Discrete2DSpace,BaseMatrix  {
 
     public Object getObjectAt(int x, int y) {
 
-        cellViewer.setCell(this.space.getCell(x, y));
+        cellViewer.setCell(this.space.et(x, y));
         return cellViewer;
     }
 

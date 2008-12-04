@@ -1,9 +1,17 @@
-package edu.upc.cnds.collectivesim.collective;
+package edu.upc.cnds.collectivesim.collective.imp;
 
 import java.util.List;
+import java.util.logging.Logger;
 
-import uchicago.src.sim.analysis.DataSource;
-import uchicago.src.sim.analysis.Sequence;
+import edu.upc.cnds.collectives.dataseries.DataItem;
+import edu.upc.cnds.collectives.dataseries.DataSequence;
+import edu.upc.cnds.collectives.dataseries.DataSeries;
+import edu.upc.cnds.collectives.dataseries.InvalidDataItemException;
+import edu.upc.cnds.collectives.dataseries.baseImp.BaseDataItem;
+import edu.upc.cnds.collectivesim.collective.CollectiveAgent;
+import edu.upc.cnds.collectivesim.collective.CollectiveException;
+import edu.upc.cnds.collectivesim.collective.CollectiveModel;
+import edu.upc.cnds.collectivesim.collective.Operator;
 
 /**
  * Observes the Collective and calculates an attribute from applying an operator
@@ -12,8 +20,10 @@ import uchicago.src.sim.analysis.Sequence;
  * @author Pablo Chacin
  *
  */
-public class CollectiveObserver implements Runnable,Observer {
+public class CollectiveObserver implements Runnable, DataSequence {
 
+	private static Logger logger = Logger.getLogger("collectivesim.model");
+	
    /**
     * collective that this observer observes
     */
@@ -51,7 +61,12 @@ public class CollectiveObserver implements Runnable,Observer {
         
     }
 
-   
+   /**
+    * @return the name of the observer
+    */
+    public String getName() {
+    	return name;
+    }
     
     /**
      *Periodic update of the Observer
@@ -79,33 +94,14 @@ public class CollectiveObserver implements Runnable,Observer {
 				operator.reset();
 				break;
 			}
-        }
+         }
         
-         //return result of the operator
          value = operator.getResult();
          
      }
-
-   /**
-    * Returns a value of a DataSource.
-    * TODO: check whether this interface is usefull at all.
-    * 
-    * @see uchicago.src.sim.analysis.DataSource
-    */
-     public Object execute() {
-         return value;
-     }
      
-     
-     /**
-      * Gets the next value in a sequence.
-      * Allows the RealmObserver to be plotted in a sequence.
-      *
-      * @see uchicago.src.sim.analysis.Sequence
-      * 
-      * @return the value to be plotted.
-        */
-       public double getSValue() {
-          return (Double)value;
-       }
+    
+    public DataItem getItem() {
+    	return new BaseDataItem(value);
+    }
 }

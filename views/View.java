@@ -10,12 +10,13 @@ package edu.upc.cnds.collectivesim.views;
 public interface View {
 	
 	/**
-	 * Dispose the view
+	 * Dispose the view. Release any graphical resource associated.
 	 */
 	public void dispose();
 
 	/**
-	 * Displays the view
+	 * Displays the view, without refreshing its content (used to handle
+	 * window hiding/unhiding events
 	 */
 	public void display();
 	
