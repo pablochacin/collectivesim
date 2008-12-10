@@ -1,7 +1,5 @@
 package edu.upc.cnds.collectivesim.models;
 
-import edu.upc.cnds.collectivesim.models.imp.SingleAction;
-import edu.upc.cnds.collectivesim.views.View;
 import edu.upc.cnds.collectives.util.TypedMap;
 
 /**
