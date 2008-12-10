@@ -8,7 +8,7 @@ import edu.upc.cnds.collectives.visualizer.nodes.NodeDrawer;
 import edu.upc.cnds.collectivesim.models.SimulationModel;
 import edu.upc.cnds.collectivesim.models.imp.SingleAction;
 import edu.upc.cnds.collectivesim.models.imp.BasicModel;
-import edu.upc.cnds.collectivesim.topology.Grid2D.Grid2D;
+import edu.upc.cnds.collectivesim.topology.Grid2D.Grid2DModel;
 import edu.upc.cnds.collectivesim.views.View;
 
 import uchicago.src.collection.BaseMatrix;
@@ -40,7 +40,7 @@ public class Grid2DView implements View, Discrete2DSpace,BaseMatrix  {
     /**
      * Default constructor
      */
-    public Grid2DView(Grid2D topology,NodeDrawer nodeDrawer,String title,long frequency){
+    public Grid2DView(Grid2DModel topology,NodeDrawer nodeDrawer,String title,long frequency){
 
         this.nodeDrawer = nodeDrawer;
         this.title = title;
