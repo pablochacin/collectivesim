@@ -27,7 +27,7 @@ public class Random2DLocationStrategy implements LocationStrategy{
     }
     
 
-	public Grid2DLocation getLocation(Grid2D grid) throws Grid2DException {
+	public Grid2DLocation getLocation(Grid2DModel grid) throws Grid2DException {
 		
 		//attemps for each possition.
 		int attempts  = grid.getSizeX()*grid.getSizeY();

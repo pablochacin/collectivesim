@@ -14,15 +14,15 @@ import edu.upc.cnds.collectives.topology.NodeView;
 import edu.upc.cnds.collectives.topology.TopologyObserver;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.topology.imp.BasicView;
-import edu.upc.cnds.collectivesim.topology.TopologyGenerator;
-import edu.upc.cnds.collectivesim.topology.TopologyGeneratorException;
+import edu.upc.cnds.collectivesim.topology.TopologyModel;
+import edu.upc.cnds.collectivesim.topology.TopologyModelException;
 
 /**
  * Simulates a topology using a 
  * @author pchacin
  *
  */
-public class Grid2D  implements TopologyGenerator{
+public class Grid2DModel  implements TopologyModel{
 
     /**
      * Location strategies
@@ -53,7 +53,7 @@ public class Grid2D  implements TopologyGenerator{
     
     private LocationStrategy locationStrategy;
     
-    private Map<Identifier,Grid2DTopologyNode> topologyNodes; 
+    private Map<Identifier,Grid2DTopologyModelProxy> topologyNodes; 
     
   
     /**
@@ -63,13 +63,13 @@ public class Grid2D  implements TopologyGenerator{
      * @param dimensions dimensions of the realm's space
      * 
      */
-    public Grid2D(int sizeX, int sizeY,int scope,LocationStrategy strategy){
+    public Grid2DModel(int sizeX, int sizeY,int scope,LocationStrategy strategy){
 
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.scope = scope;
         this.locationStrategy = strategy;
-        this.topologyNodes = new HashMap<Identifier,Grid2DTopologyNode>();       
+        this.topologyNodes = new HashMap<Identifier,Grid2DTopologyModelProxy>();       
         
         //initialize the realm's space
         //create the Repast's Object2Dgrid that supports this space
@@ -107,12 +107,12 @@ public class Grid2D  implements TopologyGenerator{
     }
 
 
-	public void addNode(Node node) throws TopologyGeneratorException {
+	public void addNode(Node node) throws TopologyModelException {
     	
 		try {
 			Grid2DLocation location = locationStrategy.getLocation(this);
 
-			Grid2DTopologyNode topology = new Grid2DTopologyNode(this,location,node);
+			Grid2DTopologyModelProxy topology = new Grid2DTopologyModelProxy(this,location,node);
 			
     		space.putObjectAt(location.getCoordX(),location.getCoordY(), topology);
     		
@@ -122,11 +122,11 @@ public class Grid2D  implements TopologyGenerator{
     		
     		//Iform all neighbors of the new node
     		for(Object t : neighbors) {
-    			((Grid2DTopologyNode)t).propose(node);
+    			((Grid2DTopologyModelProxy)t).propose(node);
     		}
     	        
 		} catch (Grid2DException e) {
-			throw new TopologyGeneratorException("Unable to locate node "+node.toString());
+			throw new TopologyModelException("Unable to locate node "+node.toString());
 		}
 		
 	}
@@ -138,7 +138,7 @@ public class Grid2D  implements TopologyGenerator{
 	public List<Node> getNodes() {
 		List<Node> nodes = new ArrayList<Node>();
 		
-		for(Grid2DTopologyNode t : topologyNodes.values()) {
+		for(Grid2DTopologyModelProxy t : topologyNodes.values()) {
 			nodes.add(t.getLocalNode());
 		}
 	
@@ -147,27 +147,14 @@ public class Grid2D  implements TopologyGenerator{
 
 
 	/**
-	 * Returns the local topology for a Node
-	 */
-	public Topology getTopology(Node node) throws TopologyGeneratorException {
-		Grid2DTopologyNode topology = topologyNodes.get(node.getId());
-		if(topologyNodes == null) {
-			throw new TopologyGeneratorException("node "+node.toString() + " not in the topology");
-		}
-		return topology;
-		
-	}
-
-
-	/**
 	 * Removes the node from the topology. Informs the node's neighbors that the node
 	 * is leaving the topology.
 	 * 
 	 */
-	public void removeNode(Node node) throws TopologyGeneratorException {
-		Grid2DTopologyNode topology = topologyNodes.remove(node.getId());
+	public void removeNode(Node node) throws TopologyModelException {
+		Grid2DTopologyModelProxy topology = topologyNodes.remove(node.getId());
 		if(topology == null) {
-			throw new TopologyGeneratorException("node "+node.toString() + " not in the topology");
+			throw new TopologyModelException("node "+node.toString() + " not in the topology");
 
 		}
 		
@@ -177,8 +164,17 @@ public class Grid2D  implements TopologyGenerator{
 		
 		//Iform all neighbors of the new node
 		for(Object t : neighbors) {
-			((Grid2DTopologyNode)t).notAlive(node);
+			((Grid2DTopologyModelProxy)t).notAlive(node);
 		}
+	}
+
+
+	public Topology getTopologyModelProxy(Node node) {
+		Grid2DTopologyModelProxy topology = topologyNodes.get(node.getId());
+		if(topologyNodes == null) {
+			throw new IllegalArgumentException("node "+node.toString() + " not in the topology");
+		}
+		return topology;
 	}
 
 }

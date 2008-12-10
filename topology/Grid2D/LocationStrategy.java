@@ -16,6 +16,6 @@ public interface LocationStrategy {
 	 * 
 	 * @return an Address with the location of the node
 	 */
-	public Grid2DLocation getLocation(Grid2D grid) throws Grid2DException;
+	public Grid2DLocation getLocation(Grid2DModel grid) throws Grid2DException;
 
 }

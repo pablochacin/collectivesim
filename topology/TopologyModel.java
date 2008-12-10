@@ -13,27 +13,25 @@ import edu.upc.cnds.collectives.topology.Topology;
  * @author Pablo Chacin
  *
  */
-public interface TopologyGenerator {
+public interface TopologyModel {
 	
 	/**
 	 * Adds the node to the topology
 	 * 
 	 * @param node a Node that will form part of the topology
 	 * 
-	 * @throws TopologyGeneratorException if the node cannot be added to
+	 * @throws TopologyModelException if the node cannot be added to
 	 *         the topology (e.g. lack of space)
 	 */
-	public void addNode(Node node) throws TopologyGeneratorException;
+	public void addNode(Node node) throws TopologyModelException;
 		
 	/**
 	 * Generates the local view of the topology for a particular node
 	 * @param node Node to
 	 * @return the local view of the topology for a node
 	 * 
-	 * @throws TopologyGeneratorException if the node's local topology view couldn't be 
-	 *         generated (for example, the node is not currently part of the topology)
 	 */
-	public Topology getTopology(Node node) throws TopologyGeneratorException;
+	public Topology getTopologyModelProxy(Node node);
 	
 	/**
 	 * 
@@ -47,8 +45,8 @@ public interface TopologyGenerator {
 	 * 
 	 * @param node to remove
 	 * 
-	 * @throws TopologyGeneratorException if the node couldn't be removed (for instance
+	 * @throws TopologyModelException if the node couldn't be removed (for instance
 	 *         if it currently doesn't belongs to the topology)
 	 */
-	public void removeNode(Node node) throws TopologyGeneratorException;
+	public void removeNode(Node node) throws TopologyModelException;
 }

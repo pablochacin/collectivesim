@@ -1,22 +1,22 @@
 package edu.upc.cnds.collectivesim.topology;
 
-public class TopologyGeneratorException extends Exception {
+public class TopologyModelException extends Exception {
 
-	public TopologyGeneratorException() {
+	public TopologyModelException() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public TopologyGeneratorException(String message) {
+	public TopologyModelException(String message) {
 		super(message);
 		// TODO Auto-generated constructor stub
 	}
 
-	public TopologyGeneratorException(Throwable cause) {
+	public TopologyModelException(Throwable cause) {
 		super(cause);
 		// TODO Auto-generated constructor stub
 	}
 
-	public TopologyGeneratorException(String message, Throwable cause) {
+	public TopologyModelException(String message, Throwable cause) {
 		super(message, cause);
 		// TODO Auto-generated constructor stub
 	}

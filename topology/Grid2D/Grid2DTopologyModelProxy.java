@@ -7,6 +7,7 @@ import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.topology.NodeFilter;
 import edu.upc.cnds.collectives.topology.NodeSampler;
 import edu.upc.cnds.collectives.topology.NodeView;
+import edu.upc.cnds.collectives.topology.TopologyException;
 import edu.upc.cnds.collectives.topology.TopologyObserver;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.topology.imp.BasicView;
@@ -21,18 +22,18 @@ import edu.upc.cnds.collectives.topology.imp.BasicView;
  * @author Pablo Chacin
  *
  */
-public class Grid2DTopologyNode implements Topology {
+public class Grid2DTopologyModelProxy implements Topology {
 
 	
 	private List<TopologyObserver> observers;
 	
-	private Grid2D grid;
+	private Grid2DModel grid;
 	
 	private Grid2DLocation location;
 	
 	private Node localNode;
 	
-	public Grid2DTopologyNode(Grid2D grid,Grid2DLocation location,Node localNode) {
+	public Grid2DTopologyModelProxy(Grid2DModel grid,Grid2DLocation location,Node localNode) {
 		this.grid = grid;
 		this.localNode = localNode;
 		this.location = location;
@@ -55,7 +56,7 @@ public class Grid2DTopologyNode implements Topology {
 		return grid.getNeighbors(location);
 	}
 
-	public NodeView getView(NodeSampler sampler, NodeFilter filter, int size) {
+	public NodeView createView(String name, NodeSampler sampler, NodeFilter filter, int size) {
 
 		BasicView view = new BasicView(size,this,sampler,filter);
 		addObserver(view);
@@ -103,6 +104,16 @@ public class Grid2DTopologyNode implements Topology {
 
 	Node getLocalNode() {
 		return localNode;
+	}
+
+	public NodeView getView(String name) throws TopologyException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void removeView(String view) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 
