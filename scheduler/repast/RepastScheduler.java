@@ -15,7 +15,7 @@ import uchicago.src.sim.engine.SimInit;
 import uchicago.src.sim.engine.SimModelImpl;
 import edu.upc.cnds.collectives.events.EventReporter;
 import edu.upc.cnds.collectivesim.scheduler.ScheduledAction;
-import edu.upc.cnds.collectivesim.scheduler.SimulationModel;
+import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.scheduler.Stream;
 import edu.upc.cnds.collectivesim.views.View;
 
@@ -27,7 +27,7 @@ import edu.upc.cnds.collectivesim.views.View;
  * 
  * @author Pablo Chacin <br>
  */
-public abstract class BasicModel extends SimModelImpl implements SimulationModel {
+public abstract class RepastScheduler extends SimModelImpl implements Scheduler {
   
  /**
   * Repast's model Simulation schedule, used to schedule actions.

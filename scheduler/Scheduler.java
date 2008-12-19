@@ -9,14 +9,9 @@ import edu.upc.cnds.collectives.util.TypedMap;
  * @author Pablo Chacin
  *
  */
-public interface SimulationModel {
+public interface Scheduler {
 
 
-
-	/**
-	 * @return the arguments passed to the Simulation
-	 */
-	public TypedMap getArgument(); 
 
 	/**
 	 * Returns the current simulation time

@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import edu.upc.cnds.collectives.util.FormatException;
-import edu.upc.cnds.collectivesim.model.CollectiveAgent;
-import edu.upc.cnds.collectivesim.model.CollectiveException;
-import edu.upc.cnds.collectivesim.model.CollectiveModel;
+import edu.upc.cnds.collectivesim.model.ModelAgent;
+import edu.upc.cnds.collectivesim.model.ModelException;
+import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.scheduler.Stream;
 
 
@@ -26,7 +26,7 @@ public class Behavior implements Runnable{
     /**
      * Realm on which the agents this model applies to, reside
      */
-    CollectiveModel collective;
+    Model collective;
     /**
      * Frequency of execution of the behavior
      */
@@ -66,7 +66,7 @@ public class Behavior implements Runnable{
      * @param frequency a long with the frequency, in ticks, of execution
 
      */
-    public Behavior(String name, CollectiveModel collective,String method, Stream[] streams, boolean active,
+    public Behavior(String name, Model collective,String method, Stream[] streams, boolean active,
             double frequency){
         this.name = name;
         this.method = method;
@@ -105,9 +105,9 @@ public class Behavior implements Runnable{
     		return;
     	}
     	
-    	List<CollectiveAgent> agents = collective.getAgents();
+    	List<ModelAgent> agents = collective.getAgents();
    
-    	for(CollectiveAgent a: agents) {
+    	for(ModelAgent a: agents) {
     	//construct an argument list for the method invocation
     	Object[] arguments = new Object[streams.length];
     	for(int i=0;i<arguments.length;i++) {
@@ -116,7 +116,7 @@ public class Behavior implements Runnable{
     	
     	try {
 			a.executeAction(method,arguments);
-		} catch (CollectiveException e) {
+		} catch (ModelException e) {
 			log.severe("Exception invoking method" +method+": "+ FormatException.getStackTrace(e));
 			active = false;
 		}

@@ -3,15 +3,15 @@ package edu.upc.cnds.collectivesim.execution;
 import edu.upc.cnds.collectives.execution.ExecutionService;
 import edu.upc.cnds.collectives.execution.Task;
 import edu.upc.cnds.collectivesim.scheduler.ScheduledAction;
-import edu.upc.cnds.collectivesim.scheduler.SimulationModel;
+import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 
 public class ExecutionServiceModel implements ExecutionService {
 
-	private SimulationModel model;
+	private Scheduler scheduler;
 	
 	
-	public ExecutionServiceModel(SimulationModel model) {
-		this.model = model;
+	public ExecutionServiceModel(Scheduler scheduler) {
+		this.scheduler = scheduler;
 	}
 	
 	public void doWait(long time) {
@@ -20,13 +20,13 @@ public class ExecutionServiceModel implements ExecutionService {
 	}
 
 	public Task execute(Runnable task) {
-		ScheduledAction action = model.scheduleAction(task, 0);
+		ScheduledAction action = scheduler.scheduleAction(task, 0);
 		return new TaskModel(action);
 	}
 
 	
 	public Task scheduleRepetitiveTask(Runnable task, long delay, long period) {
-		ScheduledAction action = model.scheduleRepetitiveAction(task, period);
+		ScheduledAction action = scheduler.scheduleRepetitiveAction(task, period);
 		return new TaskModel(action);
 	}
 

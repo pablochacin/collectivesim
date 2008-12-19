@@ -7,32 +7,32 @@ import java.util.Map;
 
 import edu.upc.cnds.collectives.protocol.Protocol;
 import edu.upc.cnds.collectivesim.model.imp.Behavior;
-import edu.upc.cnds.collectivesim.model.imp.CollectiveObserver;
+import edu.upc.cnds.collectivesim.model.imp.ModelObserver;
 import edu.upc.cnds.collectivesim.model.imp.Event;
-import edu.upc.cnds.collectivesim.scheduler.SimulationModel;
+import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.scheduler.Stream;
 import edu.upc.cnds.collectivesim.scheduler.repast.SingleValueStream;
 
 
 /**
- * Manages the simulation of a Collective by means of Behaviors that occur on the agent
+ * Manages the simulation of a set of related ModelAgents by means of Behaviors that occur on the agent
  * periodically and Events that are trigered following a certain probability distribution. 
  * 
- * The CollectiveManager allows also to observe the attributes of the agents in the collective.
+ * The Model allows also to observe the attributes of the agents.
  *  
  * The CollectiveManager 
  * @author Pablo Chacin
  *
  */
 
-public class CollectiveModel implements CollectiveConfig {
+public class Model{
 
 
 
 	/**
 	 * List of active agents
 	 */
-	private List<CollectiveAgent> agents;
+	private List<ModelAgent> agents;
 
 	/**
 	 * behaviors currently registered in the realm
@@ -40,23 +40,23 @@ public class CollectiveModel implements CollectiveConfig {
 	private HashMap<String,Behavior> behaviors;
 
 	/**
-	 * Model on which this realm inhabits
+	 * Scheduler used to control simulation
 	 */
-	protected SimulationModel model;
+	protected Scheduler scheduler;
 
 	/**
 	 * list of active observers 
 	 */
-	private Map<String,CollectiveObserver> observers;
+	private Map<String,ModelObserver> observers;
 
 	/**
 	 * Constructor
 	 */
-	public CollectiveModel(SimulationModel model){
-		this.model = model;
-		this.agents = new ArrayList<CollectiveAgent>();
+	public Model(Scheduler scheduler){
+		this.scheduler = scheduler;
+		this.agents = new ArrayList<ModelAgent>();
 		this.behaviors = new HashMap<String,Behavior>();
-		this.observers = new HashMap<String, CollectiveObserver>();
+		this.observers = new HashMap<String, ModelObserver>();
 	}
 
 
@@ -74,7 +74,7 @@ public class CollectiveModel implements CollectiveConfig {
 		Behavior behavior = new Behavior(name,this,method, streams,active,frequency);
 		behaviors.put(name,behavior);
 		
-		model.scheduleRepetitiveAction(behavior,new SingleValueStream(name,new Double(frequency)));	
+		scheduler.scheduleRepetitiveAction(behavior,new SingleValueStream(name,new Double(frequency)));	
 	}
 
 	/**
@@ -88,7 +88,7 @@ public class CollectiveModel implements CollectiveConfig {
 	 */
 	public void addEvent(String name,AgentSampler sampler, Stream distribution, boolean active,String action,Stream...args){
 		Event event = new Event(name,this,sampler,active,action,args);
-		model.scheduleRepetitiveAction(event, distribution);
+		scheduler.scheduleRepetitiveAction(event, distribution);
 
 	}
 
@@ -105,16 +105,16 @@ public class CollectiveModel implements CollectiveConfig {
 	 */
 	public void addObserver(String name, Operator operator, String attribute,long frequency) {
 
-		CollectiveObserver observer = new CollectiveObserver(this,name, operator, attribute);
+		ModelObserver observer = new ModelObserver(this,name, operator, attribute);
 		
 		observers.put(name,observer);
 
 		//schedule observer at a fixed interval using a Stream with a fixed value
-		model.scheduleRepetitiveAction(observer,new SingleValueStream(name,new Double(frequency)));
+		scheduler.scheduleRepetitiveAction(observer,new SingleValueStream(name,new Double(frequency)));
 	}
 
 
-	public List<CollectiveAgent> getAgents() {
+	public List<ModelAgent> getAgents() {
 
 		return agents;
 	}
@@ -148,22 +148,10 @@ public class CollectiveModel implements CollectiveConfig {
 
 
 
-	 public boolean addAgent(CollectiveAgent agent) {
-		 // TODO Auto-generated method stub
-		 return false;
+	 public boolean addAgent(ModelAgent agent) {
+		 	throw new UnsupportedOperationException();
 	 }
 
-
-	public void registerAction(String action, Protocol protocol) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	public void registerAttribute(String attribute, Protocol protocol) {
-		// TODO Auto-generated method stub
-		
-	}
 
 
 }

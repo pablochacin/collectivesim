@@ -8,9 +8,9 @@ import edu.upc.cnds.collectives.dataseries.DataSequence;
 import edu.upc.cnds.collectives.dataseries.DataSeries;
 import edu.upc.cnds.collectives.dataseries.InvalidDataItemException;
 import edu.upc.cnds.collectives.dataseries.baseImp.BaseDataItem;
-import edu.upc.cnds.collectivesim.model.CollectiveAgent;
-import edu.upc.cnds.collectivesim.model.CollectiveException;
-import edu.upc.cnds.collectivesim.model.CollectiveModel;
+import edu.upc.cnds.collectivesim.model.ModelAgent;
+import edu.upc.cnds.collectivesim.model.ModelException;
+import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.Operator;
 
 /**
@@ -20,14 +20,14 @@ import edu.upc.cnds.collectivesim.model.Operator;
  * @author Pablo Chacin
  *
  */
-public class CollectiveObserver implements Runnable, DataSequence {
+public class ModelObserver implements Runnable, DataSequence {
 
 	private static Logger logger = Logger.getLogger("collectivesim.model");
 	
    /**
     * collective that this observer observes
     */
-    private CollectiveModel collective;
+    private Model collective;
     
     /**
      * Name of the observer
@@ -52,7 +52,7 @@ public class CollectiveObserver implements Runnable, DataSequence {
     /**
      * Default constructor
      */
-    public CollectiveObserver(CollectiveModel collective,String name,Operator operator,String attribute){
+    public ModelObserver(Model collective,String name,Operator operator,String attribute){
         this.collective = collective;
     	this.name = name;
         this.operator = operator;
@@ -82,15 +82,15 @@ public class CollectiveObserver implements Runnable, DataSequence {
      * Collective
      * 
      */
-    private void calculateAttribute(List<CollectiveAgent> agents) {
+    private void calculateAttribute(List<ModelAgent> agents) {
                 
          //iterate over all agents and calculate an operator
          operator.reset();
          
-         for(CollectiveAgent a: agents) {
+         for(ModelAgent a: agents) {
         	 try {
 				operator.calculate(a. inquireAttribute(attribute));
-			} catch (CollectiveException e) {
+			} catch (ModelException e) {
 				operator.reset();
 				break;
 			}

@@ -1,22 +1,22 @@
 package edu.upc.cnds.collectivesim.model;
 
-public class CollectiveException extends Exception {
+public class ModelException extends Exception {
 
-	public CollectiveException() {
+	public ModelException() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public CollectiveException(String message) {
+	public ModelException(String message) {
 		super(message);
 		// TODO Auto-generated constructor stub
 	}
 
-	public CollectiveException(Throwable cause) {
+	public ModelException(Throwable cause) {
 		super(cause);
 		// TODO Auto-generated constructor stub
 	}
 
-	public CollectiveException(String message, Throwable cause) {
+	public ModelException(String message, Throwable cause) {
 		super(message, cause);
 		// TODO Auto-generated constructor stub
 	}

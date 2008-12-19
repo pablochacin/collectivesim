@@ -12,8 +12,8 @@ import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.events.EventFilter;
 import edu.upc.cnds.collectives.events.EventReporter;
 import edu.upc.cnds.collectives.metrics.Metric;
-import edu.upc.cnds.collectivesim.scheduler.SimulationModel;
-import edu.upc.cnds.collectivesim.scheduler.repast.BasicModel;
+import edu.upc.cnds.collectivesim.scheduler.Scheduler;
+import edu.upc.cnds.collectivesim.scheduler.repast.RepastScheduler;
 
 
 /**

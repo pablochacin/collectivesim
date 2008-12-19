@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.model.imp;
+package edu.upc.cnds.collectivesim.collective;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,8 +8,8 @@ import edu.upc.cnds.collectives.collective.CollectiveAction;
 import edu.upc.cnds.collectives.collective.imp.CollectiveActionImp;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
-import edu.upc.cnds.collectivesim.model.CollectiveAgent;
-import edu.upc.cnds.collectivesim.model.CollectiveException;
+import edu.upc.cnds.collectivesim.model.ModelAgent;
+import edu.upc.cnds.collectivesim.model.ModelException;
 
 /**
  * Representes the local interface to the Collective for agents in a Node
@@ -18,7 +18,7 @@ import edu.upc.cnds.collectivesim.model.CollectiveException;
  * @author Pablo Chacin
  *
  */
-public class CollectiveAgentImp implements Collective, CollectiveAgent {
+public class CollectiveAgentImp implements Collective, ModelAgent {
 
 	/**
 	 * Maps actions to objects that execute it
@@ -39,11 +39,11 @@ public class CollectiveAgentImp implements Collective, CollectiveAgent {
 
 
 
-	public void visit(String actionName,Object[] arguments) throws CollectiveException{
+	public void visit(String actionName,Object[] arguments) throws ModelException{
 		
 		CollectiveAction action = actions.get(actionName);
 		if(action == null) {
-			throw new CollectiveException("Unknown action "+actionName);
+			throw new ModelException("Unknown action "+actionName);
 		}
 		
 	}
@@ -76,11 +76,11 @@ public class CollectiveAgentImp implements Collective, CollectiveAgent {
 
 
 
-	public void executeAction(String name, Object[] args) throws CollectiveException {
+	public void executeAction(String name, Object[] args) throws ModelException {
 		
 		CollectiveAction action = actions.get(name);
 		if(action == null) {
-			 throw new CollectiveException("Action not registered: "+name);				
+			 throw new ModelException("Action not registered: "+name);				
 		}
 		
 		try {
@@ -88,16 +88,16 @@ public class CollectiveAgentImp implements Collective, CollectiveAgent {
 			action.execute(args);
 			
 		} catch (Exception e) {
-			throw new CollectiveException("Exception executing action "+name,e);
+			throw new ModelException("Exception executing action "+name,e);
 		} 
 	}
 
 
-	public Object inquireAttribute(String attribute) throws CollectiveException {
+	public Object inquireAttribute(String attribute) throws ModelException {
 		
 		CollectiveAction action = actions.get(attribute);
 		if(attribute == null) {
-		 throw new CollectiveException("Attribute not registered: "+attribute);	
+		 throw new ModelException("Attribute not registered: "+attribute);	
 		}
 		
 		try {
@@ -107,7 +107,7 @@ public class CollectiveAgentImp implements Collective, CollectiveAgent {
 			return result;
 
 		} catch (Exception e) {
-			throw new CollectiveException("Exception accessing attribute "+attribute,e);
+			throw new ModelException("Exception accessing attribute "+attribute,e);
 		} 
 	}
 }

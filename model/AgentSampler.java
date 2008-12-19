@@ -18,6 +18,6 @@ public interface AgentSampler {
 	 * 
 	 * @return a sublist
 	 */
-	public List<CollectiveAgent> sample(List<CollectiveAgent> agents); 
+	public List<ModelAgent> sample(List<ModelAgent> agents); 
 
 }

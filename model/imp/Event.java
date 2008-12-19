@@ -5,9 +5,9 @@ import java.util.logging.Logger;
 
 import edu.upc.cnds.collectives.util.FormatException;
 import edu.upc.cnds.collectivesim.model.AgentSampler;
-import edu.upc.cnds.collectivesim.model.CollectiveAgent;
-import edu.upc.cnds.collectivesim.model.CollectiveException;
-import edu.upc.cnds.collectivesim.model.CollectiveModel;
+import edu.upc.cnds.collectivesim.model.ModelAgent;
+import edu.upc.cnds.collectivesim.model.ModelException;
+import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.scheduler.Stream;
 
 
@@ -32,7 +32,7 @@ public class Event implements Runnable {
 	/**
 	 * Collective
 	 */
-	CollectiveModel collective;
+	Model collective;
 	
 	/**
 	 * Sampler used to select the agents that will 
@@ -61,7 +61,7 @@ public class Event implements Runnable {
      * @param method a String with the name of the method to be execute
      * @param args array of Streams to be passed as arguments
      */
-    public Event(String name,CollectiveModel collective,AgentSampler sampler, boolean active, String method, Stream ... args){
+    public Event(String name,Model collective,AgentSampler sampler, boolean active, String method, Stream ... args){
     	this.name = name;
     	this.sampler = sampler;
     	this.method = method;
@@ -94,12 +94,12 @@ public class Event implements Runnable {
     	}
     	
     	try {
-    		List<CollectiveAgent> agents = sampler.sample(collective.getAgents());
+    		List<ModelAgent> agents = sampler.sample(collective.getAgents());
     		
-    		for(CollectiveAgent a: agents) {
+    		for(ModelAgent a: agents) {
 			   a.executeAction(method,args);
     		}
-		} catch (CollectiveException e) {
+		} catch (ModelException e) {
 			log.severe("Exception invoking method" +method+": "+ FormatException.getStackTrace(e));
 			active = false;
 		}
