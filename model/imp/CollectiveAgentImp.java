@@ -1,6 +1,5 @@
-package edu.upc.cnds.collectivesim.collective.imp;
+package edu.upc.cnds.collectivesim.model.imp;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,8 +8,8 @@ import edu.upc.cnds.collectives.collective.CollectiveAction;
 import edu.upc.cnds.collectives.collective.imp.CollectiveActionImp;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
-import edu.upc.cnds.collectivesim.collective.CollectiveAgent;
-import edu.upc.cnds.collectivesim.collective.CollectiveException;
+import edu.upc.cnds.collectivesim.model.CollectiveAgent;
+import edu.upc.cnds.collectivesim.model.CollectiveException;
 
 /**
  * Representes the local interface to the Collective for agents in a Node

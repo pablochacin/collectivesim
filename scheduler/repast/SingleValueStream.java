@@ -1,6 +1,6 @@
-package edu.upc.cnds.collectivesim.models.imp;
+package edu.upc.cnds.collectivesim.scheduler.repast;
 
-import edu.upc.cnds.collectivesim.models.Stream;
+import edu.upc.cnds.collectivesim.scheduler.Stream;
 
 /**
  * A simple Stream that return always the same value

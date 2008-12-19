@@ -4,7 +4,7 @@
  * 
  * (c) Pablo Chacin 2006
  */
-package edu.upc.cnds.collectivesim.models.imp;
+package edu.upc.cnds.collectivesim.scheduler.repast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,9 +14,9 @@ import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimInit;
 import uchicago.src.sim.engine.SimModelImpl;
 import edu.upc.cnds.collectives.events.EventReporter;
-import edu.upc.cnds.collectivesim.models.ScheduledAction;
-import edu.upc.cnds.collectivesim.models.SimulationModel;
-import edu.upc.cnds.collectivesim.models.Stream;
+import edu.upc.cnds.collectivesim.scheduler.ScheduledAction;
+import edu.upc.cnds.collectivesim.scheduler.SimulationModel;
+import edu.upc.cnds.collectivesim.scheduler.Stream;
 import edu.upc.cnds.collectivesim.views.View;
 
 /**

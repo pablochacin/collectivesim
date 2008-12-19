@@ -6,7 +6,7 @@ import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.protocol.Destination;
 import edu.upc.cnds.collectives.protocol.Protocol;
 import edu.upc.cnds.collectives.protocol.ProtocolObserver;
-import edu.upc.cnds.collectives.protocol.Transport;
+import edu.upc.cnds.collectives.transport.Transport;
 
 /**
  * A simulation model of a Protocol. It handles the request from all nodes

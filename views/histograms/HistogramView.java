@@ -3,9 +3,9 @@ package edu.upc.cnds.collectivesim.views.histograms;
 import java.util.ArrayList;
 
 import edu.upc.cnds.collectives.collective.Collective;
-import edu.upc.cnds.collectivesim.models.SimulationModel;
-import edu.upc.cnds.collectivesim.models.imp.SingleAction;
-import edu.upc.cnds.collectivesim.models.imp.BasicModel;
+import edu.upc.cnds.collectivesim.scheduler.SimulationModel;
+import edu.upc.cnds.collectivesim.scheduler.repast.BasicModel;
+import edu.upc.cnds.collectivesim.scheduler.repast.SingleAction;
 import edu.upc.cnds.collectivesim.views.View;
 
 import uchicago.src.sim.analysis.OpenHistogram;

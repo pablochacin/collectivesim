@@ -1,5 +1,6 @@
 package edu.upc.cnds.collectivesim.underlay;
 
+
 import edu.upc.cnds.collectives.underlay.UnderlayAddress;
 
 public class UnderlayModelNodeAddress implements UnderlayAddress{
@@ -17,13 +18,7 @@ public class UnderlayModelNodeAddress implements UnderlayAddress{
 	public String getLocation() {
 		return address;
 	}
-	
-	String getAddress(){
-		return address;
-	}
-	
-	UnderlayModel getUnderlay() {
-		return underlay;
-	}
+
+
 	
 }

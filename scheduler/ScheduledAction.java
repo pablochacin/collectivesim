@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.models;
+package edu.upc.cnds.collectivesim.scheduler;
 
 /**
  * An action scheduled for exection in the SimulationModel

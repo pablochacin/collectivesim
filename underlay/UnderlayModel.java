@@ -3,10 +3,11 @@ package edu.upc.cnds.collectivesim.underlay;
 import java.util.Set;
 
 
-import edu.upc.cnds.collectives.underlay.Metric;
-import edu.upc.cnds.collectives.underlay.MetricType;
+import edu.upc.cnds.collectives.metrics.Metric;
+import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.underlay.Underlay;
-import edu.upc.cnds.collectives.underlay.UnderlayAddress;
+import edu.upc.cnds.collectives.underlay.UnderlayMetricType;
+import edu.upc.cnds.collectives.underlay.UnderlayNode;
 
 /**
  * Implements a simulated UnderlayNode. Delegates most functions to the UnderlayModel
@@ -14,29 +15,22 @@ import edu.upc.cnds.collectives.underlay.UnderlayAddress;
  * @author Pablo Chacin
  *
  */
-public interface UnderlayModel {
-
-		
-	/**
-	 * 
-	 * @param node
-	 * @return a proxy for the given address.
-	 */
-	public Underlay getUnderlayModelProxy(UnderlayAddress address);
-	
-	/**
-	 * 
-	 * @return a set with the supported metrics
-	 */
-	Set<MetricType> getSupportedMetrics();
+public interface UnderlayModel extends Underlay{
 	
 	
 	/**
-	 * Returns a list of metrics for the conecction between two given addresses
+	 * Returns a list of metrics for the conecction between two given nodes
 	 * 
 	 * @param source
 	 * @param target
 	 * @return
 	 */
-	public Metric probe(UnderlayAddress source,UnderlayAddress target,MetricType metrics);
+	public Metric[] probe(UnderlayNode source,UnderlayNode target,Set<UnderlayMetricType> metrics);
+
+	/**
+	 * Returns the know nodes for a given node
+	 * @param model
+	 * @return
+	 */
+	public Node[] getKnownNode(UnderlayNodeModel model);
 }

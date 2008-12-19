@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.models;
+package edu.upc.cnds.collectivesim.scheduler;
 
 import edu.upc.cnds.collectives.util.TypedMap;
 

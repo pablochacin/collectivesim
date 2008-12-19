@@ -2,7 +2,7 @@ package edu.upc.cnds.collectivesim.transport;
 
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.protocol.Protocol;
-import edu.upc.cnds.collectives.protocol.Transport;
+import edu.upc.cnds.collectives.transport.Transport;
 
 
 public interface TransportModel {

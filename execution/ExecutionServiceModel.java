@@ -2,8 +2,8 @@ package edu.upc.cnds.collectivesim.execution;
 
 import edu.upc.cnds.collectives.execution.ExecutionService;
 import edu.upc.cnds.collectives.execution.Task;
-import edu.upc.cnds.collectivesim.models.ScheduledAction;
-import edu.upc.cnds.collectivesim.models.SimulationModel;
+import edu.upc.cnds.collectivesim.scheduler.ScheduledAction;
+import edu.upc.cnds.collectivesim.scheduler.SimulationModel;
 
 public class ExecutionServiceModel implements ExecutionService {
 

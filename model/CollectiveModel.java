@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.collective;
+package edu.upc.cnds.collectivesim.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Map;
 
 import edu.upc.cnds.collectives.protocol.Protocol;
-import edu.upc.cnds.collectivesim.collective.imp.Behavior;
-import edu.upc.cnds.collectivesim.collective.imp.CollectiveObserver;
-import edu.upc.cnds.collectivesim.collective.imp.Event;
-import edu.upc.cnds.collectivesim.models.SimulationModel;
-import edu.upc.cnds.collectivesim.models.Stream;
-import edu.upc.cnds.collectivesim.models.imp.SingleValueStream;
+import edu.upc.cnds.collectivesim.model.imp.Behavior;
+import edu.upc.cnds.collectivesim.model.imp.CollectiveObserver;
+import edu.upc.cnds.collectivesim.model.imp.Event;
+import edu.upc.cnds.collectivesim.scheduler.SimulationModel;
+import edu.upc.cnds.collectivesim.scheduler.Stream;
+import edu.upc.cnds.collectivesim.scheduler.repast.SingleValueStream;
 
 
 /**
@@ -61,11 +61,7 @@ public class CollectiveModel implements CollectiveConfig {
 
 
 	/**
-	 * Adds a behavior to agents in the realm, defined as the execution of a series of
-	 * methods. 
-	 * The way the behavior is executed along the agents is defined by the 
-	 * parameter order. This execution can be by agent (all methods are executed to each agent,
-	 * agent by agent) or by method (each method is executed in all agents, method by method)
+	 * Adds a behavior to agents in the collective, defined as the execution of a method. 
 	 *
 	 * @param name a String that identifies the behavior
 	 * @param method a Strings with the name of the method

@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.collective;
+package edu.upc.cnds.collectivesim.model;
 
 /**
  * Represent the interface to the collective agent running in node used by the

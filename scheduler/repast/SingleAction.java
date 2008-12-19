@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.models.imp;
+package edu.upc.cnds.collectivesim.scheduler.repast;
 
 import uchicago.src.sim.engine.Schedule;
 

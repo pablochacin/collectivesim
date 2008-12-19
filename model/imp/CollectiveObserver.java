@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.collective.imp;
+package edu.upc.cnds.collectivesim.model.imp;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -8,10 +8,10 @@ import edu.upc.cnds.collectives.dataseries.DataSequence;
 import edu.upc.cnds.collectives.dataseries.DataSeries;
 import edu.upc.cnds.collectives.dataseries.InvalidDataItemException;
 import edu.upc.cnds.collectives.dataseries.baseImp.BaseDataItem;
-import edu.upc.cnds.collectivesim.collective.CollectiveAgent;
-import edu.upc.cnds.collectivesim.collective.CollectiveException;
-import edu.upc.cnds.collectivesim.collective.CollectiveModel;
-import edu.upc.cnds.collectivesim.collective.Operator;
+import edu.upc.cnds.collectivesim.model.CollectiveAgent;
+import edu.upc.cnds.collectivesim.model.CollectiveException;
+import edu.upc.cnds.collectivesim.model.CollectiveModel;
+import edu.upc.cnds.collectivesim.model.Operator;
 
 /**
  * Observes the Collective and calculates an attribute from applying an operator

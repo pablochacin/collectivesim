@@ -1,14 +1,14 @@
-package edu.upc.cnds.collectivesim.collective.imp;
+package edu.upc.cnds.collectivesim.model.imp;
 
 import java.util.List;
 import java.util.logging.Logger;
 
 import edu.upc.cnds.collectives.util.FormatException;
-import edu.upc.cnds.collectivesim.agents.AgentException;
-import edu.upc.cnds.collectivesim.collective.AgentSampler;
-import edu.upc.cnds.collectivesim.collective.CollectiveModel;
-import edu.upc.cnds.collectivesim.models.SimulationModel;
-import edu.upc.cnds.collectivesim.models.Stream;
+import edu.upc.cnds.collectivesim.model.AgentSampler;
+import edu.upc.cnds.collectivesim.model.CollectiveAgent;
+import edu.upc.cnds.collectivesim.model.CollectiveException;
+import edu.upc.cnds.collectivesim.model.CollectiveModel;
+import edu.upc.cnds.collectivesim.scheduler.Stream;
 
 
 /**
@@ -97,9 +97,9 @@ public class Event implements Runnable {
     		List<CollectiveAgent> agents = sampler.sample(collective.getAgents());
     		
     		for(CollectiveAgent a: agents) {
-			   a.handleVisit(method,args);
+			   a.executeAction(method,args);
     		}
-		} catch (AgentException e) {
+		} catch (CollectiveException e) {
 			log.severe("Exception invoking method" +method+": "+ FormatException.getStackTrace(e));
 			active = false;
 		}

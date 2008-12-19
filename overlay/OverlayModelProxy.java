@@ -7,9 +7,10 @@ import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.overlay.OverlayException;
 import edu.upc.cnds.collectives.protocol.Protocol;
-import edu.upc.cnds.collectives.protocol.Transport;
 import edu.upc.cnds.collectives.topology.Topology;
+import edu.upc.cnds.collectives.transport.Transport;
 import edu.upc.cnds.collectives.underlay.Underlay;
+import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.protocol.ProtocolModel;
 import edu.upc.cnds.collectivesim.topology.TopologyModel;
 import edu.upc.cnds.collectivesim.transport.TransportModel;
@@ -22,29 +23,18 @@ import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
  *
  */
 
-public class OverlayModel implements Overlay {
+public class OverlayModelProxy implements Overlay {
 
-	private Node localNode;
-	
-	private Map<String,ProtocolModel> protocols;
-	
-	private Map<String,TransportModel> transports;
+	private UnderlayNode localNode;
 	
 	private UnderlayModel underlay;
 	
-	private TopologyModel topology;
-	
-	public Node getLocalNode() {
+	public UnderlayNode getLocalNode() {
 		return localNode;
 	}
 
 	public Protocol getProtocol(String name)  throws OverlayException {
-		ProtocolModel model = protocols.get(name);
-		if(model == null) {
-			throw new OverlayException("Unknown protocol "+name);
-		}
-		
-		return model.getProtocolModelProxy(localNode);
+		overlay.getProtocol(localNode,name);
 	}
 
 	public Topology getTopology() {

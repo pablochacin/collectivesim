@@ -1,8 +1,8 @@
-package edu.upc.cnds.collectivesim.models.imp;
+package edu.upc.cnds.collectivesim.scheduler.repast;
 
 import java.util.logging.Logger;
 
-import edu.upc.cnds.collectivesim.models.ScheduledAction;
+import edu.upc.cnds.collectivesim.scheduler.ScheduledAction;
 
 import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;

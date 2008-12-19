@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.collective;
+package edu.upc.cnds.collectivesim.model;
 
 import java.util.List;
 

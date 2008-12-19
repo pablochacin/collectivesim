@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.models;
+package edu.upc.cnds.collectivesim.scheduler;
 
 /**
  * A stream of objects that can feed the simulation.

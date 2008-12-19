@@ -7,8 +7,8 @@ import edu.upc.cnds.collectives.platform.Platform;
 import edu.upc.cnds.collectives.protocol.Destination;
 import edu.upc.cnds.collectives.protocol.Protocol;
 import edu.upc.cnds.collectives.protocol.ProtocolObserver;
-import edu.upc.cnds.collectives.protocol.Transport;
 import edu.upc.cnds.collectives.protocol.baseImp.AbstracProtocol;
+import edu.upc.cnds.collectives.transport.Transport;
 
 /**
  * Serves as a proxy between a node and the ProtocolModel. It fordwards propagate
