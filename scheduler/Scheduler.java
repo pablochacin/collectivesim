@@ -1,6 +1,5 @@
 package edu.upc.cnds.collectivesim.scheduler;
 
-import edu.upc.cnds.collectives.util.TypedMap;
 
 /**
  * Offers an interface to simulation engine to schedule actina and to access 
@@ -32,21 +31,43 @@ public interface Scheduler {
 	 
 	/** 
 	 * Schedules the execution of the target's run method on a repetitive way
-	 * following a given distribution in the time interval between sucessive executions.
+	 * following a given distribution in the time interval between successive executions.
 	 * 
 	 * @param target
 	 * @param distribution
 	 */
 	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream distribution);
 	
-
-	/** 
-	 * Schedules the execution of the target's run method on a repetitive way
-	 * with a given period between invocations
+	/**
+	 * Start the scheduling of tasks
 	 * 
-	 * @param target
-	 * @param period
+	 * @throws IllegalStateException if the scheduler has already been started
 	 */
-	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, long period);
+	public void start();
 
+	/**
+	 * Stops the scheduling of actions. Pending actions remains in the execution queue.
+	 */
+	public void pause();
+	
+	/**
+	 * Finalizes the scheduling of tasks and frees any resource. All pending actions
+	 * are deleted
+	 */
+	public void stop();
+
+	/**
+	 * Continues the scheduling of tasks
+	 */
+	public void resume();
+	
+
+	public long getSpeed();
+	
+	/**
+	 * Sets the execution speed. Execution speed defines the relationship between
+	 * simulation time and real clock time. 
+	 * @param speed
+	 */
+	public void setSpeed(long speed);
 }
