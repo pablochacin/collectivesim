@@ -39,6 +39,27 @@ public interface Scheduler {
 	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream distribution);
 	
 	/**
+	 * Schedules a repetitive task until the given time. The last execution is guaratee to be not greater
+	 * that the given time.
+	 * 
+	 * @param target
+	 * @param distribution
+	 * @param endTime
+	 * @return
+	 */
+	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream distribution,long endTime);
+
+	/**
+	 * Schedules a repetitive task the given number of times.
+	 * 
+	 * @param target
+	 * @param distribution
+	 * @param iterations
+	 * @return
+	 */
+	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream distribution,int iterations);
+
+	/**
 	 * Start the scheduling of tasks
 	 * 
 	 * @throws IllegalStateException if the scheduler has already been started

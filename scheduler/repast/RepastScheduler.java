@@ -86,9 +86,9 @@ private class SimulationThread implements Runnable {
   }
   
   
-  public synchronized ScheduledAction scheduleRepetitiveAction(Runnable target,Stream distribution) {
+  private synchronized ScheduledAction scheduleRepetitiveAction(Runnable target,Stream distribution,long iterations, long endTime) {
 	  
-	  RepetitiveAction action = new RepetitiveAction(schedule,target,distribution);
+	  RepetitiveAction action = new RepetitiveAction(schedule,target,distribution,iterations, new Double(endTime));
 
       nextTime = Math.min(nextTime, action.getNextTime());
 
@@ -99,6 +99,20 @@ private class SimulationThread implements Runnable {
   }
 
   
+  public ScheduledAction scheduleRepetitiveAction(Runnable target,Stream distribution, int iterations) {
+		  return scheduleRepetitiveAction(target, distribution, iterations,0);
+	}
+
+  
+   public ScheduledAction scheduleRepetitiveAction(Runnable target, Stream distribution, long endTime) {
+	  
+	  return scheduleRepetitiveAction(target, distribution, 0,endTime);
+	  
+	}
+
+	public ScheduledAction scheduleRepetitiveAction(Runnable target,Stream distribution) {
+		  return scheduleRepetitiveAction(target, distribution, 0,0);
+	}
 
 /**
   * @see simrealms.models.ModelInterface#getTime()
@@ -145,6 +159,8 @@ public void setSpeed(long speed) {
 private double getNextTime() {
 	return nextTime;
 }
+
+
 
 }
 
