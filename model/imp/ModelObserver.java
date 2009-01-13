@@ -89,7 +89,7 @@ public class ModelObserver implements Runnable, DataSequence {
          
          for(ModelAgent a: agents) {
         	 try {
-				operator.calculate(a. inquireAttribute(attribute));
+				operator.calculate(a. getAttribute(attribute));
 			} catch (ModelException e) {
 				operator.reset();
 				break;

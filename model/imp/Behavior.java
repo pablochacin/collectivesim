@@ -22,15 +22,16 @@ import edu.upc.cnds.collectivesim.scheduler.Stream;
 public class Behavior implements Runnable{
 
 
-	private static Logger log = Logger.getLogger("collectivesim.collective.behavior");
+	private static Logger log = Logger.getLogger("collectivesim.collective.model");
     /**
      * Realm on which the agents this model applies to, reside
      */
-    Model collective;
+    Model model;
+    
     /**
      * Frequency of execution of the behavior
      */
-    private double frequency;
+    private long frequency;
 
     /**
      * Name of the methods to be executed
@@ -67,11 +68,18 @@ public class Behavior implements Runnable{
 
      */
     public Behavior(String name, Model collective,String method, Stream[] streams, boolean active,
-            double frequency){
+            long frequency){
         this.name = name;
         this.method = method;
+        if (streams == null){
+        	this.streams = new Stream[0];
+        }
+        else{
+            this.streams = streams;
+        	
+        }
         this.frequency = frequency;
-        this.collective = collective;
+        this.model = collective;
 
         //if behavior must be created active
         if(active){
@@ -105,7 +113,7 @@ public class Behavior implements Runnable{
     		return;
     	}
     	
-    	List<ModelAgent> agents = collective.getAgents();
+    	List<ModelAgent> agents = model.getAgents();
    
     	for(ModelAgent a: agents) {
     	//construct an argument list for the method invocation
@@ -115,7 +123,7 @@ public class Behavior implements Runnable{
     	}
     	
     	try {
-			a.executeAction(method,arguments);
+			a.execute(method,arguments);
 		} catch (ModelException e) {
 			log.severe("Exception invoking method" +method+": "+ FormatException.getStackTrace(e));
 			active = false;

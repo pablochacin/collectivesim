@@ -97,7 +97,7 @@ public class Event implements Runnable {
     		List<ModelAgent> agents = sampler.sample(collective.getAgents());
     		
     		for(ModelAgent a: agents) {
-			   a.executeAction(method,args);
+			   a.execute(method,args);
     		}
 		} catch (ModelException e) {
 			log.severe("Exception invoking method" +method+": "+ FormatException.getStackTrace(e));
