@@ -23,7 +23,7 @@ public class RepetitiveAction extends AbstractScheduledAction {
 	private Runnable target;
 	
 	/**
-	 * Deleay between executions of the action
+	 * Delay between executions of the action
 	 */
 	private Stream distribution;
 	
@@ -40,10 +40,16 @@ public class RepetitiveAction extends AbstractScheduledAction {
 	 */
 	public RepetitiveAction(Schedule schedule,Runnable target,Stream distribution) {
 		super(schedule);
+		this.schedule = schedule;
 		this.target = target;
         this.distribution = distribution;
 	   
-        
+   	 //calculate the interval until next execution
+   	 interval = (Double)distribution.getValue();
+   	 
+   	 //set interval time
+   	 super.setIntervalTime(interval);
+
 	}
 	
     
@@ -62,14 +68,16 @@ public class RepetitiveAction extends AbstractScheduledAction {
       *
       */
      public void execute() {
+    	 
+    	 //call the target
+    	 target.run();
+
     	 //calculate the interval until next execution
     	 interval = (Double)distribution.getValue();
     	 
     	 //set interval time
     	 super.setIntervalTime(interval);
-    	 
-    	 //call the target
-    	 target.run();
+
      }
           
      
