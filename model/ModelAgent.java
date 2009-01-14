@@ -9,11 +9,15 @@ package edu.upc.cnds.collectivesim.model;
  */
 public interface ModelAgent {
 
-	
+	/**
+	 * 
+	 * @return the type of the agent.
+	 */
+	public String getType();
 	
 	/**
 	 * 
-	 * Inquire an attribute
+	 * Inquire an attribute of the agent.
 	 * 
 	 * @param attribute a String with the name of the attribute
 	 * 
@@ -21,17 +25,18 @@ public interface ModelAgent {
 	 * 
 	 * @throws AgentException if the attribute is not exposed by the agent
 	 */
-	public Object inquireAttribute(String attribute) throws ModelException;
+	public Object getAttribute(String attribute) throws ModelException;
 	
 	
 	/**
-	 * Handle the invocation of an action
+	 * Handle the invocation of a method in the agent
 	 * 
 	 * @param methodName
 	 * @param args
-	 * @throws AgentException
+	 * @throws AgentException if the method is not exposed by the agent or
+	 *         there is an exception executing it.
 	 */
-	public void executeAction(String action,Object[] args) throws ModelException;
+	public void execute(String action,Object ... args) throws ModelException;
 	
 	
 }

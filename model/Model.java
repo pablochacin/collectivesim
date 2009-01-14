@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.upc.cnds.collectives.protocol.Protocol;
-import edu.upc.cnds.collectivesim.model.imp.Behavior;
-import edu.upc.cnds.collectivesim.model.imp.ModelObserver;
+import edu.upc.cnds.collectives.dataseries.DataSequence;
+import edu.upc.cnds.collectivesim.model.imp.BehaviorVisitor;
 import edu.upc.cnds.collectivesim.model.imp.Event;
+import edu.upc.cnds.collectivesim.model.imp.ModelObserverVisitor;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.scheduler.Stream;
 import edu.upc.cnds.collectivesim.scheduler.repast.SingleValueStream;
@@ -16,7 +16,7 @@ import edu.upc.cnds.collectivesim.scheduler.repast.SingleValueStream;
 
 /**
  * Manages the simulation of a set of related ModelAgents by means of Behaviors that occur on the agent
- * periodically and Events that are trigered following a certain probability distribution. 
+ * periodically and Events that are triggered following a certain probability distribution. 
  * 
  * The Model allows also to observe the attributes of the agents.
  *  
@@ -35,9 +35,9 @@ public class Model{
 	private List<ModelAgent> agents;
 
 	/**
-	 * behaviors currently registered in the realm
+	 * behaviors currently registered in the model
 	 */
-	private HashMap<String,Behavior> behaviors;
+	private HashMap<String,BehaviorVisitor> behaviors;
 
 	/**
 	 * Scheduler used to control simulation
@@ -47,7 +47,7 @@ public class Model{
 	/**
 	 * list of active observers 
 	 */
-	private Map<String,ModelObserver> observers;
+	private Map<String,ModelObserverVisitor> observers;
 
 	/**
 	 * Constructor
@@ -55,8 +55,8 @@ public class Model{
 	public Model(Scheduler scheduler){
 		this.scheduler = scheduler;
 		this.agents = new ArrayList<ModelAgent>();
-		this.behaviors = new HashMap<String,Behavior>();
-		this.observers = new HashMap<String, ModelObserver>();
+		this.behaviors = new HashMap<String,BehaviorVisitor>();
+		this.observers = new HashMap<String, ModelObserverVisitor>();
 	}
 
 
@@ -67,14 +67,32 @@ public class Model{
 	 * @param method a Strings with the name of the method
 	 * @param streams an array with the Streams to feed the method invocation
 	 * @param active a boolean that indicates if the behavior must be inserted active
-	 *         or will be deactivated until the realm activates it.
+	 *         or will be inactive until the model activates it.
 	 * @param frequency a double that specifies the frequency of execution of the behaviors
 	 */
-	public void addBehavior(String name,String method,Stream[] streams,boolean active, long frequency){
-		Behavior behavior = new Behavior(name,this,method, streams,active,frequency);
+	public void addBehavior(String name,String method,boolean active, long frequency,int iterations,long endTime,Stream[] streams){
+	
+		BehaviorVisitor behavior = new BehaviorVisitor(name,this,method, streams,active,frequency);
 		behaviors.put(name,behavior);
 		
-		scheduler.scheduleRepetitiveAction(behavior,new SingleValueStream(name,new Double(frequency)));	
+		scheduler.scheduleRepetitiveAction(behavior,new SingleValueStream(name,new Double(frequency)),iterations,endTime);	
+	}
+	
+
+	public void addBehavior(String name,String method,boolean active, long frequency,Stream[] streams){
+		addBehavior(name, method, active, frequency,0,0, streams);
+	}
+
+	public void addBehavior(String name,String method,boolean active, long frequency,int iterations,Stream[] streams){
+		addBehavior(name, method, active, frequency,iterations,0, streams);
+		
+	}
+
+
+	
+	public void addBehavior(String name,String method,boolean active, long frequency,long endTime,Stream[] streams){
+		addBehavior(name, method, active, frequency,0,endTime, streams);
+	
 	}
 
 	/**
@@ -103,14 +121,15 @@ public class Model{
 	 * @param attribute the name of the attribute
 	 * @param frequency the frequency of update
 	 */
-	public void addObserver(String name, Operator operator, String attribute,long frequency) {
+	public void addObserver(String name, ModelObserver observer, String attribute,boolean active,long frequency) {
 
-		ModelObserver observer = new ModelObserver(this,name, operator, attribute);
+		ModelObserverVisitor action = new ModelObserverVisitor(this,name,observer,attribute,active,frequency);
 		
-		observers.put(name,observer);
+		observers.put(name,action);
 
 		//schedule observer at a fixed interval using a Stream with a fixed value
-		scheduler.scheduleRepetitiveAction(observer,new SingleValueStream(name,new Double(frequency)));
+		scheduler.scheduleRepetitiveAction(action,new SingleValueStream(name,new Double(frequency)));
+		
 	}
 
 
@@ -121,26 +140,26 @@ public class Model{
 
 
 	/**
-	 * pause the execution of the realm
+	 * pause the execution of the model
 	 */
 	 public void pause() {
 
 		 //pause behaviors
 		 for(int i = 0;i<behaviors.size();i++){
-			 ((Behavior)behaviors.get(i)).pause();
+			 ((BehaviorVisitor)behaviors.get(i)).pause();
 		 }
 
 	 }
 
 
 	 /**
-	  * starts the execution of the realm
+	  * starts the execution of the model
 	  */
 
 	 public void start() {
 		 //start behaviors
 		 for(int i = 0;i<behaviors.size();i++){
-			 ((Behavior)behaviors.get(i)).pause();
+			 ((BehaviorVisitor)behaviors.get(i)).pause();
 		 }
 
 	 }
@@ -148,10 +167,19 @@ public class Model{
 
 
 
-	 public boolean addAgent(ModelAgent agent) {
-		 	throw new UnsupportedOperationException();
+	 public void addAgent(ModelAgent agent) {
+		 	agents.add(agent);
 	 }
 
 
+	 /**
+	  * Convenience method to add a batch of agents
+	  * @param agents
+	  */
+	 public void addAgents(List<ModelAgent>agents) {
+		for(ModelAgent a: agents) {
+			addAgent(a);
+		}
+	 }
 
 }

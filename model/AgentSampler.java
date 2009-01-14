@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Samples a list of Agents and returns a sublist 
  * 
- * @author pchacin
+ * @author Pablo Chacin
  *
  */
 public interface AgentSampler {
