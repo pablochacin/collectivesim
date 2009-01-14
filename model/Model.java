@@ -5,10 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.upc.cnds.collectives.dataseries.DataSequence;
 import edu.upc.cnds.collectivesim.model.imp.BehaviorVisitor;
 import edu.upc.cnds.collectivesim.model.imp.DummySampler;
-import edu.upc.cnds.collectivesim.model.imp.Event;
 import edu.upc.cnds.collectivesim.model.imp.ModelObserverVisitor;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.scheduler.Stream;
