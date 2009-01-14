@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import edu.upc.cnds.collectives.util.FormatException;
+import edu.upc.cnds.collectivesim.model.AgentSampler;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.Model;
@@ -45,9 +46,8 @@ public class BehaviorVisitor extends AgentVisitor{
      * @param method a String the name of the method to be execute
      * @param streams an array of Streams to feed the arguments of the method
      */
-    public BehaviorVisitor(String name, Model model,String method, Stream[] streams, boolean active,
-            long frequency){
-    	super(model,name,active,frequency);
+    public BehaviorVisitor(Model model,String name,AgentSampler sampler,String method, Stream[] streams, boolean active){
+    	super(model,name,sampler,active);
     	this.method = method;
         if (streams == null){
         	this.streams = new Stream[0];

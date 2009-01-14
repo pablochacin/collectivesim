@@ -9,6 +9,7 @@ import edu.upc.cnds.collectives.dataseries.DataSequence;
 import edu.upc.cnds.collectives.dataseries.DataSeries;
 import edu.upc.cnds.collectives.dataseries.InvalidDataItemException;
 import edu.upc.cnds.collectives.dataseries.baseImp.BaseDataItem;
+import edu.upc.cnds.collectivesim.model.AgentSampler;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.Model;
@@ -41,8 +42,8 @@ public class ModelObserverVisitor extends AgentVisitor{
     /**
      * Default constructor
      */
-    public ModelObserverVisitor(Model model,String name,ModelObserver observer,String attribute,boolean active,long frequency){
-        super(model,name,active,frequency);
+    public ModelObserverVisitor(Model model,String name,AgentSampler sampler,ModelObserver observer,String attribute,boolean active){
+        super(model,name,sampler,active);
         this.observer = observer;
         this.attribute = attribute;
         this.values = new Vector();

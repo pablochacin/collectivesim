@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import edu.upc.cnds.collectives.util.FormatException;
+import edu.upc.cnds.collectivesim.model.AgentSampler;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.Model;
@@ -25,16 +26,16 @@ public abstract class AgentVisitor implements Runnable{
 
 
 	protected static Logger log = Logger.getLogger("collectivesim.model");
-    /**
-     * Realm on which the agents this model applies to, reside
+	
+	/**
+     * Model on which the agents this model applies to, reside
      */
     protected Model model;
     
-    /**
-     * Frequency of execution of the behavior
-     */
-    private long frequency;
-
+	/**
+	 * Sampler used to select the agents that will 
+	 */
+	private AgentSampler sampler;
     
     /**
      * name of the visitor
@@ -48,20 +49,20 @@ public abstract class AgentVisitor implements Runnable{
      */
     private boolean active=false;
     
+    
+    
     /**
      * Default constructor
      * @param name a String that identifies this behavior
      * @param model the Model on which resides the agents this behavior will be applied to
      * @param active a boolean that indicates if the behavior must be inserted active
      *        or will be deactivated until the realm activates it.
-     * @param frequency a long with the frequency, in ticks, of execution
-
      */
-    public AgentVisitor(Model model,String name, boolean active,long frequency){
+    public AgentVisitor(Model model,String name, AgentSampler sampler, boolean active){
         this.name = name;
-        this.frequency = frequency;
         this.model = model;
-
+        this.sampler = sampler;
+        
         //if visitor is active must be created active
         if(active){
             this.start();
@@ -95,8 +96,8 @@ public abstract class AgentVisitor implements Runnable{
     		return;
     	}
     	
-    	List<ModelAgent> agents = model.getAgents();
-   
+		List<ModelAgent> agents = sampler.sample(model.getAgents());   
+    	
     	startVisit();
     	
     	for(ModelAgent a: agents) {
@@ -139,8 +140,4 @@ public abstract class AgentVisitor implements Runnable{
     	return name;
     }
     
-    //TODO: check if this method is necessary at all.
-    protected long getFrequency(){
-    	return frequency;
-    }
 }

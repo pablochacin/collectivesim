@@ -7,6 +7,7 @@ import java.util.Map;
 
 import edu.upc.cnds.collectives.dataseries.DataSequence;
 import edu.upc.cnds.collectivesim.model.imp.BehaviorVisitor;
+import edu.upc.cnds.collectivesim.model.imp.DummySampler;
 import edu.upc.cnds.collectivesim.model.imp.Event;
 import edu.upc.cnds.collectivesim.model.imp.ModelObserverVisitor;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
@@ -20,7 +21,9 @@ import edu.upc.cnds.collectivesim.scheduler.repast.SingleValueStream;
  * 
  * The Model allows also to observe the attributes of the agents.
  *  
- * The CollectiveManager 
+ * TODO: Add AgentSampler as an optional parameter to adBbehavior and addObserver methods
+ * TODO: Allows a Stream as frequency (not only fixed values) to addBehavior method
+ * 
  * @author Pablo Chacin
  *
  */
@@ -72,7 +75,7 @@ public class Model{
 	 */
 	public void addBehavior(String name,String method,boolean active, long frequency,int iterations,long endTime,Stream[] streams){
 	
-		BehaviorVisitor behavior = new BehaviorVisitor(name,this,method, streams,active,frequency);
+		BehaviorVisitor behavior = new BehaviorVisitor(this,name,new DummySampler(),method, streams,active);
 		behaviors.put(name,behavior);
 		
 		scheduler.scheduleRepetitiveAction(behavior,new SingleValueStream(name,new Double(frequency)),iterations,endTime);	
@@ -96,23 +99,6 @@ public class Model{
 	}
 
 	/**
-	 * Adds an event that will be triggered at a certain time 
-	 *
-	 * @param agent CollectiveAgent that must execute the action
-	 * @param time a long with the time at which the event will be triggered
-	 * @param action a String with the name of the actions to be executed
-	 * @param args an array of Objects to be passed to the action
-     *
-	 */
-	public void addEvent(String name,AgentSampler sampler, Stream distribution, boolean active,String action,Stream...args){
-		Event event = new Event(name,this,sampler,active,action,args);
-		scheduler.scheduleRepetitiveAction(event, distribution);
-
-	}
-
-
-
-	/**
 	 * Adds an observer to calculate an attribute over the agents of the collective and generate 
 	 * a DataSeries with the resulting values
 	 * 
@@ -123,7 +109,7 @@ public class Model{
 	 */
 	public void addObserver(String name, ModelObserver observer, String attribute,boolean active,long frequency) {
 
-		ModelObserverVisitor action = new ModelObserverVisitor(this,name,observer,attribute,active,frequency);
+		ModelObserverVisitor action = new ModelObserverVisitor(this,name,new DummySampler(),observer,attribute,active);
 		
 		observers.put(name,action);
 
