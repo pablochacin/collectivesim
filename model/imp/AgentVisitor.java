@@ -3,12 +3,9 @@ package edu.upc.cnds.collectivesim.model.imp;
 import java.util.List;
 import java.util.logging.Logger;
 
-import edu.upc.cnds.collectives.util.FormatException;
 import edu.upc.cnds.collectivesim.model.AgentSampler;
-import edu.upc.cnds.collectivesim.model.ModelAgent;
-import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.Model;
-import edu.upc.cnds.collectivesim.scheduler.Stream;
+import edu.upc.cnds.collectivesim.model.ModelAgent;
 
 
 /**

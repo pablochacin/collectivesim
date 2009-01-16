@@ -1,6 +1,5 @@
 package edu.upc.cnds.collectivesim.model.imp;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 import edu.upc.cnds.collectives.util.FormatException;

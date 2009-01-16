@@ -27,6 +27,37 @@ public class ReflexionModelAgent implements ModelAgent {
 	 */
 	private String type;
 	
+	/**
+	 * Constructor without parameters. Used for convenience.
+	 * Assumes the name of the class as the type and the object itself as
+	 * its own target. Useful for classes that extend this base class and don't
+	 * need to differentiate type of objects
+	 */
+	public ReflexionModelAgent() {
+		this.type = this.getClass().getSimpleName();
+		this.target = this;
+	}
+	
+	
+	/**
+	 * Constructor without target. Assumes that this object is its own target
+	 * Useful for classes that extend this base class
+	 * 
+	 * @param type
+	 */
+	public ReflexionModelAgent(String type) {
+		this.type = type;
+		this.target = this;
+
+	}
+	
+	
+	/**
+	 * Constructor with an "external" target.
+	 *  
+	 * @param type
+	 * @param target
+	 */
 	public ReflexionModelAgent(String type, Object target) {
 		this.type = type;
 		this.target = target;
