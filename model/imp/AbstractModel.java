@@ -174,6 +174,9 @@ public abstract class AbstractModel implements Model{
 		 	agents.add(agent);
 	 }
 
+	 protected void addAgent(Object target){
+		 addAgent(new ReflexionModelAgent(target));
+	 }
 
 	 /**
 	  * Convenience method to insert a batch of agents
