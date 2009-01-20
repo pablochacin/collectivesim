@@ -3,6 +3,7 @@ package edu.upc.cnds.collectivesim.model.imp;
 import java.lang.reflect.Method;
 
 import edu.upc.cnds.collectives.util.FormatException;
+import edu.upc.cnds.collectives.util.ReflectionUtils;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
 
@@ -53,6 +54,15 @@ public class ReflexionModelAgent implements ModelAgent {
 	
 	
 	/**
+	 * Constructor with an "external" target. Uses target's class name as type
+	 *  
+	 * @param target
+	 */
+	public ReflexionModelAgent(Object target) {
+		this(target.getClass().getSimpleName(),target);
+	}
+	
+	/**
 	 * Constructor with an "external" target.
 	 *  
 	 * @param type
@@ -67,14 +77,9 @@ public class ReflexionModelAgent implements ModelAgent {
 		try {			
 			
 			
-			Class[] classes = new Class[args.length];
-			for(int i=0;i <args.length;i++){
-				classes[i] = args[i].getClass();
-			}
-			
-			Method m = target.getClass().getMethod(action, classes);
 
-			m.invoke(target, args);
+
+			ReflectionUtils.invoke(target,action, args);
 			
 		} catch (Exception e) {
 			throw new ModelException("Exception executing action "+ action +FormatException.getStackTrace(e));
@@ -85,10 +90,9 @@ public class ReflexionModelAgent implements ModelAgent {
 
 	public Object getAttribute(String attribute) throws ModelException{
 		String getter = "get"+ attribute;
-		Method m;
 		try {
-			m = target.getClass().getMethod(getter, new Class[0]);
-			return m.invoke(target, (Object[])null);
+			return ReflectionUtils.invoke(target, getter, new Object[0]);
+			
 		} catch (Exception e) {
 			throw new ModelException("Exception accesssing attribute "+ attribute +FormatException.getStackTrace(e));
 
