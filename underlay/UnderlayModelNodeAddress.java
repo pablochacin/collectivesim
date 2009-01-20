@@ -1,24 +1,18 @@
 package edu.upc.cnds.collectivesim.underlay;
 
-
 import edu.upc.cnds.collectives.underlay.UnderlayAddress;
 
 public class UnderlayModelNodeAddress implements UnderlayAddress{
 
-	private String address;
 	
-	private UnderlayModel underlay;
-	
-	public UnderlayModelNodeAddress(String address,UnderlayModel underlay) {
-		this.underlay = underlay;
-		this.address = address;
+	private String location;
+
+	public UnderlayModelNodeAddress(String location) {
+		this.location = location;
 	}
 	
-	//TODO generate a mininful location information
+	//TODO generate a meaningful location information
 	public String getLocation() {
-		return address;
+		return location;
 	}
-
-
-	
 }

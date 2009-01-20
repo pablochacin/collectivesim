@@ -1,7 +1,8 @@
-package edu.upc.cnds.collectivesim.topology.Grid2D;
+package edu.upc.cnds.collectivesim.underlay.Grid2D;
 
 /**
  * A Location in a 2D Grid
+ * 
  * @author pchacin
  *
  */
@@ -11,8 +12,7 @@ public class Grid2DLocation {
 	
 	private int coordY;
 		
-	public Grid2DLocation(Grid2DModel grid,int coordX, int coordY) {
-		super();
+	public Grid2DLocation(int coordX, int coordY) {
 		this.coordX = coordX;
 		this.coordY = coordY;
 	}
