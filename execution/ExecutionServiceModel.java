@@ -4,6 +4,8 @@ import edu.upc.cnds.collectives.execution.ExecutionService;
 import edu.upc.cnds.collectives.execution.Task;
 import edu.upc.cnds.collectivesim.scheduler.ScheduledAction;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
+import edu.upc.cnds.collectivesim.scheduler.Stream;
+import edu.upc.cnds.collectivesim.scheduler.repast.SingleValueStream;
 
 public class ExecutionServiceModel implements ExecutionService {
 
@@ -21,13 +23,15 @@ public class ExecutionServiceModel implements ExecutionService {
 
 	public Task execute(Runnable task) {
 		ScheduledAction action = scheduler.scheduleAction(task, 0);
-		return new TaskModel(action);
+		return new ExecutionServiceModelTask(action);
 	}
 
 	
 	public Task scheduleRepetitiveTask(Runnable task, long delay, long period) {
-		ScheduledAction action = scheduler.scheduleRepetitiveAction(task, period);
-		return new TaskModel(action);
+		Stream periodStream = new SingleValueStream("",new Double(period));
+		
+		ScheduledAction action = scheduler.scheduleRepetitiveAction(task, periodStream);
+		return new ExecutionServiceModelTask(action);
 	}
 
 	public Task scheduleTask(Runnable task, long delay) {

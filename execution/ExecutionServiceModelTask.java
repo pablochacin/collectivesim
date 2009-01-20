@@ -9,14 +9,14 @@ import edu.upc.cnds.collectivesim.scheduler.ScheduledAction;
  * @author Pablo Chacin
  *
  */
-public class TaskModel implements Task {
+public class ExecutionServiceModelTask implements Task {
 
 	/**
 	 * The model's scheduled actino associated with this task
 	 */
 	ScheduledAction action;
 	
-	public TaskModel(ScheduledAction action) {
+	public ExecutionServiceModelTask(ScheduledAction action) {
 		this.action = action;
 	}
 
