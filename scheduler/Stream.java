@@ -1,14 +1,14 @@
 package edu.upc.cnds.collectivesim.scheduler;
 
 /**
- * A stream of objects that can feed the simulation.
+ * A stream of values that can feed the simulation.
  * The objects can be obtained from any external source
  * like a file, a random number generator or even be a fixed value.
  * 
  * @author Pablo Chacin
  *
  */
-public interface Stream {
+public interface Stream<T> {
 
 	/**
 	 * 
@@ -22,5 +22,5 @@ public interface Stream {
 	 * 
 	 * @return
 	 */
-	public Object getValue();
+	public T getValue();
 }

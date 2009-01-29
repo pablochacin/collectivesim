@@ -26,7 +26,7 @@ public class RepetitiveAction extends AbstractScheduledAction {
 	/**
 	 * Delay between executions of the action
 	 */
-	private Stream distribution;
+	private Stream<Long> distribution;
 	
 	private Double interval;
 
@@ -47,7 +47,7 @@ public class RepetitiveAction extends AbstractScheduledAction {
      * @param maxIterations maximum number of executions of the task
      * @param endTime time limit for execution of the task
 	 */
-	public RepetitiveAction(Schedule schedule,Runnable target,Stream distribution,long maxIterations,Double endTime) {
+	public RepetitiveAction(Schedule schedule,Runnable target,Stream<Long> distribution,long maxIterations,Double endTime) {
 		super(schedule);
 		this.schedule = schedule;
 		this.target = target;
@@ -57,7 +57,7 @@ public class RepetitiveAction extends AbstractScheduledAction {
         this.endTime = endTime;
 	   
    	 //calculate the interval until next execution
-   	 interval = (Double)distribution.getValue();
+   	 interval = (double)distribution.getValue();
    	 
    	 //set interval time
    	 super.setIntervalTime(interval);
@@ -71,7 +71,7 @@ public class RepetitiveAction extends AbstractScheduledAction {
 	 * @param target
 	 * @param distribution
 	 */
-	public RepetitiveAction(Schedule schedule,Runnable target,Stream distribution) {
+	public RepetitiveAction(Schedule schedule,Runnable target,Stream<Long> distribution) {
 		this(schedule,target,distribution,0,0.0);
 	}
 
@@ -97,7 +97,7 @@ public class RepetitiveAction extends AbstractScheduledAction {
     	 
 
     	 //calculate the interval until next execution
-    	 interval = (Double)distribution.getValue();
+    	 interval = (double)distribution.getValue();
 
     	 //check if must continue executin
     	 iterations++;

@@ -6,28 +6,26 @@ import edu.upc.cnds.collectivesim.scheduler.Stream;
  * A simple Stream that return always the same value
  * 
  * @author Pablo Chacin
+ * @param <T>
  *
  */
-public class SingleValueStream implements Stream {
+public class SingleValueStream<T> implements Stream<T> {
 
 	private String name;
 	
-	private Double value;
+	private T value;
 	
-	public SingleValueStream(String name, Double value) {
+	public SingleValueStream(String name, T value) {
 		this.name = name;
 		this.value = value;		
 	}
 	
-	public SingleValueStream(String name,long value) {
-		this(name,new Double(value));
-	}
 	
 	public String getName() {
 		return name;
 	}
 
-	public Object getValue() {
+	public T getValue() {
 	
 		return value;
 	}

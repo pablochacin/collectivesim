@@ -36,7 +36,7 @@ public interface Scheduler {
 	 * @param target
 	 * @param distribution
 	 */
-	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream distribution);
+	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream<Long> distribution);
 	
 	/**
 	 * Schedules a repetitive task until the given time. The last execution is guaratee to be not greater
@@ -47,8 +47,8 @@ public interface Scheduler {
 	 * @param endTime
 	 * @return
 	 */
-	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream distribution,long endTime);
-
+	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream<Long> distribution,long endTime);
+	
 	/**
 	 * Schedules a repetitive task the given number of times.
 	 * 
@@ -57,7 +57,17 @@ public interface Scheduler {
 	 * @param iterations
 	 * @return
 	 */
-	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream distribution,int iterations);
+	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream<Long> distribution,int iterations);
+
+	/**
+	 * schedule an action until either the endtime or a maximum number of iterations are reached.
+	 * @param target
+	 * @param distribution
+	 * @param iterations
+	 * @param endTime
+	 * @return
+	 */
+	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream<Long> distribution,int iterations,long endTime);
 
 	/**
 	 * Start the scheduling of tasks
