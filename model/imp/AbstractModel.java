@@ -71,7 +71,7 @@ public abstract class AbstractModel implements Model{
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, edu.upc.cnds.collectivesim.scheduler.Stream, int, long, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
-	public void addBehavior(String name,String method,boolean active, Stream frequency,int iterations,long endTime,Stream[] streams){
+	public void addBehavior(String name,String method,boolean active, Stream<Long> frequency,int iterations,long endTime,Stream<Object>[] streams){
 	
 		BehaviorVisitor behavior = new BehaviorVisitor(this,name,new DummySampler(),method, streams,active);
 		behaviors.put(name,behavior);
@@ -83,23 +83,23 @@ public abstract class AbstractModel implements Model{
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, long, int, long, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
-	public void addBehavior(String name,String method,boolean active, long frequency,int iterations,long endTime,Stream[] streams){
-		addBehavior(name, method, active, new SingleValueStream(name,new Double(frequency)),0,0, streams);		
+	public void addBehavior(String name,String method,boolean active, long frequency,int iterations,long endTime,Stream<Object>[] args){
+		addBehavior(name, method, active, new SingleValueStream<Long>(name,new Long(frequency)),0,0, args);		
 	}
 
 	
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, long, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
-	public void addBehavior(String name,String method,boolean active, long frequency,Stream[] streams){
-		addBehavior(name, method, active, frequency,0,0, streams);
+	public void addBehavior(String name,String method,boolean active, long frequency,Stream<Object>[] args){
+		addBehavior(name, method, active, frequency,0,0, args);
 	}
 
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, long, int, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
-	public void addBehavior(String name,String method,boolean active, long frequency,int iterations,Stream[] streams){
-		addBehavior(name, method, active, frequency,iterations,0, streams);
+	public void addBehavior(String name,String method,boolean active, long frequency,int iterations,Stream<Object>[] args){
+		addBehavior(name, method, active, frequency,iterations,0, args);
 		
 	}
 
@@ -107,8 +107,8 @@ public abstract class AbstractModel implements Model{
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, long, long, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
-	public void addBehavior(String name,String method,boolean active, long frequency,long endTime,Stream[] streams){
-		addBehavior(name, method, active, frequency,0,endTime, streams);
+	public void addBehavior(String name,String method,boolean active, long frequency,long endTime,Stream<Object>[] args){
+		addBehavior(name, method, active, frequency,0,endTime, args);
 	
 	}
 
@@ -122,7 +122,7 @@ public abstract class AbstractModel implements Model{
 		observers.put(name,action);
 
 		//schedule observer at a fixed interval using a Stream with a fixed value
-		scheduler.scheduleRepetitiveAction(action,new SingleValueStream(name,new Double(frequency)));
+		scheduler.scheduleRepetitiveAction(action,new SingleValueStream<Long>(name,new Long(frequency)));
 		
 	}
 
@@ -188,4 +188,22 @@ public abstract class AbstractModel implements Model{
 		}
 	 }
 
+	public long getCurrentTime() {
+	 return scheduler.getTime().longValue();		
+	}
+	
+	/**
+	 * Schedules the execution of an event on an specific agent. This method is protected because
+	 * it receives an agent as a parameter and it is not safe to allow external components to
+	 * specify the agent, as it might not be part of the model. Subclasses should provide some
+	 * safe model-specific method to trigger events on an particular agent. 
+	 * 
+	 * @param agent
+	 * @param delay
+	 * @param method
+	 * @param args
+	 */
+	protected void addEvent(ModelAgent agent,long delay,String method,Object[] args){
+		scheduler.scheduleAction(new EventAction(agent,method,args), delay);
+	}
 }
