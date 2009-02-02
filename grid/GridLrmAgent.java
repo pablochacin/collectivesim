@@ -54,9 +54,7 @@ public class GridLrmAgent extends BasicGridLRM {
 		if(processQueue.size() == 0){
 			return;
 		}
-		
-
-		
+				
 		//calculate the execution slice for each job in the queue
 		//based on the time they have been executing, the speed of the resource
 		//the background load of the system (jobs not managed by the LRM) and the 
@@ -75,6 +73,7 @@ public class GridLrmAgent extends BasicGridLRM {
 			}
 		}
 
+		lastUpdate = getCurrentTime();
 	}
 
 	/**
@@ -92,8 +91,8 @@ public class GridLrmAgent extends BasicGridLRM {
 	}
 	
 	protected int getNumActiveProcesses(){
-		//depending on the policy, assign execution time to all or just the first job
-		//in the queue
+		//depending on the policy, all or just the first job
+		//in the queue are active
 		int numProcesses;
 		if(policy.equals(POLICY.FCFS)){
 			numProcesses= 1;
@@ -122,6 +121,9 @@ public class GridLrmAgent extends BasicGridLRM {
 
 
 	@Override
+	//TODO: calculate the service rate considering that in a FCFS policy
+	//      some processes are not getting ANY processing time, so the average
+	//      serviceRate should be lower than in a RR policy.
 	public Double getServiceRate() {
 		//calculate the service rate as the ratio among a given quantum and
 		//the share received by each process
