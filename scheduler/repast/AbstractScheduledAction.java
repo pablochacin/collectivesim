@@ -10,7 +10,7 @@ import uchicago.src.sim.engine.Schedule;
 public abstract class AbstractScheduledAction extends BasicAction implements ScheduledAction {
 
 	
-	protected static Logger log = Logger.getLogger("collectivesim.models");
+	protected static Logger log = Logger.getLogger("collectivesim.model");
 	
 	protected Schedule schedule;
 		
