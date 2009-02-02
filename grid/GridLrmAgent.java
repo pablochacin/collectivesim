@@ -1,6 +1,7 @@
 package edu.upc.cnds.collectivesim.grid;
 
 import java.util.Iterator;
+import java.util.List;
 
 import edu.upc.cnds.collectiveg.GridProcess;
 import edu.upc.cnds.collectiveg.GridResource;
@@ -54,27 +55,17 @@ public class GridLrmAgent extends BasicGridLRM {
 			return;
 		}
 		
-		//depending on the policy, assign execution time to all or just the first job
-		//in the queue
-		int limit;
-		if(policy.equals(POLICY.FCFS)){
-			limit= 1;
-		}
-		else{
-			limit = processQueue.size();
-			
-		}
+
 		
 		//calculate the execution slice for each job in the queue
 		//based on the time they have been executing, the speed of the resource
 		//the background load of the system (jobs not managed by the LRM) and the 
 		//number of jobs being served
-		long executionTime = getCurrentTime()-lastUpdate;
-		double cpuRate = resource.getSpeed()*(1-getBackgroundLoad());		
-		long slice =(long)((executionTime/limit)*cpuRate);
-
+		long quantum = getCurrentTime()-lastUpdate;
+		long slice = getQuantumSlice(quantum,getNumActiveProcesses());
+		
 		//update execution time		
-		Iterator<GridProcess> i  = processQueue.subList(0, limit).iterator();
+		Iterator<GridProcess> i  = processQueue.subList(0, getNumActiveProcesses()).iterator();
 		
 		while(i.hasNext()){
 			BasicGridProcess p = (BasicGridProcess)i.next();
@@ -86,6 +77,40 @@ public class GridLrmAgent extends BasicGridLRM {
 
 	}
 
+	/**
+	 * Returns the quantum slice that will receive each of the currently active processes
+	 * 
+	 * @param quantum time to be shared among processes
+	 * @param numProcesses num of processes to share the quantum
+	 * @return
+	 */
+	protected long getQuantumSlice(long quantum,int numProcesses){
+		double cpuRate = resource.getSpeed()*(1-getBackgroundLoad());		
+		long slice = (long)((quantum/Math.max(1, numProcesses))*cpuRate);
+		return slice;
+	
+	}
+	
+	protected int getNumActiveProcesses(){
+		//depending on the policy, assign execution time to all or just the first job
+		//in the queue
+		int numProcesses;
+		if(policy.equals(POLICY.FCFS)){
+			numProcesses= 1;
+		}
+		else{
+			numProcesses = processQueue.size();
+			
+		}
+		
+		return numProcesses;
+	}
+	
+	
+	public GridProcess[] getActiveProcesses(){
+		return processQueue.subList(0, getNumActiveProcesses()).toArray(new GridProcess[getNumActiveProcesses()]);
+	}
+	
 	protected double getBackgroundLoad(){
 		return backgroundLoad.getValue();
 	}
@@ -98,7 +123,9 @@ public class GridLrmAgent extends BasicGridLRM {
 
 	@Override
 	public Double getServiceRate() {
-		throw new UnsupportedOperationException();	
+		//calculate the service rate as the ratio among a given quantum and
+		//the share received by each process
+		return (double)(getQuantumSlice(100,processQueue.size()))/100.0;	
 	}
 
 	
