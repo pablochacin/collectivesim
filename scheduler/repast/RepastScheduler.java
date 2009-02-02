@@ -30,8 +30,9 @@ private class SimulationThread implements Runnable {
 	@SuppressWarnings("static-access")
 	public void run() {
 		while(true) {
+		if(!paused){	
 		  schedule.execute();
-		  
+		 }
 		  try {
 			  long delay = Math.max((long)(getNextTime()-schedule.getCurrentTime()),1); 
 			Thread.currentThread().sleep(delay*speed);
@@ -58,6 +59,7 @@ private class SimulationThread implements Runnable {
   
   private double nextTime = 0;
   
+  private boolean paused = false;
   
   public RepastScheduler() {
 	  this(DEFAULT_SPEED);
@@ -123,11 +125,11 @@ public Double getTime(){
 }
 
 public void pause() {
-	 throw new UnsupportedOperationException();	
+	 paused= true;
 }
 
 public void resume() {
-	 throw new UnsupportedOperationException();	
+	paused = false;
 }
 
 public void start() {
