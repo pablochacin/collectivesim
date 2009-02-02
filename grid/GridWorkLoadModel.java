@@ -1,6 +1,6 @@
 package edu.upc.cnds.collectivesim.grid;
 
-import edu.upc.cnds.collectiveg.GridLRM;
+import edu.upc.cnds.collectiveg.GridResourceBroker;
 import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 
@@ -22,12 +22,12 @@ public class GridWorkLoadModel extends AbstractModel {
 	 * Adds a new workload to the grid. The workload is associated to a LRM
 	 * to which the tasks are sumitted.
 	 * 
-	 * @param lrm a GridLRM to which tasks are submitted
+	 * @param broker a GridResourceBrojer to which tasks are submitted
 	 * @param workload a {@link GridWorkload} that generates the tasks
 	 */
 	
-	public void addWorkLoad(GridLRM lrm,GridWorkload workload){
-		GridWorkloadAgent agent = new GridWorkloadAgent(this,lrm,workload);
+	public void addWorkLoad(GridResourceBroker broker,GridWorkload workload){
+		GridWorkloadAgent agent = new GridWorkloadAgent(this,broker,workload);
 		
 		scheduler.scheduleRepetitiveAction(agent, agent.arrivalTimeStream());
 		

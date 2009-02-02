@@ -1,6 +1,6 @@
 package edu.upc.cnds.collectivesim.grid;
 
-import edu.upc.cnds.collectiveg.GridLRM;
+import edu.upc.cnds.collectiveg.GridResourceBroker;
 import edu.upc.cnds.collectiveg.GridTask;
 import edu.upc.cnds.collectivesim.model.imp.ReflexionModelAgent;
 import edu.upc.cnds.collectivesim.scheduler.Stream;
@@ -9,15 +9,15 @@ public class GridWorkloadAgent extends ReflexionModelAgent implements Runnable, 
 	
 	private GridWorkload workload;
 	
-	private GridLRM lrm;
+	private GridResourceBroker broker;
 	
 	private GridWorkLoadModel model;
 	
 	private GridTask nextArrival;
 	
-	public GridWorkloadAgent(GridWorkLoadModel model, GridLRM lrm,GridWorkload workload) {
+	public GridWorkloadAgent(GridWorkLoadModel model, GridResourceBroker broker,GridWorkload workload) {
 		this.model = model;
-		this.lrm = lrm;
+		this.broker = broker;
 		this.workload = workload;
 		this.nextArrival = workload.getNextArrival();
 	}
@@ -26,8 +26,12 @@ public class GridWorkloadAgent extends ReflexionModelAgent implements Runnable, 
 		return this;
 	}
 	
+	/**
+	 * Process the next arrival, submitting it to the Broker and
+	 * preparing the following arrival.
+	 */
 	public void run(){
-		lrm.sumbit(workload.getNextArrival());
+		broker.sumbit(workload.getNextArrival());
 		nextArrival =  workload.getNextArrival();
 	}
 
