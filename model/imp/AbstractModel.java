@@ -71,9 +71,9 @@ public abstract class AbstractModel implements Model{
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, edu.upc.cnds.collectivesim.scheduler.Stream, int, long, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
-	public void addBehavior(String name,String method,boolean active, Stream<Long> frequency,int iterations,long endTime,Stream<Object>[] streams){
+	public void addBehavior(String name,String method,boolean active, Stream<Long> frequency,int iterations,long endTime,Stream<Object>... args){
 	
-		BehaviorVisitor behavior = new BehaviorVisitor(this,name,new DummySampler(),method, streams,active);
+		BehaviorVisitor behavior = new BehaviorVisitor(this,name,new DummySampler(),method, active,args);
 		behaviors.put(name,behavior);
 		
 		scheduler.scheduleRepetitiveAction(behavior,frequency,iterations,endTime);	
@@ -83,7 +83,7 @@ public abstract class AbstractModel implements Model{
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, long, int, long, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
-	public void addBehavior(String name,String method,boolean active, long frequency,int iterations,long endTime,Stream<Object>[] args){
+	public void addBehavior(String name,String method,boolean active, long frequency,int iterations,long endTime,Stream<Object> ... args){
 		addBehavior(name, method, active, new SingleValueStream<Long>(name,new Long(frequency)),0,0, args);		
 	}
 
@@ -91,14 +91,14 @@ public abstract class AbstractModel implements Model{
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, long, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
-	public void addBehavior(String name,String method,boolean active, long frequency,Stream<Object>[] args){
+	public void addBehavior(String name,String method,boolean active, long frequency,Stream<Object> ...args){
 		addBehavior(name, method, active, frequency,0,0, args);
 	}
 
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, long, int, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
-	public void addBehavior(String name,String method,boolean active, long frequency,int iterations,Stream<Object>[] args){
+	public void addBehavior(String name,String method,boolean active, long frequency,int iterations,Stream<Object> ... args){
 		addBehavior(name, method, active, frequency,iterations,0, args);
 		
 	}
@@ -107,7 +107,7 @@ public abstract class AbstractModel implements Model{
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, long, long, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
-	public void addBehavior(String name,String method,boolean active, long frequency,long endTime,Stream<Object>[] args){
+	public void addBehavior(String name,String method,boolean active, long frequency,long endTime,Stream<Object> ... args){
 		addBehavior(name, method, active, frequency,0,endTime, args);
 	
 	}
@@ -142,10 +142,9 @@ public abstract class AbstractModel implements Model{
 	 public void pause() {
 
 		 //pause behaviors
-		 for(int i = 0;i<behaviors.size();i++){
-			 ((BehaviorVisitor)behaviors.get(i)).pause();
+		 for(BehaviorVisitor b: behaviors.values()){
+			 b.pause();
 		 }
-
 	 }
 
 
@@ -155,10 +154,9 @@ public abstract class AbstractModel implements Model{
 
 	 public void start() {
 		 //start behaviors
-		 for(int i = 0;i<behaviors.size();i++){
-			 ((BehaviorVisitor)behaviors.get(i)).pause();
+		 for(BehaviorVisitor b: behaviors.values()){
+			 b.start();
 		 }
-
 	 }
 
 
@@ -203,7 +201,7 @@ public abstract class AbstractModel implements Model{
 	 * @param method
 	 * @param args
 	 */
-	protected void addEvent(ModelAgent agent,long delay,String method,Object[] args){
+	protected void addEvent(ModelAgent agent,long delay,String method,Object ... args){
 		scheduler.scheduleAction(new EventAction(agent,method,args), delay);
 	}
 }

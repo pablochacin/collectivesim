@@ -20,7 +20,7 @@ public interface Model {
 	 */
 	public abstract void addBehavior(String name, String method,
 			boolean active, Stream<Long> frequency, int iterations, long endTime,
-			Stream<Object>[] args);
+			Stream<Object> ... args);
 
 	/**
 	 * Convenience method. Receives the frequency as a long and converts it to a SingleValueStream.
@@ -35,7 +35,7 @@ public interface Model {
 	 */
 	public abstract void addBehavior(String name, String method,
 			boolean active, long frequency, int iterations, long endTime,
-			Stream<Object>[] args);
+			Stream<Object>... args);
 
 	/**
 	 * Convenience method, adds a behavior without endtime nor maximun iterations
@@ -47,7 +47,7 @@ public interface Model {
 	 * @param args
 	 */
 	public abstract void addBehavior(String name, String method,
-			boolean active, long frequency, Stream<Object>[] args);
+			boolean active, long frequency, Stream<Object>... args);
 
 	/**
 	 * Convenience method, defines a behavior with a maximum of iterations
@@ -59,7 +59,7 @@ public interface Model {
 	 * @param args
 	 */
 	public abstract void addBehavior(String name, String method,
-			boolean active, long frequency, int iterations, Stream<Object>[] args);
+			boolean active, long frequency, int iterations, Stream<Object> ... args);
 
 	/**
 	 * Convenience method, defined a behavior with a end time
@@ -72,7 +72,7 @@ public interface Model {
 	 * @param args
 	 */
 	public abstract void addBehavior(String name, String method,
-			boolean active, long frequency, long endTime, Stream<Object>[] args);
+			boolean active, long frequency, long endTime, Stream<Object>... args);
 
 	/**
 	 * Adds an observer to calculate an attribute over the agents of the collective and generate 
