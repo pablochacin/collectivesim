@@ -1,7 +1,5 @@
 package edu.upc.cnds.collectivesim.model.imp;
 
-import java.lang.reflect.Method;
-
 import edu.upc.cnds.collectives.util.FormatException;
 import edu.upc.cnds.collectives.util.ReflectionUtils;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
@@ -19,23 +17,29 @@ import edu.upc.cnds.collectivesim.model.ModelException;
 public class ReflexionModelAgent implements ModelAgent {
 
 	/**
+	 * Counts the agents created for each subclass, to be used when generating 
+	 * agent names 
+	 */
+	private static int agentCounter = 0;
+	
+	/**
 	 * target object that will handle requests
 	 */
 	private Object target;
 	
 	/**
-	 * Type of the agent
+	 * Name of the agent
 	 */
-	private String type;
+	private String name;
 	
 	/**
 	 * Constructor without parameters. Used for convenience.
 	 * Assumes the name of the class as the type and the object itself as
 	 * its own target. Useful for classes that extend this base class and don't
-	 * need to differentiate type of objects
+	 * need an specific name. 
 	 */
 	public ReflexionModelAgent() {
-		this.type = this.getClass().getSimpleName();
+		this.name = generateName(this);
 		this.target = this;
 	}
 	
@@ -44,34 +48,52 @@ public class ReflexionModelAgent implements ModelAgent {
 	 * Constructor without target. Assumes that this object is its own target
 	 * Useful for classes that extend this base class
 	 * 
-	 * @param type
+	 * @param name
 	 */
-	public ReflexionModelAgent(String type) {
-		this.type = type;
+	public ReflexionModelAgent(String name) {
+		this.name = name;
 		this.target = this;
 
 	}
 	
 	
 	/**
-	 * Constructor with an "external" target. Uses target's class name as type
+	 * Constructor with an "external" target. Uses target's class name plus a correlative
+	 * as the agent's name. 
 	 *  
 	 * @param target
 	 */
 	public ReflexionModelAgent(Object target) {
-		this(target.getClass().getSimpleName(),target);
+		this.name = generateName(target);
+		this.target = target;
+	}
+		
+	/**
+	 * Constructor with an "external" target. The agent will redirect all 
+	 * attribute inquires and method invocations to the target using reflexion.
+	 * Useful to create agents from classes that must inherit another
+	 * super classes. 
+	 *  
+	 * @param name
+	 * @param target
+	 */
+	public ReflexionModelAgent(String name, Object target) {
+		this.name = name;
+		this.target = target;
 	}
 	
 	/**
-	 * Constructor with an "external" target.
+	 * Generates an agent name from the agent's classname and a correlative number.
+	 * Correlative is increase for each instance of this class, including all subclasses.
+	 * Therefore, it might not be correlative acroos all the instances of a given subclass
+	 * resulting in names like class1-1, class1-2, class2-3, class1-4 ....
 	 *  
-	 * @param type
-	 * @param target
+	 * @return a name composed of the class name and a correlative
 	 */
-	public ReflexionModelAgent(String type, Object target) {
-		this.type = type;
-		this.target = target;
+	private String generateName(Object obj){
+		return obj.getClass().getSimpleName()+"-"+agentCounter++;
 	}
+
 	
 	public void execute(String action, Object ... args) throws ModelException {
 		try {			
@@ -101,8 +123,8 @@ public class ReflexionModelAgent implements ModelAgent {
 		
 	}
 	
-	public String getType() {
-		return type;
+	public String getName() {
+		return name;
 	}
 
 }

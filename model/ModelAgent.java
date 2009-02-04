@@ -13,7 +13,7 @@ public interface ModelAgent {
 	 * 
 	 * @return the type of the agent.
 	 */
-	public String getType();
+	public String getName();
 	
 	/**
 	 * 
