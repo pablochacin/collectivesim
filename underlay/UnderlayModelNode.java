@@ -17,7 +17,7 @@ import edu.upc.cnds.collectives.underlay.imp.AbstractUnderlayNode;
  * @author Pablo Chacin
  *
  */
-public abstract class UnderlayModelNode extends AbstractUnderlayNode  {
+public class UnderlayModelNode extends AbstractUnderlayNode  {
 
 	/**
 	 * 
