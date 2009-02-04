@@ -15,12 +15,14 @@ import edu.upc.cnds.collectivesim.scheduler.Scheduler;
  * 
  * Uses the Scheduler to delay the invocation of methods in the target node.
  * 
- * TODO:use the 
+ * TODO:use the addEvent method provided by AbstractModel to schedule the execution
+ *      of the protocol invocation on the target protocol. Class TransportAction almost
+ *      mimics the EventAction class.
  * 
  * @author 
  *
  */
-public abstract class TransportModel extends AbstractModel {
+public class TransportModel extends AbstractModel {
 
 	private static Logger log = Logger.getLogger("collectivesim.transport");
 	
