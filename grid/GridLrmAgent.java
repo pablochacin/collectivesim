@@ -1,5 +1,6 @@
 package edu.upc.cnds.collectivesim.grid;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -8,12 +9,34 @@ import edu.upc.cnds.collectiveg.GridResource;
 import edu.upc.cnds.collectiveg.GridTask;
 import edu.upc.cnds.collectiveg.InvalidResourceEspecification;
 import edu.upc.cnds.collectiveg.GridProcess.ExecutionState;
-import edu.upc.cnds.collectiveg.baseImp.BasicGridLRM;
+import edu.upc.cnds.collectiveg.GridLRM;
+import edu.upc.cnds.collectiveg.GridLRM.POLICY;
+import edu.upc.cnds.collectivesim.model.ModelAgent;
+import edu.upc.cnds.collectivesim.model.ModelException;
+import edu.upc.cnds.collectivesim.model.imp.ReflexionModelAgent;
 import edu.upc.cnds.collectivesim.scheduler.Stream;
 
 
-public class GridLrmAgent extends BasicGridLRM {
+public class GridLrmAgent extends ReflexionModelAgent implements GridLRM{
 
+	/**
+	 * Description of the resources managed by this LRM
+	 */
+	protected GridResource resource;
+
+	/**
+	 * LRM's name in the grid. MUST be unique.
+	 */
+	protected String name;
+
+	/**
+	 * Execution policy
+	 */
+	protected POLICY policy;
+
+	
+	protected List<GridProcess>processQueue;
+	
 	private GridLrmModel model;
 	
 	private long lastUpdate;
@@ -21,7 +44,10 @@ public class GridLrmAgent extends BasicGridLRM {
 	private Stream<Double>backgroundLoad;
 	
 	public GridLrmAgent(GridLrmModel model,String name, GridResource resource, Stream<Double>backgroundLoad,POLICY policy) throws InvalidResourceEspecification {
-		super(name, resource, policy);
+		this.name = name;
+		this.resource = resource;
+		this.policy = policy;
+		this.processQueue = new ArrayList<GridProcess>();
 		this.model = model;
 		this.backgroundLoad  = backgroundLoad;
 		lastUpdate = model.getCurrentTime();
@@ -44,6 +70,12 @@ public class GridLrmAgent extends BasicGridLRM {
 		return process;
 	}
 
+	
+	public GridResource[] getResources(){
+		GridResource[] resources = {resource};
+		
+		return resources;
+	}
 	
 	/**
 	 * Updates the execution state of the process
@@ -70,6 +102,7 @@ public class GridLrmAgent extends BasicGridLRM {
 			p.accountExecutionTime(slice);
 			if(p.getState().equals(ExecutionState.COMPLETED)){
 				i.remove();
+				model.reportProcessEnded(p, this);
 			}
 		}
 
@@ -114,13 +147,12 @@ public class GridLrmAgent extends BasicGridLRM {
 		return backgroundLoad.getValue();
 	}
 	
-	@Override
+
 	public Double getCurrentLoad() {
 		throw new UnsupportedOperationException();
 	}
 
 
-	@Override
 	//TODO: calculate the service rate considering that in a FCFS policy
 	//      some processes are not getting ANY processing time, so the average
 	//      serviceRate should be lower than in a RR policy.
