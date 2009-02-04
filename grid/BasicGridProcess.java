@@ -1,6 +1,5 @@
 package edu.upc.cnds.collectivesim.grid;
 
-import edu.upc.cnds.collectiveg.GridLRM;
 import edu.upc.cnds.collectiveg.GridProcess;
 import edu.upc.cnds.collectiveg.GridTask;
 
@@ -19,6 +18,7 @@ public class BasicGridProcess implements GridProcess {
 	private GridLrmAgent lrm;
 	
 	public BasicGridProcess(GridLrmAgent lrm,GridTask task){
+		this.lrm = lrm;
 		this.task = task;
 		this.startTime = lrm.getCurrentTime();
 		this.endTime = 0;
@@ -77,6 +77,7 @@ public class BasicGridProcess implements GridProcess {
 		executionTime += time;
 		if(executionTime >= task.getDuration()){
 			state = ExecutionState.COMPLETED;
+			endTime = lrm.getCurrentTime();
 		}
 	}
 
@@ -90,5 +91,11 @@ public class BasicGridProcess implements GridProcess {
 	@Override
 	public ExecutionState getState() {
 		return state;
+	}
+
+
+	@Override
+	public String getLRM() {
+	 return lrm.getName();
 	}
 }

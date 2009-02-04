@@ -83,7 +83,8 @@ public class GridLrmModel extends AbstractModel {
 	void reportProcessEnded(GridProcess process,GridLrmAgent agent){
 		Map attributes = getAttributes(process);
 		try {
-			executions.addItem(attributes,(double)process.getExecutionTime());
+			long executionTime = process.endTime()-process.startTime();
+			executions.addItem(attributes,(double)executionTime);
 		} catch (InvalidDataItemException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
