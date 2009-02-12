@@ -23,7 +23,7 @@ import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
  *
  */
 
-public class OverlayModelProxy implements Overlay {
+public class OverlayModelAgent implements Overlay {
 
 	private UnderlayNode localNode;
 	
