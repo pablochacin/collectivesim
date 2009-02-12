@@ -4,7 +4,6 @@ import java.util.List;
 
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelObserver;
-import edu.upc.cnds.collectivesim.scheduler.Stream;
 
 public interface Model {
 
@@ -13,32 +12,24 @@ public interface Model {
 	 *
 	 * @param name a String that identifies the behavior
 	 * @param method a Strings with the name of the method
+	 * @param sampler an AgentSampler used to select the agents on which the behavior will be applied
 	 * @param streams an array with the Streams to feed the method invocation
 	 * @param active a boolean that indicates if the behavior must be inserted active
 	 *         or will be inactive until the model activates it.
-	 * @param frequency a double that specifies the frequency of execution of the behaviors
+	 * @param iterations the maximum of executions of the behavior         
+	 * @param frequency a Stream of Long that specifies the frequency of execution of the behaviors
+	 * @param delay the time the behavior will begin to execute. 0 means start running immediately.
+	 * @param endTime the maximum time the executions will be scheduled
+	 * @param args a variable number of Streams of that are used to retrieve the arguments for the
+	 *        behavior's method on each iteration
 	 */
-	public abstract void addBehavior(String name, String method,
-			boolean active, Stream<Long> frequency, int iterations, long endTime,
+	public abstract void addBehavior(String name, String method,AgentSampler sampler,
+			boolean active, int iterations,Stream<Long> frequency, long delay, long endTime,
 			Stream<Object> ... args);
 
 	/**
-	 * Convenience method. Receives the frequency as a long and converts it to a SingleValueStream.
-	 * 
-	 * @param name
-	 * @param method
-	 * @param active
-	 * @param frequency
-	 * @param iterations
-	 * @param endTime
-	 * @param args
-	 */
-	public abstract void addBehavior(String name, String method,
-			boolean active, long frequency, int iterations, long endTime,
-			Stream<Object>... args);
-
-	/**
-	 * Convenience method, adds a behavior without endtime nor maximun iterations
+	 * Convenience method, to add a behavior that starts immediately, has neither end time nor
+	 * maximum number of iterations and don't use an AgentSampler to select agents.
 	 * 
 	 * @param name
 	 * @param method
@@ -46,33 +37,36 @@ public interface Model {
 	 * @param frequency
 	 * @param args
 	 */
-	public abstract void addBehavior(String name, String method,
-			boolean active, long frequency, Stream<Object>... args);
+	public abstract void addBehavior(String name, String method, long frequency, Stream<Object>... args);
 
+	
 	/**
-	 * Convenience method, defines a behavior with a maximum of iterations
-	 * @param name
-	 * @param method
-	 * @param active
-	 * @param frequency
-	 * @param iterations
-	 * @param args
-	 */
-	public abstract void addBehavior(String name, String method,
-			boolean active, long frequency, int iterations, Stream<Object> ... args);
-
-	/**
-	 * Convenience method, defined a behavior with a end time
+	 * Convenience method, to add a behavior that starts immediately, has neither end time nor
+	 * maximum number of iterations and don't use an AgentSampler to select agents.
 	 * 
 	 * @param name
 	 * @param method
 	 * @param active
+     * @param iterations
 	 * @param frequency
-	 * @param endTime
+	 * @param args
+	 */
+	public abstract void addBehavior(String name, String method, int iterations,long frequency, Stream<Object>... args);
+
+
+	/**
+	 * Convenience method, to add a behavior that starts immediately, has neither end time nor
+	 * maximum number of iterations and don't use an AgentSampler to select agents.
+	 * 
+	 * @param name
+	 * @param method
+     * @param iterations
+	 * @param frequency
 	 * @param args
 	 */
 	public abstract void addBehavior(String name, String method,
-			boolean active, long frequency, long endTime, Stream<Object>... args);
+			long frequency, long delay,long endTime,Stream<Object>... args);
+
 
 	/**
 	 * Adds an observer to calculate an attribute over the agents of the collective and generate 
@@ -86,6 +80,12 @@ public interface Model {
 	public abstract void addObserver(String name, ModelObserver observer,
 			String attribute, boolean active, long frequency);
 
+	
+	
+	/**
+	 * 
+	 * @return a list of the agents in the model
+	 */
 	public abstract List<ModelAgent> getAgents();
 
 	/**

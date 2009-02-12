@@ -2,12 +2,12 @@ package edu.upc.cnds.collectivesim.model.imp;
 
 import java.util.logging.Logger;
 
-import edu.upc.cnds.collectives.util.FormatException;
+import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectivesim.model.AgentSampler;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.Model;
-import edu.upc.cnds.collectivesim.scheduler.Stream;
+import edu.upc.cnds.collectivesim.model.Stream;
 
 
 /**
@@ -72,7 +72,7 @@ public class BehaviorVisitor extends AgentVisitor{
     	try {
 			agent.execute(method,arguments);
 		} catch (ModelException e) {
-			log.severe("Exception invoking method" +method+": "+ FormatException.getStackTrace(e));
+			log.severe("Exception invoking method" +method+": "+ FormattingUtils.getStackTrace(e));
 			return false;
 		}
     	

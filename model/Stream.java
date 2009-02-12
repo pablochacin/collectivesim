@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.scheduler;
+package edu.upc.cnds.collectivesim.model;
 
 /**
  * A stream of values that can feed the simulation.

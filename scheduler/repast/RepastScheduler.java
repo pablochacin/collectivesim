@@ -11,9 +11,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import uchicago.src.sim.engine.Schedule;
+import edu.upc.cnds.collectivesim.model.Stream;
 import edu.upc.cnds.collectivesim.scheduler.ScheduledAction;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
-import edu.upc.cnds.collectivesim.scheduler.Stream;
 
 
 /**
@@ -126,32 +126,26 @@ public class RepastScheduler implements Scheduler {
 	}
 
 
-	public synchronized ScheduledAction scheduleRepetitiveAction(Runnable target,Stream<Long> distribution,int iterations, long endTime) {
+	public synchronized ScheduledAction scheduleRepetitiveAction(Runnable target,int iterations,Stream<Long> distribution, long delay, long endTime) {
 
 		RepetitiveAction action = new RepetitiveAction(schedule,target,distribution,iterations, new Double(endTime));
 
-		nextTime = Math.min(nextTime, action.getNextTime());
-
-		schedule.scheduleActionAtInterval((double)distribution.getValue(), action);
-
+	
+		double initTime = delay;
+		if(initTime == 0){
+			initTime = (double)distribution.getValue();
+		}
+	
+		nextTime = Math.min(nextTime, initTime);
+		
+		schedule.scheduleActionAtInterval(initTime, action);
 
 		return action;
 	}
 
 
-	public ScheduledAction scheduleRepetitiveAction(Runnable target,Stream<Long> distribution, int iterations) {
-		return scheduleRepetitiveAction(target, distribution, iterations,0);
-	}
-
-
-	public ScheduledAction scheduleRepetitiveAction(Runnable target, Stream<Long> distribution, long endTime) {
-
-		return scheduleRepetitiveAction(target, distribution, 0,endTime);
-
-	}
-
-	public ScheduledAction scheduleRepetitiveAction(Runnable target,Stream<Long> distribution) {
-		return scheduleRepetitiveAction(target, distribution, 0,0);
+	public ScheduledAction scheduleRepetitiveAction(Runnable target, Stream<Long> frequency){
+		return scheduleRepetitiveAction(target,0,frequency,0,0);
 	}
 
 
@@ -175,14 +169,10 @@ public class RepastScheduler implements Scheduler {
 		updateLock.unlock();
 	}
 
-	public void start() {
+	public void reset() {
 		throw new UnsupportedOperationException();	
 	}
 
-	public void stop() {
-		throw new UnsupportedOperationException();
-
-	}
 
 	public long getSpeed() {
 		return speed;

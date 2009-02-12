@@ -1,5 +1,7 @@
 package edu.upc.cnds.collectivesim.scheduler;
 
+import edu.upc.cnds.collectivesim.model.Stream;
+
 
 /**
  * Offers an interface to simulation engine to schedule actina and to access 
@@ -28,54 +30,29 @@ public interface Scheduler {
 	 */
 	 public ScheduledAction scheduleAction(Runnable target, long delay);
 	 
-	 
-	/** 
-	 * Schedules the execution of the target's run method on a repetitive way
-	 * following a given distribution in the time interval between successive executions.
-	 * 
-	 * @param target
-	 * @param distribution
-	 */
-	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream<Long> distribution);
-	
+
 	/**
 	 * Schedules a repetitive task until the given time. The last execution is guaratee to be not greater
 	 * that the given time.
 	 * 
-	 * @param target
-	 * @param distribution
-	 * @param endTime
+	 * @param target a Runnable to execute
+	 * @param iterations maximum number of executions
+	 * @param frequency a Stream with the inter-execution times
+	 * @param delay the earlier time this action can be executed 
+	 * @param endTime the maximun time this action can be executed
 	 * @return
 	 */
-	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream<Long> distribution,long endTime);
+	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, int iterations,Stream<Long> frequency,long delay, long endTime);
 	
-	/**
-	 * Schedules a repetitive task the given number of times.
-	 * 
+	 
+	/** 
+	 * Convenience method. Schedules an action to be executed immediately with a certain frequency and
+	 * neither an end time nor a limit of executions.  
 	 * @param target
-	 * @param distribution
-	 * @param iterations
-	 * @return
+	 * @param frequency
 	 */
-	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream<Long> distribution,int iterations);
-
-	/**
-	 * schedule an action until either the endtime or a maximum number of iterations are reached.
-	 * @param target
-	 * @param distribution
-	 * @param iterations
-	 * @param endTime
-	 * @return
-	 */
-	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream<Long> distribution,int iterations,long endTime);
-
-	/**
-	 * Start the scheduling of tasks
-	 * 
-	 * @throws IllegalStateException if the scheduler has already been started
-	 */
-	public void start();
-
+	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream<Long> frequency);
+	
 	/**
 	 * Stops the scheduling of actions. Pending actions remains in the execution queue.
 	 */
@@ -85,7 +62,7 @@ public interface Scheduler {
 	 * Finalizes the scheduling of tasks and frees any resource. All pending actions
 	 * are deleted
 	 */
-	public void stop();
+	public void reset();
 
 	/**
 	 * Continues the scheduling of tasks

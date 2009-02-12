@@ -1,6 +1,6 @@
 package edu.upc.cnds.collectivesim.model.imp;
 
-import edu.upc.cnds.collectives.util.FormatException;
+import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectives.util.ReflectionUtils;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
@@ -97,14 +97,11 @@ public class ReflexionModelAgent implements ModelAgent {
 	
 	public void execute(String action, Object ... args) throws ModelException {
 		try {			
-			
-			
-
 
 			ReflectionUtils.invoke(target,action, args);
 			
 		} catch (Exception e) {
-			throw new ModelException("Exception executing action "+ action +FormatException.getStackTrace(e));
+			throw new ModelException("Exception executing action "+ action +FormattingUtils.getStackTrace(e));
 			
 		} 
 		
@@ -116,7 +113,7 @@ public class ReflexionModelAgent implements ModelAgent {
 			return ReflectionUtils.invoke(target, getter, new Object[0]);
 			
 		} catch (Exception e) {
-			throw new ModelException("Exception accesssing attribute "+ attribute +FormatException.getStackTrace(e));
+			throw new ModelException("Exception accesssing attribute "+ attribute +FormattingUtils.getStackTrace(e));
 
 		} 
 
