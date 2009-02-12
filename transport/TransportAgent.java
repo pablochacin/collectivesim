@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.protocol.Protocol;
-import edu.upc.cnds.collectives.transport.imp.DynamicProxyTransport;
+import edu.upc.cnds.collectives.transport.DynamicProxyTransport;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectives.util.ReflectionUtils;
 
