@@ -3,6 +3,7 @@ package edu.upc.cnds.collectivesim.underlay;
 import java.util.Set;
 
 import edu.upc.cnds.collectives.identifier.Identifier;
+import edu.upc.cnds.collectives.metrics.Measurable;
 import edu.upc.cnds.collectives.metrics.Metric;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.underlay.UnderlayAddress;
@@ -39,12 +40,15 @@ public class UnderlayModelNode extends AbstractUnderlayNode  {
 
 
 
-	public Metric[] probe(UnderlayNode node, Set<UnderlayMetricType> metrics) {
-		return model.probe(this, node, metrics);
+	@Override
+	public Measurable<UnderlayMetricType> getProbe(UnderlayNode node) {
+		throw new UnsupportedOperationException();
 	}
 
 	public Node[] getKnownNodes() {
 		return model.getKnownNodes(this);
 	}
+
+
 
 }

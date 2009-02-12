@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.upc.cnds.collectives.identifier.IdSpace;
 import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.metrics.Metric;
 import edu.upc.cnds.collectives.underlay.Underlay;
+import edu.upc.cnds.collectives.underlay.UnderlayException;
 import edu.upc.cnds.collectives.underlay.UnderlayMetricType;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
@@ -88,15 +90,29 @@ public abstract class UnderlayModel extends AbstractModel implements Underlay {
 	 * @param target
 	 * @return
 	 */
-	public abstract Metric[] probe(UnderlayNode source,UnderlayNode target,Set<UnderlayMetricType> metrics);
+	public abstract Metric[] probe(UnderlayNode source,UnderlayNode target,UnderlayMetricType[] metrics);
 
 	/**
 	 * Returns the know nodes for a given node
-	 * @param model
+	 * @param topology
 	 * @return
 	 */
 	public abstract UnderlayNode[] getKnownNodes(UnderlayNode node);
 
 
 
+	/**
+	 * Generates a number of nodes in the underlay
+	 * @throws UnderlayException 
+	 */
+	public  List<UnderlayNode> generateNodes(IdSpace space,int num) throws UnderlayException{
+		List<UnderlayNode> nodeList = new ArrayList<UnderlayNode>(num);
+		
+		for(int i=0;i<num;i++){
+			nodeList.add(getNode(space.getRandomIdentifier()));
+		}
+		
+		return nodeList;
+	}
+	
 }

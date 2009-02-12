@@ -17,7 +17,7 @@ import edu.upc.cnds.collectives.underlay.UnderlayException;
 import edu.upc.cnds.collectives.underlay.UnderlayMetricType;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
-import edu.upc.cnds.collectivesim.topology.TopologyModelAgent;
+import edu.upc.cnds.collectivesim.topology.TopologyAgent;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModelNode;
 
@@ -138,18 +138,19 @@ public class Grid2DModel extends UnderlayModel{
 
 
 	@Override
-	public Set<UnderlayMetricType> getSupportedMetrics() {
-		throw new UnsupportedOperationException();	
-	}
-
-
-	@Override
 	public Node[] resolve(InetAddress host) throws UnderlayException {
 		throw new UnsupportedOperationException();
 	}
 
+
 	@Override
-	public Metric[] probe(UnderlayNode source, UnderlayNode target, Set<UnderlayMetricType> metrics) {
-		throw new UnsupportedOperationException();	
+	public Metric[] probe(UnderlayNode source, UnderlayNode target,	UnderlayMetricType[] metrics) {
+		throw new UnsupportedOperationException();
+	}
+
+
+	@Override
+	public UnderlayMetricType[] getSupportedMetrics() {
+		throw new UnsupportedOperationException();
 	}
 }

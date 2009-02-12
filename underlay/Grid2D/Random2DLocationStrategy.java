@@ -38,7 +38,7 @@ public class Random2DLocationStrategy implements LocationStrategy{
             int y = rand.nextInt(grid.getSizeY()-1);
             
             if(grid.isFree(x, y)){
-                return new Grid2DLocation(grid,x,y);
+                return new Grid2DLocation(x,y);
             }
         }
         

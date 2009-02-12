@@ -1,7 +1,6 @@
 package edu.upc.cnds.collectivesim.underlay.mesh;
 
 import java.net.InetAddress;
-import java.util.Set;
 import java.util.Vector;
 
 import edu.upc.cnds.collectives.identifier.Identifier;
@@ -13,6 +12,7 @@ import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModelNode;
+import edu.upc.cnds.collectivesim.underlay.UnderlayModelNodeAddress;
 
 /**
  * Implements an underlay on which all nodes can see each othe (as in a subnetwork)
@@ -23,42 +23,41 @@ import edu.upc.cnds.collectivesim.underlay.UnderlayModelNode;
  */
 public class MeshUnderlayModel extends UnderlayModel {
 
-	private Vector<UnderlayModelNode>nodes;
+
 	
 	public MeshUnderlayModel(Scheduler scheduler) {
 		super(scheduler);
-		nodes = new Vector<UnderlayModelNode>();
 	}
 
 	@Override
 	public UnderlayNode[] getKnownNodes(UnderlayNode node) {
-		Vector<UnderlayNode> neighbors = new Vector<UnderlayNode>(nodes);
+		Vector<UnderlayNode> neighbors = new Vector<UnderlayNode>(nodes.values());
 		neighbors.remove(node);
 		return neighbors.toArray(new UnderlayNode[neighbors.size()]);
 		
 	}
 
-	@Override
-	public Metric[] probe(UnderlayNode source, UnderlayNode target,	Set<UnderlayMetricType> metrics) {
-		throw new UnsupportedOperationException();	}
 
 	@Override
 	public UnderlayNode getNode(Identifier id) throws UnderlayException {
-		UnderlayModelNode node = new UnderlayModelNode(id,null,this);
-		nodes.add(node);
+		UnderlayModelNode node = new UnderlayModelNode(id,new UnderlayModelNodeAddress(""),this);
 		super.addNode(node);
 		return node;
 	}
 
 	@Override
-	public Set<UnderlayMetricType> getSupportedMetrics() {
-		throw new UnsupportedOperationException();
+	public UnderlayMetricType[] getSupportedMetrics() {
+		return new UnderlayMetricType[0];
 	}
 
 	@Override
 	public Node[] resolve(InetAddress host) throws UnderlayException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Metric[] probe(UnderlayNode source, UnderlayNode target,UnderlayMetricType[] metrics) {
+		throw new UnsupportedOperationException();
 	}
 
 }
