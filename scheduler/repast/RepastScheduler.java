@@ -38,7 +38,7 @@ public class RepastScheduler implements Scheduler {
 				//if the thread is paused
 				updateLock.lock();
 				schedule.execute();
-				if(getTime() >= endTime){
+				if((endTime != 0) && (getTime() >= endTime)){
 					paused = true;
 				}
 							
