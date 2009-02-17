@@ -1,8 +1,8 @@
 package edu.upc.cnds.collectivesim.protocol.kbr;
 
-import edu.upc.cnds.collectives.protocol.MatchFunction;
 import edu.upc.cnds.collectives.protocol.Protocol;
 import edu.upc.cnds.collectives.routing.GreedyRouting;
+import edu.upc.cnds.collectives.routing.MatchFunction;
 import edu.upc.cnds.collectives.routing.RoutingAlgorithm;
 import edu.upc.cnds.collectives.routing.kbr.KbrProtocolImp;
 import edu.upc.cnds.collectives.topology.Topology;
