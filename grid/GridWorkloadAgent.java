@@ -2,8 +2,8 @@ package edu.upc.cnds.collectivesim.grid;
 
 import edu.upc.cnds.collectiveg.GridResourceBroker;
 import edu.upc.cnds.collectiveg.GridTask;
+import edu.upc.cnds.collectivesim.model.Stream;
 import edu.upc.cnds.collectivesim.model.imp.ReflexionModelAgent;
-import edu.upc.cnds.collectivesim.scheduler.Stream;
 
 /**
  * 

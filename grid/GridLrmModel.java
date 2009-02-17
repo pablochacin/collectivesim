@@ -13,9 +13,9 @@ import edu.upc.cnds.collectives.dataseries.DataSeries;
 import edu.upc.cnds.collectives.dataseries.InvalidDataItemException;
 import edu.upc.cnds.collectives.dataseries.baseImp.BaseDataSeries;
 import edu.upc.cnds.collectivesim.model.ModelException;
+import edu.upc.cnds.collectivesim.model.Stream;
 import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
-import edu.upc.cnds.collectivesim.scheduler.Stream;
 
 public class GridLrmModel extends AbstractModel {
 
