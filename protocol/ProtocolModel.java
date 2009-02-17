@@ -1,12 +1,17 @@
 package edu.upc.cnds.collectivesim.protocol;
 
-import java.io.Serializable;
-
 import edu.upc.cnds.collectives.node.Node;
-import edu.upc.cnds.collectives.protocol.Destination;
+import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.protocol.Protocol;
-import edu.upc.cnds.collectives.protocol.ProtocolObserver;
+import edu.upc.cnds.collectives.routing.kbr.KbrProtocolImp;
+import edu.upc.cnds.collectives.routing.kbr.KeyDistanceMatchFunction;
+import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.transport.Transport;
+import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
+import edu.upc.cnds.collectivesim.overlay.OverlayModel;
+import edu.upc.cnds.collectivesim.scheduler.Scheduler;
+import edu.upc.cnds.collectivesim.topology.TopologyModel;
+import edu.upc.cnds.collectivesim.transport.TransportModel;
 
 /**
  * A simulation model of a Protocol. It handles the request from all nodes
@@ -21,39 +26,49 @@ import edu.upc.cnds.collectives.transport.Transport;
  * @author Pablo Chacin
  *
  */
-public interface ProtocolModel  {
+public abstract class ProtocolModel  extends AbstractModel{
 	
-	/**
-	 * Propagate the given message to a destination described as a set of attributes. 
-	 * 
-	 * @param args a series of values to be propagated
-	 */
-	public void propagate(Node source,Destination destination, Serializable ... args);
+	private TransportModel transport;
 	
+	private TopologyModel topology;
+	
+	private String name;
+	
+	public ProtocolModel(String name,Scheduler scheduler,TopologyModel topology, TransportModel transport) {
+		super(scheduler);
+		this.name = name;
+		this.topology = topology;
+		this.transport = transport;
+	}
 
 	/**
-	 * Propagate the given message to a destination described as a set of attributes 
-	 * using an application supplied hint of the nodes to consider to propagate.
-	 * The protocols can ingnore this attribute. 
 	 * 
+	 * @return the name of the protocol
 	 */
-	public void propagate(Node sorce,Destination destination, Node[] hint,Serializable ... args);
-
-	
+	public String getName(){
+		return name;
+	}
 	
 	/**
-	 * @return the name of this protocol.
+	 * Installs the protocol on each node
+	 * @param protocol
 	 */
-	public String getName();
-	
+	public void installProtocol(){
+		
+		for(Topology t: topology.getTopologies()){
+			Protocol protocol = installProtocol(name,t,transport.getTransport(t.getLocalNode()));
+			ProtocolModelAgent agent = new ProtocolModelAgent(protocol);
+			addAgent(agent);
+		}
+	}
 	
 	/**
 	 * 
 	 * @param node
 	 * 
-	 * @return a ProtocolProxy for the given node
+	 * @return a ProtocolAgent for the given overlay node
 	 */
-	public Protocol getProtocolModelProxy(Node node);
+	public abstract Protocol installProtocol(String name,Topology topology,Transport transport);
 	
 
 }
