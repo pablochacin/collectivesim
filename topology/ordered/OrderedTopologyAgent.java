@@ -40,7 +40,7 @@ public class OrderedTopologyAgent extends ReflexionModelAgent implements Topolog
 	}
 
 	public void updateTopology(){
-		List<Node> candidates = selector.getSample(model.getNodes(), size);
+		List<Node> candidates = selector.getSample(model.getUnderlay().getNodes(), size);
 		topology.propose(candidates);
 		topology.update();
 		

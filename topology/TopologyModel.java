@@ -1,12 +1,15 @@
 package edu.upc.cnds.collectivesim.topology;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.events.EventCollector;
 import edu.upc.cnds.collectives.events.EventFilter;
 import edu.upc.cnds.collectives.events.EventObserver;
+import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.topology.BasicTopology;
 import edu.upc.cnds.collectives.topology.Topology;
@@ -14,6 +17,7 @@ import edu.upc.cnds.collectives.topology.monitoring.TopologyEvent;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
+import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 
 /**
  * 
@@ -25,18 +29,20 @@ import edu.upc.cnds.collectivesim.scheduler.Scheduler;
  */
 public abstract class TopologyModel extends AbstractModel implements EventCollector {
 	
-	protected List<UnderlayNode>nodes; 
-	
-	protected List<Topology>topologies;
-	
+
 	protected List<EventObserver>observers;
+	
+	protected UnderlayModel underlay;
+	
+	protected Map<Identifier,Topology>topologies;
+	
 		
-	public TopologyModel(Scheduler scheduler,List<UnderlayNode>nodes) {
+	public TopologyModel(Scheduler scheduler,UnderlayModel underlay) {
 		super(scheduler);
-		this.nodes = nodes;
+		this.underlay =  underlay;
 		this.observers = new ArrayList<EventObserver>();
-		this.topologies = new ArrayList<Topology>();
-		
+		this.topologies = new HashMap<Identifier,Topology>();
+			
 		addBehavior("Topology Update", "updateTopology",20,10);
 	}
 
@@ -49,27 +55,28 @@ public abstract class TopologyModel extends AbstractModel implements EventCollec
 	 * 
 	 */
 	public Topology getTopology(UnderlayNode node){
-		Topology topology = buildTopology(node);
+		
+		Topology topology = topologies.get(node.getId());
+		if(topology == null){
+			buildTopology(node);
+			topologies.put(node.getId(),topology);
+		}
+		
 		TopologyAgent agent = new TopologyAgent(this,topology);
-		topologies.add(topology);
+		
 		super.addAgent(agent);
 		return topology;
 	}
 	
+	public UnderlayModel getUnderlay(){
+		return underlay;
+	}
 	
 	/**
 	 * Generates a topology
 	 */
 	public abstract void generateTopology();
 	
-	/**
-	 * Adds node to the topology
-	 * 
-	 * @param node
-	 */
-	public void addNode(UnderlayNode node){
-		nodes.add(node);
-	}
 	
 	/**
 	 * Construct a topology agent for the given node
@@ -79,6 +86,9 @@ public abstract class TopologyModel extends AbstractModel implements EventCollec
 	 */
 	protected abstract Topology buildTopology(UnderlayNode node) ;
 
+	public List<Topology> getTopologies(){
+		return new ArrayList<Topology>(topologies.values());
+	}
 	/**
 	 * 
 	 * @param localNode
@@ -122,11 +132,4 @@ public abstract class TopologyModel extends AbstractModel implements EventCollec
     	throw new UnsupportedOperationException();
     }
     
-    /**
-     * Return a list of the nodes that form the global topology
-     * @return
-     */
-    public List<Topology> getTopologies(){
-    	return new ArrayList<Topology>(topologies);
-    }
 }
