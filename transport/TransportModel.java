@@ -5,10 +5,12 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import edu.upc.cnds.collectives.node.Node;
+import edu.upc.cnds.collectives.transport.Transport;
 import edu.upc.cnds.collectives.underlay.UnderlayAddress;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
+import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 
 /**
  * Implements the simulation of a transport mechanism.
@@ -72,8 +74,11 @@ public class TransportModel extends AbstractModel {
 	 */
 	private Map<UnderlayAddress,TransportAgent> transportAgents;
 	
-	public TransportModel(Scheduler scheduler) {
+	protected UnderlayModel underlay;
+	
+	public TransportModel(Scheduler scheduler,UnderlayModel underlay) {
 		super(scheduler);
+		this.underlay = underlay;
 		transportAgents = new HashMap<UnderlayAddress,TransportAgent>();
 	}
 
@@ -84,9 +89,8 @@ public class TransportModel extends AbstractModel {
 	 * @param node
 	 * @return
 	 */
-	public TransportAgent getTransportAgent(UnderlayNode node){
-		
-		
+	protected TransportAgent installTransport(UnderlayNode node){
+				
 		TransportAgent agent = transportAgents.get(node.getAddress());
 		
 		if(agent == null){
@@ -98,6 +102,17 @@ public class TransportModel extends AbstractModel {
 	}
 
 
+	public Transport getTransport(Node node){
+		return transportAgents.get(node.getAddress());
+	}
+	
+	
+	public void installTransport(){
+		for(UnderlayNode n: underlay.getNodes()){
+			installTransport(n);
+		}
+	}
+	
 	/**
 	 * Simulates the invocation on a remote node by scheduling its execution after
 	 * a delay. 
