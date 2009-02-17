@@ -25,7 +25,7 @@ public interface Model {
 	 */
 	public abstract void addBehavior(String name, String method,AgentSampler sampler,
 			boolean active, int iterations,Stream<Long> frequency, long delay, long endTime,
-			Stream<Object> ... args);
+			Stream<? extends Object> ... args);
 
 	/**
 	 * Convenience method, to add a behavior that starts immediately, has neither end time nor
@@ -37,7 +37,7 @@ public interface Model {
 	 * @param frequency
 	 * @param args
 	 */
-	public abstract void addBehavior(String name, String method, long frequency, Stream<Object>... args);
+	public abstract void addBehavior(String name, String method, long frequency, Stream<? extends Object>... args);
 
 	
 	/**
@@ -51,7 +51,7 @@ public interface Model {
 	 * @param frequency
 	 * @param args
 	 */
-	public abstract void addBehavior(String name, String method, int iterations,long frequency, Stream<Object>... args);
+	public abstract void addBehavior(String name, String method, int iterations,long frequency, Stream<? extends Object>... args);
 
 
 	/**
@@ -65,7 +65,7 @@ public interface Model {
 	 * @param args
 	 */
 	public abstract void addBehavior(String name, String method,
-			long frequency, long delay,long endTime,Stream<Object>... args);
+			long frequency, long delay,long endTime,Stream<? extends Object>... args);
 
 
 	/**

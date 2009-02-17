@@ -36,7 +36,14 @@ public interface ModelAgent {
 	 * @throws AgentException if the method is not exposed by the agent or
 	 *         there is an exception executing it.
 	 */
-	public void execute(String action,Object ... args) throws ModelException;
+	public void execute(String action,Object[] args) throws ModelException;
+	
+	/**
+	 * Convenience method, for invocations without arguments
+	 * @param action
+	 * @throws ModelException
+	 */
+	public void execute(String action) throws ModelException;
 	
 	
 }
