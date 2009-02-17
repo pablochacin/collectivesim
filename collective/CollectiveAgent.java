@@ -114,7 +114,7 @@ public class CollectiveAgent implements Collective, ModelAgent {
 
 
 
-	public String getType() {
+	public String getName() {
 		return type;
 	}
 }
