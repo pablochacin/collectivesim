@@ -2,10 +2,10 @@ package edu.upc.cnds.collectivesim.execution;
 
 import edu.upc.cnds.collectives.execution.ExecutionService;
 import edu.upc.cnds.collectives.execution.Task;
+import edu.upc.cnds.collectivesim.model.SingleValueStream;
+import edu.upc.cnds.collectivesim.model.Stream;
 import edu.upc.cnds.collectivesim.scheduler.ScheduledAction;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
-import edu.upc.cnds.collectivesim.scheduler.Stream;
-import edu.upc.cnds.collectivesim.scheduler.repast.SingleValueStream;
 
 public class ExecutionServiceModel implements ExecutionService {
 
