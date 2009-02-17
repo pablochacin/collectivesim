@@ -9,6 +9,7 @@ import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.underlay.UnderlayException;
 import edu.upc.cnds.collectives.underlay.UnderlayMetricType;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
+import edu.upc.cnds.collectivesim.model.Stream;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModelNode;
@@ -59,5 +60,6 @@ public class MeshUnderlayModel extends UnderlayModel {
 	public Metric[] probe(UnderlayNode source, UnderlayNode target,UnderlayMetricType[] metrics) {
 		throw new UnsupportedOperationException();
 	}
+
 
 }
