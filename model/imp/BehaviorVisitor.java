@@ -35,7 +35,7 @@ public class BehaviorVisitor extends AgentVisitor{
     /**
      * Strems to feed the arguments for the method
      */
-    private Stream[] streams;
+    private Stream<? extends Object>[] streams;
     
 
 
@@ -45,7 +45,7 @@ public class BehaviorVisitor extends AgentVisitor{
      * @param method a String the name of the method to be execute
      * @param streams an array of Streams to feed the arguments of the method
      */
-    public BehaviorVisitor(Model model,String name,AgentSampler sampler,String method, boolean active,Stream<Object> ... streams){
+    public BehaviorVisitor(Model model,String name,AgentSampler sampler,String method, boolean active,Stream<? extends Object> ... streams){
     	super(model,name,sampler,active);
     	this.method = method;
         if (streams == null){

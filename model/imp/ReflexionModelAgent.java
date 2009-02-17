@@ -95,7 +95,11 @@ public class ReflexionModelAgent implements ModelAgent {
 	}
 
 	
-	public void execute(String action, Object ... args) throws ModelException {
+	public void execute(String action) throws ModelException {
+		execute(action, new Object[0]);
+	}
+	
+	public void execute(String action, Object[] args) throws ModelException {
 		try {			
 
 			ReflectionUtils.invoke(target,action, args);
