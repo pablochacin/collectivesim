@@ -34,7 +34,7 @@ public class GridLrmModel extends AbstractModel {
 		super(scheduler);
 		this.timeSlice = timeSlice;
 		this.executions = executions;		
-		super.addBehavior("update", "updateProcesses", true, timeSlice);
+		super.addBehavior("update", "updateProcesses", timeSlice);
 	}
 
 	/**
