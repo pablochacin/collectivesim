@@ -56,8 +56,7 @@ public abstract class ProtocolModel  extends AbstractModel{
 	public void installProtocol(){
 		
 		for(Topology t: topology.getTopologies()){
-			Protocol protocol = installProtocol(name,t,transport.getTransport(t.getLocalNode()));
-			ProtocolModelAgent agent = new ProtocolModelAgent(protocol);
+			ProtocolModelAgent agent = installProtocol(name,t,transport.getTransport(t.getLocalNode()));
 			addAgent(agent);
 		}
 	}
@@ -68,7 +67,7 @@ public abstract class ProtocolModel  extends AbstractModel{
 	 * 
 	 * @return a ProtocolAgent for the given overlay node
 	 */
-	public abstract Protocol installProtocol(String name,Topology topology,Transport transport);
+	public abstract ProtocolModelAgent installProtocol(String name,Topology topology,Transport transport);
 	
 
 }
