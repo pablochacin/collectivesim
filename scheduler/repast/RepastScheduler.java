@@ -120,7 +120,7 @@ public class RepastScheduler implements Scheduler {
 
 		nextTime = Math.min(nextTime, action.getNextTime());
 
-		schedule.scheduleActionAt(delay,action);
+		schedule.scheduleActionAt(schedule.getCurrentTime()+delay,action);
 
 		return action;
 	}
