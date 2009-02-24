@@ -105,7 +105,7 @@ public class ReflexionModelAgent implements ModelAgent {
 			ReflectionUtils.invoke(target,action, args);
 			
 		} catch (Exception e) {
-			throw new ModelException("Exception executing action "+ action +FormattingUtils.getStackTrace(e));
+			throw new ModelException("Exception executing action "+ action +" " +FormattingUtils.getStackTrace(e));
 			
 		} 
 		
@@ -117,7 +117,7 @@ public class ReflexionModelAgent implements ModelAgent {
 			return ReflectionUtils.invoke(target, getter, new Object[0]);
 			
 		} catch (Exception e) {
-			throw new ModelException("Exception accesssing attribute "+ attribute +FormattingUtils.getStackTrace(e));
+			throw new ModelException("Exception accesssing attribute "+ attribute +" "+FormattingUtils.getStackTrace(e));
 
 		} 
 
