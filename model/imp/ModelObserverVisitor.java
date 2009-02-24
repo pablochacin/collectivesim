@@ -55,14 +55,14 @@ public class ModelObserverVisitor extends AgentVisitor{
      * Collective
      * 
      */
-    protected boolean visit(ModelAgent agent) {
+    protected boolean visit(ModelAgent agent) throws ModelException{
                     	
        	 try {
 				values.add(agent.getAttribute(attribute));
 				return true;
 			} catch (ModelException e) {
 				values.clear();
-				return false;
+				throw e;
 			}
         
 			
