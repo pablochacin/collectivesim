@@ -3,9 +3,11 @@ package edu.upc.cnds.collectivesim.model.imp;
 import java.util.List;
 import java.util.logging.Logger;
 
+import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectivesim.model.AgentSampler;
 import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
+import edu.upc.cnds.collectivesim.model.ModelException;
 
 
 /**
@@ -83,7 +85,9 @@ public abstract class AgentVisitor implements Runnable{
     
     
     /**
-     * This method is periodically executed
+     * This method is periodically executed. Visits all agenst returned by the sampler, while the
+     * visit method (implemented by a subclass) return true. If an exception is encountered, the 
+     * visit is finalized.
      *
      * TODO: apply filter to agents
      */
@@ -98,10 +102,17 @@ public abstract class AgentVisitor implements Runnable{
     	startVisit();
     	
     	for(ModelAgent a: agents) {
-    		boolean continueVisiting = visit(a);
-    		if(!continueVisiting){
-    			break;
-    		}
+    		boolean continueVisiting;
+			try {
+				continueVisiting = visit(a);
+	
+				if(!continueVisiting){
+					break;
+				}
+			} catch (ModelException e) {
+				log.severe("Exception visiting agent "+ FormattingUtils.getStackTrace(e));
+				break;
+			}
     	}
     	
     	endVisit();
@@ -121,8 +132,9 @@ public abstract class AgentVisitor implements Runnable{
      * @param agent
      * 
      * @return true if the visit must continue, false otherwise
+     * @throws ModelException 
      */
-    protected abstract boolean visit(ModelAgent agent);
+    protected abstract boolean visit(ModelAgent agent) throws ModelException;
 
 
     /**
