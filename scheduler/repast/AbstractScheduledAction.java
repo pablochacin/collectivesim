@@ -12,10 +12,12 @@ public abstract class AbstractScheduledAction extends BasicAction implements Sch
 	
 	protected static Logger log = Logger.getLogger("collectivesim.model");
 	
-	protected Schedule schedule;
-		
-	public AbstractScheduledAction(Schedule schedule) {
-		this.schedule = schedule;
+	protected RepastScheduler scheduler;
+	
+
+	
+	public AbstractScheduledAction(RepastScheduler scheduler) {
+		this.scheduler = scheduler;
 	}
 	
 	@Override
@@ -26,7 +28,8 @@ public abstract class AbstractScheduledAction extends BasicAction implements Sch
 	 * @see edu.upc.cnds.collectivesim.models.imp.ScheduledAction#cancel()
 	 */
     public void cancel() {
-   	 schedule.removeAction(this);
+    	//notify the repastScheduler that this action must be cancelled
+    	scheduler.cancelAction(this);
     }
     
 

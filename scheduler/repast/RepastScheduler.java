@@ -6,10 +6,13 @@
  */
 package edu.upc.cnds.collectivesim.scheduler.repast;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 import edu.upc.cnds.collectivesim.model.Stream;
 import edu.upc.cnds.collectivesim.scheduler.ScheduledAction;
@@ -38,6 +41,13 @@ public class RepastScheduler implements Scheduler {
 				//if the thread is paused
 				updateLock.lock();
 				schedule.execute();
+				
+				//check for cancelled actions
+				//must be done here to avoid concurrent modification of
+				//the scheduler's action queue
+				for(BasicAction a: cancelQueue){
+					schedule.removeAction(a);
+				}
 				if((endTime != 0) && (getTime() >= endTime)){
 					paused = true;
 				}
@@ -88,6 +98,11 @@ public class RepastScheduler implements Scheduler {
 	private Lock updateLock;
 	
 	private Condition pausedCondition;
+	
+	/**
+	 * List of actions pending for cancelation
+	 */
+	private List<BasicAction> cancelQueue;
 
 	public RepastScheduler() {
 		this(DEFAULT_SPEED,DEFAULT_PAUSED,0);
@@ -101,6 +116,7 @@ public class RepastScheduler implements Scheduler {
 		this.updateLock = new ReentrantLock();
 		this.pausedCondition = updateLock.newCondition();
 		this.schedule = new Schedule(1);
+		this.cancelQueue = new ArrayList<BasicAction>();
 
 		//Start the thread that will control the execution of actions
 		new Thread(new SimulationThread()).start();
@@ -116,7 +132,7 @@ public class RepastScheduler implements Scheduler {
 	 */
 	public synchronized ScheduledAction scheduleAction(Runnable target, long delay) {
 
-		SingleAction action = new SingleAction(schedule,target,delay);
+		SingleAction action = new SingleAction(this,target,delay);
 
 		nextTime = Math.min(nextTime, action.getNextTime());
 
@@ -128,7 +144,7 @@ public class RepastScheduler implements Scheduler {
 
 	public synchronized ScheduledAction scheduleRepetitiveAction(Runnable target,int iterations,Stream<Long> distribution, long delay, long endTime) {
 
-		RepetitiveAction action = new RepetitiveAction(schedule,target,distribution,iterations, new Double(endTime));
+		RepetitiveAction action = new RepetitiveAction(this,target,distribution,iterations, new Double(endTime));
 
 	
 		double initTime = delay;
@@ -194,6 +210,17 @@ public class RepastScheduler implements Scheduler {
 	 */
 	private double getNextTime() {
 		return nextTime;
+	}
+
+	/**
+	 * Adds tje given action to the queue of canceled actions. 
+	 * Before next cycle, all canceled actions will be removed from the
+	 * Repast's scheduler. 
+	 * 
+	 * @param action
+	 */
+	 void cancelAction(AbstractScheduledAction action) {
+		cancelQueue.add(action);
 	}
 
 

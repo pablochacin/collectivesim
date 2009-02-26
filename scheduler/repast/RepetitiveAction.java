@@ -3,10 +3,6 @@ package edu.upc.cnds.collectivesim.scheduler.repast;
 import java.util.logging.Logger;
 
 import edu.upc.cnds.collectivesim.model.Stream;
-import edu.upc.cnds.collectivesim.scheduler.Scheduler;
-
-import uchicago.src.sim.engine.BasicAction;
-import uchicago.src.sim.engine.Schedule;
 
 public class RepetitiveAction extends AbstractScheduledAction {
 
@@ -16,7 +12,7 @@ public class RepetitiveAction extends AbstractScheduledAction {
 	/**
 	 * Scheduler on which this action is executed
 	 */
-	Schedule schedule;
+	RepastScheduler schedule;
 	
 	/**
 	 * object on which the action will be executed
@@ -47,7 +43,7 @@ public class RepetitiveAction extends AbstractScheduledAction {
      * @param maxIterations maximum number of executions of the task
      * @param endTime time limit for execution of the task
 	 */
-	public RepetitiveAction(Schedule schedule,Runnable target,Stream<Long> distribution,long maxIterations,Double endTime) {
+	public RepetitiveAction(RepastScheduler schedule,Runnable target,Stream<Long> distribution,long maxIterations,Double endTime) {
 		super(schedule);
 		this.schedule = schedule;
 		this.target = target;
@@ -71,7 +67,7 @@ public class RepetitiveAction extends AbstractScheduledAction {
 	 * @param target
 	 * @param distribution
 	 */
-	public RepetitiveAction(Schedule schedule,Runnable target,Stream<Long> distribution) {
+	public RepetitiveAction(RepastScheduler schedule,Runnable target,Stream<Long> distribution) {
 		this(schedule,target,distribution,0,0.0);
 	}
 
@@ -102,12 +98,12 @@ public class RepetitiveAction extends AbstractScheduledAction {
     	 //check if must continue executin
     	 iterations++;
     	 if((maxIterations != 0) && (iterations == maxIterations)) {
-    		 schedule.removeAction(this);
+    		 schedule.cancelAction(this);
     	 }
 
     	 //check if next invocation would pass execution limit
-    	 if((endTime != 0) && ((schedule.getCurrentTime()+interval) >= endTime)){
-    		 schedule.removeAction(this);
+    	 if((endTime != 0) && ((schedule.getTime()+interval) >= endTime)){
+    		 schedule.cancelAction(this);
     		 
     	 }
     	 
@@ -128,6 +124,6 @@ public class RepetitiveAction extends AbstractScheduledAction {
       * Returns the next execution time, calculated from the current time
       */
      public double getNextTime() {
-    	 return schedule.getCurrentTime()+interval;
+    	 return schedule.getTime()+interval;
      }
 }

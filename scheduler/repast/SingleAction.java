@@ -1,6 +1,5 @@
 package edu.upc.cnds.collectivesim.scheduler.repast;
 
-import uchicago.src.sim.engine.Schedule;
 
 public class SingleAction extends AbstractScheduledAction {	
 	
@@ -22,8 +21,8 @@ public class SingleAction extends AbstractScheduledAction {
 	 * @param target an Object on which the action will be executed
 	 * @param delay time between executions
 	 */
-	public SingleAction(Schedule schedule,Runnable target,long delay) {
-		super(schedule);
+	public SingleAction(RepastScheduler scheduler,Runnable target,long delay) {
+		super(scheduler);
 		this.target = target;
         this.delay = delay;
         
