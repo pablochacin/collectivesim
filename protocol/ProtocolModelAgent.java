@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.protocol.Destination;
 import edu.upc.cnds.collectives.protocol.Protocol;
+import edu.upc.cnds.collectives.protocol.ProtocolException;
 import edu.upc.cnds.collectives.protocol.ProtocolObserver;
 import edu.upc.cnds.collectivesim.model.imp.ReflexionModelAgent;
 
@@ -17,36 +18,41 @@ import edu.upc.cnds.collectivesim.model.imp.ReflexionModelAgent;
  * @author Pablo Chacin
  *
  */
-public class ProtocolModelAgent extends ReflexionModelAgent implements ProtocolObserver{
+public class ProtocolModelAgent extends ReflexionModelAgent implements ProtocolObserver {
 	
 	protected Logger log;
 	
 	protected Protocol protocol;
 
-	private long undeliverable;
+	protected long undeliverable=0;
 	
-	private long delivered = 0;
+	protected long delivered = 0;
 	
-	private long propagated = 0;
+	protected long propagated = 0;
 	
-	private long dropped = 0;
+	protected long dropped = 0;
 	
-	private long unreachable = 0;
+	protected long unreachable = 0;
 	
-	private long received = 0;
+	protected long received = 0;
+
+	protected ProtocolModel model;
 	
-	
-	public ProtocolModelAgent(Protocol protocol){
-		super(protocol);
-		
+	public ProtocolModelAgent(Protocol protocol,ProtocolModel model){
+		super();
 		log = Logger.getLogger("colectivesim.protocol."+this.getClass().getSimpleName());
 		this.protocol = protocol;
 		protocol.addObserver(this);
-		undeliverable = 0;
-		delivered = 0;
-		propagated =0;
+	
 	}
+	
 
+	/**
+	 * Propagate a request to a destination using the agent's protocol.  
+	 */
+	public void propagate(Destination destination, Serializable ... args) throws ProtocolException{
+		protocol.propagate(destination, args);
+	}
 
 	@Override
 	public void deliver(Protocol protocol, Destination destination,	Node source, Serializable... args) {
@@ -56,8 +62,7 @@ public class ProtocolModelAgent extends ReflexionModelAgent implements ProtocolO
 
 	@Override
 	public void propagated(Protocol protocol, Destination destination, Node target, Serializable... args) {
-		propagated++;
-		
+		propagated++;		
 	}
 
 
@@ -67,8 +72,6 @@ public class ProtocolModelAgent extends ReflexionModelAgent implements ProtocolO
 		undeliverable++;
 	}
 	
-	
-
 
 
 	@Override
@@ -85,6 +88,7 @@ public class ProtocolModelAgent extends ReflexionModelAgent implements ProtocolO
 	public void received(Protocol protocol, Destination destination,Node source,Serializable...args){
 		received++;
 	}
+
 
 	/**
 	 * @return the number of requests delivered to this node
@@ -105,7 +109,7 @@ public class ProtocolModelAgent extends ReflexionModelAgent implements ProtocolO
 	 * 
 	 * @return the number of requests propagated from this node
 	 */
-	public Double getPropageted(){
+	public Double getPropagated(){
 		return (double)propagated;
 		
 	}
@@ -132,5 +136,6 @@ public class ProtocolModelAgent extends ReflexionModelAgent implements ProtocolO
 	public Double getReceived(){
 		return (double)received;
 	}
+
 
 }
