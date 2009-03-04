@@ -1,5 +1,6 @@
 package edu.upc.cnds.collectivesim.underlay;
 
+import java.util.List;
 import java.util.Set;
 
 import edu.upc.cnds.collectives.identifier.Identifier;
@@ -45,7 +46,7 @@ public class UnderlayModelNode extends AbstractUnderlayNode  {
 		throw new UnsupportedOperationException();
 	}
 
-	public Node[] getKnownNodes() {
+	public List<Node> getKnownNodes() {
 		return model.getKnownNodes(this);
 	}
 

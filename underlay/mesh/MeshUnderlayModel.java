@@ -1,8 +1,11 @@
 package edu.upc.cnds.collectivesim.underlay.mesh;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
+import edu.upc.cnds.collectives.identifier.IdSpace;
 import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.metrics.Metric;
 import edu.upc.cnds.collectives.node.Node;
@@ -14,6 +17,7 @@ import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModelNode;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModelNodeAddress;
+import edu.upc.cnds.collectivesim.underlay.Grid2D.UnderlayModelException;
 
 /**
  * Implements an underlay on which all nodes can see each othe (as in a subnetwork)
@@ -24,27 +28,19 @@ import edu.upc.cnds.collectivesim.underlay.UnderlayModelNodeAddress;
  */
 public class MeshUnderlayModel extends UnderlayModel {
 
-
 	
-	public MeshUnderlayModel(Scheduler scheduler) {
-		super(scheduler);
+	public MeshUnderlayModel(Scheduler scheduler,Stream<Identifier> ids,int numNodes) {
+		super(scheduler, ids, numNodes);
 	}
 
 	@Override
-	public UnderlayNode[] getKnownNodes(UnderlayNode node) {
+	public List<Node> getKnownNodes(UnderlayNode node) {
 		Vector<UnderlayNode> neighbors = new Vector<UnderlayNode>(nodes.values());
 		neighbors.remove(node);
-		return neighbors.toArray(new UnderlayNode[neighbors.size()]);
+		return new ArrayList<Node>(neighbors);
 		
 	}
 
-
-	@Override
-	public UnderlayNode getNode(Identifier id) throws UnderlayException {
-		UnderlayModelNode node = new UnderlayModelNode(id,new UnderlayModelNodeAddress(""),this);
-		super.addNode(node);
-		return node;
-	}
 
 	@Override
 	public UnderlayMetricType[] getSupportedMetrics() {
@@ -52,13 +48,21 @@ public class MeshUnderlayModel extends UnderlayModel {
 	}
 
 	@Override
-	public Node[] resolve(InetAddress host) throws UnderlayException {
+	public List<Node> resolve(InetAddress host) throws UnderlayException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Metric[] probe(UnderlayNode source, UnderlayNode target,UnderlayMetricType[] metrics) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	protected void generateNetworkTopology(List<? extends UnderlayNode> nodes)
+			throws UnderlayModelException {
+			//Do nothing. The mesh topology implies that all nodes know each other, so
+		    //there is no need to create any topological structure
+		
 	}
 
 
