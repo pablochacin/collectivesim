@@ -11,6 +11,7 @@ import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.topology.TopologyObserver;
 import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectivesim.model.imp.ReflexionModelAgent;
+import edu.upc.cnds.collectivesim.topology.TopologyAgent;
 import edu.upc.cnds.collectivesim.topology.TopologyModel;
 
 /**
@@ -19,12 +20,10 @@ import edu.upc.cnds.collectivesim.topology.TopologyModel;
  * @author Pablo Chacin
  *
  */
-public class OrderedTopologyAgent extends ReflexionModelAgent implements TopologyObserver{
+public class OrderedTopologyAgent extends TopologyAgent {
 	
 	private static Logger log = Logger.getLogger("colectivesim.topology");
-	
-	private Topology topology;
-	
+		
 	private OrderedTopologyModel model;
 	
 	private int size;
@@ -32,11 +31,11 @@ public class OrderedTopologyAgent extends ReflexionModelAgent implements Topolog
 	NodeSelector selector;
 	
 	public OrderedTopologyAgent(OrderedTopologyModel model,Topology topology,NodeSelector selector,int size){
-		this.topology = topology;
+		super(model,topology);
 		this.model = model;
 		this.selector = selector;
 		this.size = size;
-		this.topology.addObserver(this);
+		topology.addObserver(this);
 	}
 
 	public void updateTopology(){

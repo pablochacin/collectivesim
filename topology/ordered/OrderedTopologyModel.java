@@ -12,7 +12,9 @@ import edu.upc.cnds.collectives.node.RandomSelector;
 import edu.upc.cnds.collectives.topology.BasicTopology;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
+import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
+import edu.upc.cnds.collectivesim.topology.TopologyAgent;
 import edu.upc.cnds.collectivesim.topology.TopologyModel;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 
@@ -36,37 +38,37 @@ public class OrderedTopologyModel extends TopologyModel{
 		this.space = space;
 	}
 
+
+
 	@Override
-	public void generateTopology() {
-		for(UnderlayNode n: underlay.getNodes()){
-			getTopology(n);
+	protected void buildTopology() {
+		
+		for(UnderlayNode node: underlay.getNodes()){
+		
+			List<Node>seeds = node.getKnownNodes();
+		
+			NodeSelector selector = new OrderedSelector(new NodeIdComparator(space.getDistanceComparator(node.getId())));
+			Topology topology = new BasicTopology(node,seeds,selector,size,false);
+			
+			//initiate the topology (without this call,the seeds are not considered!)
+			//topology.update();
+			
+			topologies.put(node.getId(),topology);
 		}
 	}
 
-	@Override
-	protected Topology buildTopology(UnderlayNode node) {
-		NodeSelector randomSelector= new RandomSelector();
-		List<Node>seeds = randomSelector.getSample(new ArrayList<Node>(underlay.getNodes()), size);
-		
-		NodeSelector selector = new OrderedSelector(new NodeIdComparator(space.getDistanceComparator(node.getId())));
-		Topology topology = new BasicTopology(node,seeds,selector,size,false);
-		return topology;
-	}
-
 	/**
-	 * Generates the local view of the topology for a particular UnderlayNode
+	 * Factory method to create the TopologyAgents. Allows the subclasses of TopologyModel to
+	 * instantiate their own agent classes.
 	 * 
-	 * @param node the UnderlayNode to generate the view for.
+	 * @param topology the Topology that represents a local view of the topology in a node
 	 * 
-	 * @return the local view of the topology for a node
+	 * @return the TopologyAgent that handles this topology
 	 * 
 	 */
-	public Topology getTopology(UnderlayNode node){
-		Topology topology = buildTopology(node);
-		topologies.put(node.getId(), topology);
+	public TopologyAgent createAgent(Topology topology){
 		OrderedTopologyAgent agent = new OrderedTopologyAgent(this,topology, new RandomSelector(), size);
-		super.addAgent(agent);
-		return topology;
+		return agent;
 	}
 
 

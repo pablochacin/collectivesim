@@ -21,9 +21,9 @@ public class TopologyAgent extends ReflexionModelAgent implements TopologyObserv
 	
 	private static Logger log = Logger.getLogger("colectivesim.topology");
 	
-	private Topology topology;
+	protected Topology topology;
 	
-	private TopologyModel model;
+	protected TopologyModel model;
 	
 	public TopologyAgent(TopologyModel model,Topology topology){
 		this.topology = topology;

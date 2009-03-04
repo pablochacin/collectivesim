@@ -43,7 +43,6 @@ public abstract class TopologyModel extends AbstractModel implements EventCollec
 		this.observers = new ArrayList<EventObserver>();
 		this.topologies = new HashMap<Identifier,Topology>();
 			
-		addBehavior("Topology Update", "updateTopology",20,10);
 	}
 
 	/**
@@ -56,16 +55,7 @@ public abstract class TopologyModel extends AbstractModel implements EventCollec
 	 */
 	public Topology getTopology(UnderlayNode node){
 		
-		Topology topology = topologies.get(node.getId());
-		if(topology == null){
-			buildTopology(node);
-			topologies.put(node.getId(),topology);
-		}
-		
-		TopologyAgent agent = new TopologyAgent(this,topology);
-		
-		super.addAgent(agent);
-		return topology;
+		return topologies.get(node.getId());		
 	}
 	
 	public UnderlayModel getUnderlay(){
@@ -73,18 +63,44 @@ public abstract class TopologyModel extends AbstractModel implements EventCollec
 	}
 	
 	/**
-	 * Generates a topology
+	 * Generates a topology. 
 	 */
-	public abstract void generateTopology();
-	
+	public void generateTopology(){
+		
+		//invoke topology building algorithm
+		buildTopology();
+		
+		//create the topology agent to maintain each topology
+		for(UnderlayNode n: underlay.getNodes()){
+			
+			Topology topology = getTopology(n);
+
+			TopologyAgent agent =  createAgent(topology);
+		
+			topology.update();
+			
+			super.addAgent(agent);
+		}
+		
+		addBehavior("Topology Update", "updateTopology",30,10);
+	}
 	
 	/**
-	 * Construct a topology agent for the given node
+	 * Creates a TopologyAgent responsible for the given local view of the topology.
+	 * 
+	 * @param topology the local representation of the topology for the agent
+	 * @return
+	 */
+	protected abstract TopologyAgent createAgent(Topology topology);
+	
+	/**
+	 * Constructs an initial topology for each node
 	 * 
 	 * @param node
 	 * @return
 	 */
-	protected abstract Topology buildTopology(UnderlayNode node) ;
+	protected abstract void buildTopology() ;
+	
 
 	public List<Topology> getTopologies(){
 		return new ArrayList<Topology>(topologies.values());
