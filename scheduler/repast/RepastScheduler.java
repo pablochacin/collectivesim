@@ -117,12 +117,13 @@ public class RepastScheduler implements Scheduler {
 		this.pausedCondition = updateLock.newCondition();
 		this.schedule = new Schedule(1);
 		this.cancelQueue = new ArrayList<BasicAction>();
-
-		//Start the thread that will control the execution of actions
-		new Thread(new SimulationThread()).start();
-
 	}
 
+	public void start(){
+		//Start the thread that will control the execution of actions
+		new Thread(new SimulationThread()).start();
+	}
+	
 	public RepastScheduler(long speed) {
 		this(speed,DEFAULT_PAUSED,0);
 	}
@@ -168,8 +169,8 @@ public class RepastScheduler implements Scheduler {
 	/**
 	 * @see simrealms.models.ModelInterface#getTime()
 	 */
-	public Double getTime(){
-		return new Double(schedule.getCurrentTime());
+	public long getTime(){
+		return new Double(schedule.getCurrentTime()).longValue();
 	}
 
 	public void pause() {
