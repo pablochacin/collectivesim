@@ -19,7 +19,7 @@ public interface Scheduler {
 	 * 
 	 * @return
 	 */
-	public abstract Double getTime();
+	public abstract long getTime();
 
 	/**
 	 * Schedules the execution of the target's run method at after a certain delay.
@@ -52,6 +52,11 @@ public interface Scheduler {
 	 * @param frequency
 	 */
 	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream<Long> frequency);
+	
+	/**
+	 * Starts the scheduling of tasks
+	 */
+	public void start();
 	
 	/**
 	 * Stops the scheduling of actions. Pending actions remains in the execution queue.
