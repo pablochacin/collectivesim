@@ -1,5 +1,6 @@
 package edu.upc.cnds.collectivesim.model.imp;
 
+import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 
@@ -12,8 +13,8 @@ import edu.upc.cnds.collectivesim.scheduler.Scheduler;
  */
 public class BasicModel extends AbstractModel {
 
-	public BasicModel(Scheduler scheduler) {
-		super(scheduler);
+	public BasicModel(String name,Experiment experiment) {
+		super(name,experiment);
 
 	}
 

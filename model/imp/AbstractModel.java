@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
+import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.AgentSampler;
 import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
+import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.ModelObserver;
 import edu.upc.cnds.collectivesim.model.SingleValueStream;
 import edu.upc.cnds.collectivesim.model.Stream;
@@ -39,7 +41,6 @@ import edu.upc.cnds.collectivesim.topology.TopologyAgent;
 public abstract class AbstractModel implements Model{
 
 
-
 	/**
 	 * List of active agents
 	 */
@@ -54,6 +55,16 @@ public abstract class AbstractModel implements Model{
 	 * Scheduler used to control simulation
 	 */
 	protected Scheduler scheduler;
+	
+	/**
+	 * Experiment that defines the model's context
+	 */
+	protected Experiment experiment;
+	
+	/**
+	 * Name of the model
+	 */
+	protected String name;
 
 	/**
 	 * list of active observers 
@@ -62,15 +73,27 @@ public abstract class AbstractModel implements Model{
 
 	/**
 	 * Constructor
+	 * @param name 
 	 */
-	public AbstractModel(Scheduler scheduler){
-		this.scheduler = scheduler;
+	public AbstractModel(String name, Experiment experiment){
+		this.experiment = experiment;
+		this.name = name;
+		this.scheduler = experiment.getScheduler();
 		this.agents = new ArrayList<ModelAgent>();
 		this.behaviors = new HashMap<String,BehaviorVisitor>();
 		this.observers = new HashMap<String, ModelObserverVisitor>();
 	}
 
+	@Override
+	public Experiment getExperiment(){
+		return  experiment;
+	}
 
+	@Override
+	public String getName(){
+		return name;
+	}
+	
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, edu.upc.cnds.collectivesim.scheduler.Stream, int, long, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
@@ -146,8 +169,11 @@ public abstract class AbstractModel implements Model{
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#start()
 	 */
 
-	 public void start() {
+	 public void start() throws ModelException {
 		 //start behaviors
+		 //TODO: this is rather dangerous because if a subclass doesn't call super().start()
+		 //       Behaviors will not start. Consider to add an abstract method to be
+		 //       extended by subclasses and call it from the abstract model's start method.
 		 for(BehaviorVisitor b: behaviors.values()){
 			 b.start();
 		 }
@@ -181,7 +207,7 @@ public abstract class AbstractModel implements Model{
 	 }
 
 	public long getCurrentTime() {
-	 return scheduler.getTime().longValue();		
+	 return scheduler.getTime();		
 	}
 	
 	/**
