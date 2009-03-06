@@ -9,15 +9,14 @@ import java.util.Vector;
 
 import Model.RouterWaxman;
 import Topology.Topology;
-import edu.upc.cnds.collectives.identifier.IdSpace;
 import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.metrics.Metric;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.underlay.UnderlayException;
 import edu.upc.cnds.collectives.underlay.UnderlayMetricType;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
+import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.Stream;
-import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 import edu.upc.cnds.collectivesim.underlay.Grid2D.UnderlayModelException;
 import graph.Graph;
@@ -61,7 +60,7 @@ import graph.Graph;
  *     December 1988.
  * (2)BRITE: An Approach to Universal Topology Generation. In Proceedings of the 
  *    International Workshop on Modeling, Analysis and Simulation of Computer and 
- *    Telecommunications Systems- MASCOTS�'01, Cincinnati, 
+ *    Telecommunications Systems- MASCOTS'01, Cincinnati, 
  *    http://www.cs.bu.edu/brite/publications/BriteMascots.pdf
  *    
  * @author Pablo Chacin
@@ -139,13 +138,12 @@ public class RandomUnderlayModel extends UnderlayModel {
 	 */
 	protected Map<Identifier,graph.Node> nodeMap;
 	
-	public RandomUnderlayModel(Scheduler scheduler,Stream<Identifier> idStream,int numNodes) {
-		super(scheduler,idStream,numNodes);
+	public RandomUnderlayModel(String name,Experiment experiment,Stream<Identifier> idStream,int numNodes) {
+		super(name,experiment,idStream,numNodes);
 		
     	 model = new RouterWaxman(numNodes,HS,LS,nodePlacement,outDegree,alpha,beta,
     			 growth,bandwithDistribution,minBandwidth,maxBandwidth);
     	 
-
     	 graphToUnderlay = new Vector<UnderlayNode>(numNodes);
     	 
     	 underlayToGrap = new HashMap<UnderlayNode,graph.Node>(numNodes);

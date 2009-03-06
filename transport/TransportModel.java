@@ -8,6 +8,7 @@ import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.transport.Transport;
 import edu.upc.cnds.collectives.underlay.UnderlayAddress;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
+import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
@@ -76,8 +77,8 @@ public class TransportModel extends AbstractModel {
 	
 	protected UnderlayModel underlay;
 	
-	public TransportModel(Scheduler scheduler,UnderlayModel underlay) {
-		super(scheduler);
+	public TransportModel(String name,Experiment experiment,UnderlayModel underlay) {
+		super(name,experiment);
 		this.underlay = underlay;
 		transportAgents = new HashMap<UnderlayAddress,TransportAgent>();
 	}

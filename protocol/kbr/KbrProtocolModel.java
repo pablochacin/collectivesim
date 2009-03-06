@@ -1,5 +1,7 @@
 package edu.upc.cnds.collectivesim.protocol.kbr;
 
+
+
 import edu.upc.cnds.collectives.dataseries.DataSeries;
 import edu.upc.cnds.collectives.dataseries.InvalidDataItemException;
 import edu.upc.cnds.collectives.dataseries.baseImp.BaseDataItem;
@@ -14,9 +16,9 @@ import edu.upc.cnds.collectives.routing.RoutingProtocol;
 import edu.upc.cnds.collectives.routing.kbr.KbrProtocolImp;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.transport.Transport;
+import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.protocol.ProtocolModel;
 import edu.upc.cnds.collectivesim.protocol.ProtocolModelAgent;
-import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.topology.TopologyModel;
 import edu.upc.cnds.collectivesim.transport.TransportModel;
 
@@ -30,12 +32,9 @@ public class KbrProtocolModel extends ProtocolModel {
 	
 	protected MatchFunction function;
 	
-	private DataSeries hops;
-
-	public KbrProtocolModel(String name, Scheduler scheduler,TopologyModel topology, MatchFunction function,TransportModel transport) {
-		super(name, scheduler, topology, transport);
+	public KbrProtocolModel(String name, Experiment experiment,TopologyModel topology, MatchFunction function,TransportModel transport) {
+		super(name, experiment, topology, transport);
 		this.function = function;
-		this.hops = new BaseDataSeries("hops");
 	}
 	
 	@Override
@@ -56,7 +55,7 @@ public class KbrProtocolModel extends ProtocolModel {
 	 * @param route
 	 * @param destination
 	 */
-	void reportDeliverey(Node node, Route route,Destination destination){
+	void reportDelivered(Node node, Route route,Destination destination){
 		try {
 			hops.addItem(new BaseDataItem(new Double(route.getHops())));
 		} catch (InvalidDataItemException e) {
@@ -65,7 +64,5 @@ public class KbrProtocolModel extends ProtocolModel {
 		}
 	}
 
-	public DataSeries getHops(){
-		return hops;
-	}
+
 }

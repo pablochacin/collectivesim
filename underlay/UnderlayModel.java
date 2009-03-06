@@ -10,9 +10,12 @@ import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.metrics.Metric;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.underlay.Underlay;
+import edu.upc.cnds.collectives.underlay.UnderlayEvent;
 import edu.upc.cnds.collectives.underlay.UnderlayException;
 import edu.upc.cnds.collectives.underlay.UnderlayMetricType;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
+import edu.upc.cnds.collectivesim.experiment.Experiment;
+import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.Stream;
 import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
@@ -38,13 +41,23 @@ public abstract class UnderlayModel extends AbstractModel implements Underlay {
      */
     protected Stream<Identifier> idStream;
     
-	public UnderlayModel(Scheduler scheduler, Stream<Identifier> idStream,int numNodes) {
-		super(scheduler);
+	public UnderlayModel(String name,Experiment experiment, Stream<Identifier> idStream,int numNodes) {
+		super(name, experiment);
 		this.idStream = idStream;
 		this.numNodes = numNodes;
         this.nodes = new HashMap<Identifier,UnderlayModelNode>(); 
 	}
 
+	@Override
+	public void start() throws ModelException{
+		try {
+			generateUnderlay();
+		} catch (UnderlayModelException e) {
+			throw new ModelException("Exception generating underlay",e);
+		}
+		super.start();
+	}
+	
 	/**
 	 * 
 	 * @return a List of the nodes in the model
@@ -90,6 +103,7 @@ public abstract class UnderlayModel extends AbstractModel implements Underlay {
 			throw new UnderlayException(e);
 		}
 		addNode(node);
+		
 		return node;
 	}
 	
@@ -114,6 +128,11 @@ public abstract class UnderlayModel extends AbstractModel implements Underlay {
 		for(Node n : getKnownNodes(node)) {
 			((UnderlayModelNode)n).notifyNodeDiscovered(node);
 		}
+		
+		//report the creation of a new node in the underlay
+		
+		UnderlayEvent event = new UnderlayEvent(node,UnderlayEvent.NODE_FOUND,scheduler.getTime());
+		experiment.reportEvent(event);
 	}
 	
 	

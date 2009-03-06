@@ -15,6 +15,8 @@ import edu.upc.cnds.collectives.topology.BasicTopology;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.topology.monitoring.TopologyEvent;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
+import edu.upc.cnds.collectivesim.experiment.Experiment;
+import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
@@ -37,12 +39,11 @@ public abstract class TopologyModel extends AbstractModel implements EventCollec
 	protected Map<Identifier,Topology>topologies;
 	
 		
-	public TopologyModel(Scheduler scheduler,UnderlayModel underlay) {
-		super(scheduler);
+	public TopologyModel(String name,Experiment experiment,UnderlayModel underlay) {
+		super(name,experiment);
 		this.underlay =  underlay;
 		this.observers = new ArrayList<EventObserver>();
-		this.topologies = new HashMap<Identifier,Topology>();
-			
+		this.topologies = new HashMap<Identifier,Topology>();			
 	}
 
 	/**
@@ -60,6 +61,11 @@ public abstract class TopologyModel extends AbstractModel implements EventCollec
 	
 	public UnderlayModel getUnderlay(){
 		return underlay;
+	}
+	
+	public void start() throws ModelException{
+		generateTopology();
+		super.start();
 	}
 	
 	/**
@@ -114,7 +120,7 @@ public abstract class TopologyModel extends AbstractModel implements EventCollec
         //Report that the node is part of the topology
         Event event = new TopologyEvent(localNode,TopologyEvent.TOPOLOGY_JOIN,
         		                        getCurrentTime(),node);
-        reportEvent(event);
+        experiment.reportEvent(event);
 	}
 
 	/**
@@ -126,15 +132,11 @@ public abstract class TopologyModel extends AbstractModel implements EventCollec
         //Report that the node is part of the topology
         Event event = new TopologyEvent(localNode,TopologyEvent.TOPOLOGY_LEAVE,
         								getCurrentTime(),node);
-        reportEvent(event);
+        experiment.reportEvent(event);
 		
 	}
 	
-	private void reportEvent(Event event){
-		for(EventObserver o: observers){
-			o.notify(event);
-		}
-	}
+
     /**
      * Registers an observer to be notified of the events reported to this Collector
      * 

@@ -12,6 +12,7 @@ import edu.upc.cnds.collectives.node.RandomSelector;
 import edu.upc.cnds.collectives.topology.BasicTopology;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
+import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.topology.TopologyAgent;
@@ -32,8 +33,8 @@ public class OrderedTopologyModel extends TopologyModel{
 		
 	private IdSpace space;
 	
-	public OrderedTopologyModel(Scheduler scheduler,UnderlayModel underlay,int size,IdSpace space) {
-		super(scheduler,underlay);
+	public OrderedTopologyModel(String name,Experiment experiment,UnderlayModel underlay,int size,IdSpace space) {
+		super(name,experiment,underlay);
 		this.size = size;
 		this.space = space;
 	}
