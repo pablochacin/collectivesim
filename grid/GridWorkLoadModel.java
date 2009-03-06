@@ -1,6 +1,7 @@
 package edu.upc.cnds.collectivesim.grid;
 
 import edu.upc.cnds.collectiveg.GridResourceBroker;
+import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 
@@ -13,8 +14,8 @@ import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 public class GridWorkLoadModel extends AbstractModel {
 
 	
-	public GridWorkLoadModel(Scheduler scheduler) {
-		super(scheduler);
+	public GridWorkLoadModel(String name,Experiment experiment) {
+		super(name,experiment);
 	}
 
 	

@@ -12,6 +12,7 @@ import edu.upc.cnds.collectives.dataseries.DataSequence;
 import edu.upc.cnds.collectives.dataseries.DataSeries;
 import edu.upc.cnds.collectives.dataseries.InvalidDataItemException;
 import edu.upc.cnds.collectives.dataseries.baseImp.BaseDataSeries;
+import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.Stream;
 import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
@@ -27,26 +28,16 @@ public class GridLrmModel extends AbstractModel {
 	private DataSeries executions;
 	/**
 	 * 
-	 * @param scheduler
+	 * @param experiment
 	 * @param timeSlice
 	 */
-	public GridLrmModel(Scheduler scheduler,DataSeries executions,long timeSlice) {
-		super(scheduler);
+	public GridLrmModel(String name,Experiment experiment,DataSeries executions,long timeSlice) {
+		super(name,experiment);
 		this.timeSlice = timeSlice;
 		this.executions = executions;		
 		super.addBehavior("update", "updateProcesses", timeSlice);
 	}
 
-	/**
-	 * Convenience Method, creates a GridLrmModel using a default DataSeries for
-	 * executions.
-	 * 
-	 * @param scheduler
-	 * @param timeSlice
-	 */
-	public GridLrmModel(Scheduler scheduler,long timeSlice){
-		this(scheduler,new BaseDataSeries("GridLrmModel-Executions",0),timeSlice);
-	}
 	
 	/**
 	 * 
