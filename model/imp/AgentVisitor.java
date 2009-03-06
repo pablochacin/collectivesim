@@ -16,7 +16,8 @@ import edu.upc.cnds.collectivesim.model.ModelException;
  * 
  * Allows specifying a Filter to agents
  * 
- * Subclasses must implement the visit model, to visit each agent
+ * Subclasses must implement the visit method, to visit each agent. Optionally, they can implement
+ * the startVisit and endVisit methods to make initialization and clean out.
  * 
  * @author Pablo Chacin
  *
