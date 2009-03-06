@@ -4,6 +4,13 @@ import java.util.List;
 
 import java.util.Random;
 
+/**
+ * Generates a Stream of values by picking randomly elements from a List
+ * 
+ * @author Pablo Chacin
+ *
+ * @param <T>
+ */
 public class RandomListPickStream<T> implements Stream<T> {
 
 
