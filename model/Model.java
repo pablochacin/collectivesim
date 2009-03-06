@@ -2,6 +2,7 @@ package edu.upc.cnds.collectivesim.model;
 
 import java.util.List;
 
+import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelObserver;
 
@@ -95,13 +96,26 @@ public interface Model {
 
 	/**
 	 * starts the execution of the model
+	 * @throws ModelException 
 	 */
 
-	public abstract void start();
+	public abstract void start() throws ModelException;
 
 	/**
 	 * Returns the current simulation time for the model
 	 * @return
 	 */
 	public long getCurrentTime();
+	
+	/**
+	 * Returns the experiment this model lives in
+	 * @return
+	 */
+	public Experiment getExperiment();
+	
+	/**
+	 * 
+	 * @return the name of the model
+	 */
+	public String getName();
 }
