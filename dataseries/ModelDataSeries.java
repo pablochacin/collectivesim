@@ -2,13 +2,9 @@ package edu.upc.cnds.collectivesim.dataseries;
 
 import java.util.Vector;
 
-import edu.upc.cnds.collectives.dataseries.DataItem;
-import edu.upc.cnds.collectives.dataseries.DataSequence;
 import edu.upc.cnds.collectives.dataseries.DataSeries;
-import edu.upc.cnds.collectives.dataseries.Function;
 import edu.upc.cnds.collectives.dataseries.InvalidDataItemException;
 import edu.upc.cnds.collectives.dataseries.baseImp.BaseDataItem;
-import edu.upc.cnds.collectives.dataseries.baseImp.BaseDataSeries;
 import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelObserver;
 
