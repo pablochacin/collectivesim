@@ -25,6 +25,7 @@ public class SingleAction extends AbstractScheduledAction {
 		super(scheduler);
 		this.target = target;
         this.delay = delay;
+        setNextTime(delay);
         
 	}
 	

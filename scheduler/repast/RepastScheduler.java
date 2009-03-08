@@ -113,6 +113,7 @@ public class RepastScheduler implements Scheduler {
 		this.speed = speed;
 		this.paused = paused;
 		this.endTime = endTime;
+		this.nextTime = 0;
 		this.updateLock = new ReentrantLock();
 		this.pausedCondition = updateLock.newCondition();
 		this.schedule = new Schedule(1);
