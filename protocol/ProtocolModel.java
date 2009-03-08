@@ -8,6 +8,7 @@ import edu.upc.cnds.collectives.routing.kbr.KeyDistanceMatchFunction;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.transport.Transport;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
+import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
 import edu.upc.cnds.collectivesim.overlay.OverlayModel;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
@@ -46,6 +47,11 @@ public abstract class ProtocolModel  extends AbstractModel{
 	 */
 	public String getName(){
 		return name;
+	}
+	
+	public void start() throws ModelException {
+		installProtocol();
+		super.start();
 	}
 	
 	/**
