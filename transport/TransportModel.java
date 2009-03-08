@@ -8,7 +8,9 @@ import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.transport.Transport;
 import edu.upc.cnds.collectives.underlay.UnderlayAddress;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
+import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
+import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
@@ -62,7 +64,9 @@ public class TransportModel extends AbstractModel {
 				try {
 					agent.handleInvocation(protocol, method, args);
 				} catch (Exception e) {
-					log.severe("exception invoking method in protocol");
+					log.severe("Exception invoking method " +method + 
+							   " in protocol "+ protocol + 
+							   FormattingUtils.getStackTrace(e));
 				}
 		}
 		
@@ -107,6 +111,11 @@ public class TransportModel extends AbstractModel {
 		return transportAgents.get(node.getAddress());
 	}
 	
+	
+	public void start() throws ModelException{
+		installTransport();
+		super.start();
+	}
 	
 	public void installTransport(){
 		for(UnderlayNode n: underlay.getNodes()){
