@@ -2,9 +2,7 @@ package edu.upc.cnds.collectivesim.dataseries;
 
 import java.util.Vector;
 
-import edu.upc.cnds.collectives.dataseries.DataSeries;
-import edu.upc.cnds.collectives.dataseries.InvalidDataItemException;
-import edu.upc.cnds.collectives.dataseries.baseImp.BaseDataItem;
+import edu.upc.cnds.collectivesim.dataseries.baseImp.BaseDataItem;
 import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelObserver;
 
@@ -54,12 +52,8 @@ public class ModelDataSeries implements ModelObserver {
 			series.reset();
 		
 		for(Object value: values){
-			try {
-				series.addItem(new BaseDataItem((Double)value));
-			} catch (InvalidDataItemException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			series.addItem(new BaseDataItem((Double)value));
+
 		}
 		
 	}
