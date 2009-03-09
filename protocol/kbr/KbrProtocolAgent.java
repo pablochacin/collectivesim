@@ -53,7 +53,7 @@ public class KbrProtocolAgent extends ProtocolModelAgent implements RouteObserve
 
 	@Override
 	public void routed(Protocol protocol, Node node, Destination destination, Route route, Serializable... args) {
-		kbrmodel.reportDeliverey(node, route, destination);
+		kbrmodel.reportDelivered(node, protocol.getName(),destination,route);
 	}
 	
 	

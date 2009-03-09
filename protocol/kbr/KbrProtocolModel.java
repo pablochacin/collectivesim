@@ -2,10 +2,10 @@ package edu.upc.cnds.collectivesim.protocol.kbr;
 
 
 
-import edu.upc.cnds.collectives.dataseries.DataSeries;
-import edu.upc.cnds.collectives.dataseries.InvalidDataItemException;
-import edu.upc.cnds.collectives.dataseries.baseImp.BaseDataItem;
-import edu.upc.cnds.collectives.dataseries.baseImp.BaseDataSeries;
+import java.util.HashMap;
+import java.util.Map;
+
+import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.protocol.Destination;
 import edu.upc.cnds.collectives.routing.GreedyRouting;
@@ -16,6 +16,7 @@ import edu.upc.cnds.collectives.routing.RoutingProtocol;
 import edu.upc.cnds.collectives.routing.kbr.KbrProtocolImp;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.transport.Transport;
+import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.protocol.ProtocolModel;
 import edu.upc.cnds.collectivesim.protocol.ProtocolModelAgent;
@@ -32,10 +33,15 @@ public class KbrProtocolModel extends ProtocolModel {
 	
 	protected MatchFunction function;
 	
-	public KbrProtocolModel(String name, Experiment experiment,TopologyModel topology, MatchFunction function,TransportModel transport) {
+	protected DataSeries hops;
+	
+	public KbrProtocolModel(String name, Experiment experiment,TopologyModel topology, 
+			                MatchFunction function,TransportModel transport,DataSeries hops) {
 		super(name, experiment, topology, transport);
 		this.function = function;
+		this.hops = hops;
 	}
+	
 	
 	@Override
 	public ProtocolModelAgent installProtocol(String name,Topology topology, Transport transport) {
@@ -55,13 +61,24 @@ public class KbrProtocolModel extends ProtocolModel {
 	 * @param route
 	 * @param destination
 	 */
-	void reportDelivered(Node node, Route route,Destination destination){
-		try {
-			hops.addItem(new BaseDataItem(new Double(route.getHops())));
-		} catch (InvalidDataItemException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	void reportDelivered(Node node, String protocol,Destination destination,Route route){
+
+		Map attributes = new HashMap();
+		attributes.put("source", route.getRoute().get(0).toString());
+		attributes.put("target",node.getId().toString());
+		attributes.put("hops",String.valueOf(route.getHops()));
+		attributes.put("protocol",protocol);
+		for(Map.Entry< String, Object> e: destination.getAttributes().entrySet()){
+			attributes.put("destination."+e.getKey().toString(), 
+					     e.getValue().toString());
 		}
+		
+		Event event = new RoutingModelEvent(node,experiment.getScheduler().getTime(),
+														attributes,protocol,destination,route);
+		
+		experiment.reportEvent(event);
+		
+		hops.addItem(attributes, new Double(route.getHops()));
 	}
 
 
