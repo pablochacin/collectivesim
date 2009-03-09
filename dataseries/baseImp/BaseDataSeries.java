@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectives.dataseries.baseImp;
+package edu.upc.cnds.collectivesim.dataseries.baseImp;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -6,13 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import edu.upc.cnds.collectives.dataseries.DataItem;
-import edu.upc.cnds.collectives.dataseries.DataItemFilter;
-import edu.upc.cnds.collectives.dataseries.DataSequence;
-import edu.upc.cnds.collectives.dataseries.DataSequenceObserver;
-import edu.upc.cnds.collectives.dataseries.DataSeries;
-import edu.upc.cnds.collectives.dataseries.SeriesFunction;
-import edu.upc.cnds.collectives.dataseries.InvalidDataItemException;
+import edu.upc.cnds.collectivesim.dataseries.DataItem;
+import edu.upc.cnds.collectivesim.dataseries.DataItemFilter;
+import edu.upc.cnds.collectivesim.dataseries.DataSequence;
+import edu.upc.cnds.collectivesim.dataseries.DataSeriesObserver;
+import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 
 public class BaseDataSeries implements DataSeries {
 
@@ -44,63 +42,7 @@ public class BaseDataSeries implements DataSeries {
 		}
 		
 	}
-	
-	/**
-	 * Generates a sequence of values appliying a Function to the values
-	 * of a DataSeries
-	 * 
-	 * @author Pablo Chacin
-	 *
-	 */
-	private class CalculatedSequence implements DataSequence,DataSequenceObserver {
 
-		private SeriesFunction function;
-		
-		private DataItem value;
-
-		private boolean updated;
-
-		CalculatedSequence(SeriesFunction function){
-			this.function = function;			
-
-			this.value = null;
-			
-			this.updated = false;
-
-		}
-				
-		/**
-		 * Updates the calculated value iterating over the serie's items, from the newest one
-		 * back, until items are exhausted or the functions stops visiting values.
-		 */
-		public void update(DataItem item){
-			function.reset();
-			boolean continueVisit = true;
-			int i = dataItems.size()-1;
-			while( (i >= 0) && continueVisit) {
-				continueVisit = function.calculate(dataItems.get(i));
-				i--;
-			}
-
-			value = new BaseDataItem(function.getResult());
-			updated = true;
-			
-		}
-		
-		public DataItem getItem() {
-			updated = false;
-			return value;
-			
-		}
-
-		@Override
-		public boolean hasItems() {
-		  return updated;
-		}
-		
-		
-
-	}
 	
 	private Vector<DataItem> dataItems;
 
@@ -110,7 +52,7 @@ public class BaseDataSeries implements DataSeries {
 
 	private static int DEFAULT_SIZE = 10;
 	
-	private List<DataSequenceObserver>observers;
+	private List<DataSeriesObserver>observers;
 	
 	/**
 	 * 
@@ -121,14 +63,14 @@ public class BaseDataSeries implements DataSeries {
 		this.name = name;
 		this.maxSize = size;
 		this.dataItems = new Vector<DataItem>(maxSize>0?maxSize:DEFAULT_SIZE);
-		this.observers = new ArrayList<DataSequenceObserver>();
+		this.observers = new ArrayList<DataSeriesObserver>();
 	}
 
 	public BaseDataSeries(String name){
 		this(name,0);
 	}
 	
-	public boolean addItem(DataItem item) throws InvalidDataItemException {
+	public boolean addItem(DataItem item) {
 		
 		if((maxSize > 0) && (dataItems.size() == maxSize)) {
 			dataItems.remove(dataItems.firstElement());
@@ -136,20 +78,20 @@ public class BaseDataSeries implements DataSeries {
 		
 		dataItems.add(item);
 		
-		for(DataSequenceObserver o: observers){
+		for(DataSeriesObserver o: observers){
 			o.update(item);
 		}
 		
 		return true;
 	}
 
-	public boolean addItem(Double value) throws InvalidDataItemException {
+	public boolean addItem(Double value) {
 		return addItem(new BaseDataItem(value));
 
 
 	}
 
-	public boolean addItem(Map categories, Double value) throws InvalidDataItemException {
+	public boolean addItem(Map categories, Double value){
 		return addItem(new BaseDataItem(value,categories));
 
 	}
@@ -188,25 +130,18 @@ public class BaseDataSeries implements DataSeries {
 			
 		return getItem(getSize()-1);
 	}
-	
-	
-	
-	public DataSequence getCalculatedSequence(SeriesFunction function) {
-		CalculatedSequence sequence = new CalculatedSequence(function);
-		observers.add(sequence);
-		return  sequence;
-	}
+		
 
 	public DataSequence getSequence() {
 		return new DataItemsSequence(dataItems);
 	}
 	
 
-	public void addObserver(DataSequenceObserver observer){
+	public void addObserver(DataSeriesObserver observer){
 		observers.add(observer);
 	}
 	
-	public void removeObserver(DataSequenceObserver observer){
+	public void removeObserver(DataSeriesObserver observer){
 		observers.remove(observer);
 	}
 

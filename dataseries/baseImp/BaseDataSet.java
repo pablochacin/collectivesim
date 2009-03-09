@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectives.dataseries.baseImp;
+package edu.upc.cnds.collectivesim.dataseries.baseImp;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -6,12 +6,12 @@ import java.util.Map;
 
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 
-import edu.upc.cnds.collectives.dataseries.DataItem;
-import edu.upc.cnds.collectives.dataseries.DataItemFilter;
-import edu.upc.cnds.collectives.dataseries.DataSeries;
-import edu.upc.cnds.collectives.dataseries.DataSet;
-import edu.upc.cnds.collectives.dataseries.SeriesFunction;
 import edu.upc.cnds.collectives.dataseries.InvalidDataItemException;
+import edu.upc.cnds.collectivesim.dataseries.DataItem;
+import edu.upc.cnds.collectivesim.dataseries.DataItemFilter;
+import edu.upc.cnds.collectivesim.dataseries.DataSeries;
+import edu.upc.cnds.collectivesim.dataseries.DataSet;
+import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
 
 
 /**

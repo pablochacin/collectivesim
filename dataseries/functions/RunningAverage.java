@@ -1,7 +1,7 @@
-package edu.upc.cnds.collectives.dataseries.functions;
+package edu.upc.cnds.collectivesim.dataseries.functions;
 
-import edu.upc.cnds.collectives.dataseries.DataItem;
-import edu.upc.cnds.collectives.dataseries.SeriesFunction;
+import edu.upc.cnds.collectivesim.dataseries.DataItem;
+import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
 
 public class RunningAverage implements SeriesFunction {
 

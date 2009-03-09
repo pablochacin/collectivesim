@@ -1,9 +1,9 @@
-package edu.upc.cnds.collectives.dataseries.baseImp;
+package edu.upc.cnds.collectivesim.dataseries.baseImp;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.upc.cnds.collectives.dataseries.DataItem;
+import edu.upc.cnds.collectivesim.dataseries.DataItem;
 
 public class BaseDataItem implements DataItem {
 
