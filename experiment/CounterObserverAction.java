@@ -1,7 +1,6 @@
 package edu.upc.cnds.collectivesim.experiment;
 
-import edu.upc.cnds.collectives.dataseries.DataSeries;
-import edu.upc.cnds.collectives.dataseries.InvalidDataItemException;
+import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 
 /**
  * 
@@ -29,17 +28,9 @@ public class CounterObserverAction implements Runnable {
 	}
 
 
-
 	@Override
 	public void run() {
-		
-		try {
-			series.addItem(counter.getAsDataItem());
-		} catch (InvalidDataItemException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		series.addItem(counter.getValue());
 	}
 
 }

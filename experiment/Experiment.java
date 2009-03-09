@@ -6,15 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import edu.upc.cnds.collectives.dataseries.DataSeries;
-import edu.upc.cnds.collectives.dataseries.baseImp.BaseDataSeries;
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.events.EventObserver;
 import edu.upc.cnds.collectives.events.imp.FilteringObserver;
 import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectives.util.TypedMap;
+import edu.upc.cnds.collectivesim.dataseries.DataSeries;
+import edu.upc.cnds.collectivesim.dataseries.baseImp.BaseDataSeries;
 import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelException;
+import edu.upc.cnds.collectivesim.model.SingleValueStream;
 import edu.upc.cnds.collectivesim.model.Stream;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 
@@ -56,10 +57,13 @@ public class Experiment {
 	
 	private Scheduler scheduler;
 		
-	public Experiment(Scheduler scheduler,long endTime){
+	private String description;
+	
+	public Experiment(String description,Scheduler scheduler,long endTime){
 		
 		this.log = Logger.getLogger("colectivesim.experiment");
 		
+		this.description = description;
 		this.scheduler = scheduler;
 		this.models = new HashMap<String,Model>();
 		this.counters = new HashMap<String, Counter>();
@@ -67,6 +71,11 @@ public class Experiment {
 		this.streams = new HashMap<String, Stream>();
 		this.parameters = new TypedMap();
 		this.observers = new ArrayList<EventObserver>();
+	}
+	
+	
+	public String getDescription(){
+		return description;
 	}
 	
 	/**
@@ -88,11 +97,8 @@ public class Experiment {
 	
 	
 	public Counter addCounter(String name){
-		return addCounter(name,new HashMap());
-	}
-
-	public Counter addCounter(String name,Map attributes){
-		Counter counter = new Counter(name, attributes);
+	
+		Counter counter = new Counter(name);
 		counters.put(name, counter);
 		return counter;
 	}
@@ -124,6 +130,15 @@ public class Experiment {
 		return dataseries;
 	}
 
+	/**
+	 * 
+	 * @param name
+	 * 
+	 * @return the DataSeries registered under the given name or null if none exists
+	 */
+	public DataSeries getDataSeries(String name) {
+		return series.get(name);
+	}
 	
 	/**
 	 * Generates a Dataseries by observing the counter's value periodically.
@@ -133,7 +148,11 @@ public class Experiment {
 	 * @param frequency
 	 */
 	public void addCounterObserver(String counter,String dataSeries,long frequency){
+	
+		CounterObserverAction observer = new CounterObserverAction(getCounter(counter),
+				                                                   getDataSeries(dataSeries));
 		
+		scheduler.scheduleRepetitiveAction(observer, new SingleValueStream<Long>("",new Long(frequency)));
 	}
 
 
@@ -150,7 +169,7 @@ public class Experiment {
 	 * @param frequency
 	 */
 	public void addCalculatingObserver(String[] counters,Function function,long frequency){
-		
+		throw new UnsupportedOperationException();		
 	}
 	
 	public void start() throws ExperimentException{
@@ -161,21 +180,21 @@ public class Experiment {
 	 * Pauses the execution of the experiment and all its models and observers
 	 */
 	public void pause(){
-		
+		throw new UnsupportedOperationException();	
 	}
 	
 	/**
 	 * Resumes the execution of the experiment
 	 */
 	public void resume(){
-		
+		throw new UnsupportedOperationException();
 	}
 	
 	/**
 	 * Ends the execution of the experiment
 	 */
 	public void stop(){
-		
+		throw new UnsupportedOperationException();
 	}
 	
 	/**
@@ -184,7 +203,7 @@ public class Experiment {
 	 * @param time
 	 */
 	public void setEndTime(long time){
-		
+		throw new UnsupportedOperationException();
 	}
 	
 	/**
@@ -196,7 +215,7 @@ public class Experiment {
 	 * @param task
 	 */
 	public void addInitilizationTask(Runnable task){
-		
+		throw new UnsupportedOperationException();	
 	}
 	
 	/**
@@ -208,7 +227,7 @@ public class Experiment {
 	 * @param task
 	 */
 	public void addFinalizationTask(Runnable task){
-		
+		throw new UnsupportedOperationException();
 	}
 	
 	public TypedMap getParameters(){
@@ -288,4 +307,5 @@ public class Experiment {
 		}
 		
 	}
+
 }

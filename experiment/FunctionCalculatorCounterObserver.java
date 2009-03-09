@@ -2,8 +2,7 @@ package edu.upc.cnds.collectivesim.experiment;
 
 import java.util.Map;
 
-import edu.upc.cnds.collectives.dataseries.DataSeries;
-import edu.upc.cnds.collectives.dataseries.InvalidDataItemException;
+import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 
 /**
  * Creates a DataSeries from the values calculated using a series of
@@ -12,7 +11,7 @@ import edu.upc.cnds.collectives.dataseries.InvalidDataItemException;
  * @author Pablo Chacin
  *
  */
-public class CalculatingCounterObserver implements Runnable {
+public class FunctionCalculatorCounterObserver implements Runnable {
 
 	/**
 	 * Counters use to calculate values
@@ -43,7 +42,7 @@ public class CalculatingCounterObserver implements Runnable {
 	 * @param function
 	 * @param attributes
 	 */
-	public CalculatingCounterObserver(Counter[] counters, DataSeries series,
+	public FunctionCalculatorCounterObserver(Counter[] counters, DataSeries series,
 			Function function, Map attributes) {
 		this.counters = counters;
 		this.series = series;
@@ -62,12 +61,8 @@ public class CalculatingCounterObserver implements Runnable {
 		
 		Double value = function.calculate(values);
 		
-		try {
-			series.addItem(attributes,value);
-		} catch (InvalidDataItemException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		series.addItem(attributes,value);
+
 	}
 
 }
