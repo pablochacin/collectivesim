@@ -29,9 +29,12 @@ public class FunctionCalculatorSeriesObserver implements DataSeriesObserver {
 	private DataSeries calculatedValues;
 
 
-	FunctionCalculatorSeriesObserver(DataSeries dataseries, DataSeries calculatedValues,SeriesFunction function){
+	public FunctionCalculatorSeriesObserver(DataSeries dataseries, DataSeries calculatedValues,SeriesFunction function){
+		this.dataseries = dataseries;
 		this.function = function;			
 		this.calculatedValues = calculatedValues;
+
+		this.dataseries.addObserver(this);
 
 	}
 
