@@ -5,18 +5,17 @@ import java.util.Map;
 
 import edu.upc.cnds.collectiveg.GridLRM;
 import edu.upc.cnds.collectiveg.GridProcess;
+import edu.upc.cnds.collectiveg.GridProcessEvent;
 import edu.upc.cnds.collectiveg.GridResource;
 import edu.upc.cnds.collectiveg.InvalidResourceEspecification;
 import edu.upc.cnds.collectiveg.GridLRM.POLICY;
-import edu.upc.cnds.collectives.dataseries.DataSequence;
-import edu.upc.cnds.collectives.dataseries.DataSeries;
-import edu.upc.cnds.collectives.dataseries.InvalidDataItemException;
-import edu.upc.cnds.collectives.dataseries.baseImp.BaseDataSeries;
+import edu.upc.cnds.collectives.events.Event;
+import edu.upc.cnds.collectives.node.Node;
+import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.Stream;
 import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
-import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 
 public class GridLrmModel extends AbstractModel {
 
@@ -47,11 +46,11 @@ public class GridLrmModel extends AbstractModel {
 	 * @param policy
 	 * @throws ModelException
 	 */
-	public GridLRM addLRM(String name,GridResource resource,Stream<Double> backgroundLoad,POLICY policy) throws ModelException{
+	public GridLRM addLRM(Node node,String name,GridResource resource,Stream<Double> backgroundLoad,POLICY policy) throws ModelException{
 		
 		GridLrmAgent agent;
 		try {
-			agent = new GridLrmAgent(this,name,resource,backgroundLoad,policy);
+			agent = new GridLrmAgent(node,this,name,resource,backgroundLoad,policy);
 			super.addAgent(agent);
 
 			return agent;
@@ -71,15 +70,24 @@ public class GridLrmModel extends AbstractModel {
 	 * @param process
 	 * @param agent
 	 */
-	void reportProcessEnded(GridProcess process,GridLrmAgent agent){
+	void reportProcessEnded(GridLrmAgent agent,GridProcess process){
 		Map attributes = getAttributes(process);
-		try {
-			long executionTime = process.endTime()-process.startTime();
-			executions.addItem(attributes,(double)executionTime);
-		} catch (InvalidDataItemException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//set default attributes
+		attributes.put("lrm", process.getLRM());
+		attributes.put("user", process.getGridTask().getUser());
+		attributes.put("submited",String.valueOf(process.getGridTask().getTimeSumitted()));
+		attributes.put("cpu", String.valueOf(process.getCpuTime()));
+		attributes.put("execution", String.valueOf(process.getExecutionTime()));
+		attributes.put("start",String.valueOf(process.startTime()));
+		attributes.put("end",String.valueOf(process.endTime()));
+		long elapsed = process.endTime() - process.getGridTask().getTimeSumitted();
+		attributes.put("elapsed", String.valueOf(elapsed));
+		
+		Event event = new GridProcessEvent(agent.getNode(),process,attributes);
+		
+		experiment.reportEvent(event);
+		
+		executions.addItem(attributes,new Double(process.getExecutionTime()));
 	}
 	
 	/**

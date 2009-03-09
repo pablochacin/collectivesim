@@ -11,6 +11,7 @@ import edu.upc.cnds.collectiveg.InvalidResourceEspecification;
 import edu.upc.cnds.collectiveg.GridProcess.ExecutionState;
 import edu.upc.cnds.collectiveg.GridLRM;
 import edu.upc.cnds.collectiveg.GridLRM.POLICY;
+import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.Stream;
@@ -43,7 +44,13 @@ public class GridLrmAgent extends ReflexionModelAgent implements GridLRM{
 	
 	private Stream<Double>backgroundLoad;
 	
-	public GridLrmAgent(GridLrmModel model,String name, GridResource resource, Stream<Double>backgroundLoad,POLICY policy) throws InvalidResourceEspecification {
+	/**
+	 * Node on which the lrm resided
+	 */
+	private Node localNode;
+	
+	public GridLrmAgent(Node localNode,GridLrmModel model,String name, GridResource resource, Stream<Double>backgroundLoad,POLICY policy) throws InvalidResourceEspecification {
+		this.localNode = localNode;
 		this.name = name;
 		this.resource = resource;
 		this.policy = policy;
@@ -54,6 +61,13 @@ public class GridLrmAgent extends ReflexionModelAgent implements GridLRM{
 	}
 
 
+	/**
+	 * @return the Node on which this Lrm resides
+	 */
+	public Node getNode(){
+		return localNode;
+	}
+	
 	public long getCurrentTime() {
 		return model.getCurrentTime();
 	}
@@ -99,10 +113,10 @@ public class GridLrmAgent extends ReflexionModelAgent implements GridLRM{
 		
 		while(i.hasNext()){
 			BasicGridProcess p = (BasicGridProcess)i.next();
-			p.accountExecutionTime(slice);
+			p.accountCpuTime(slice);
 			if(p.getState().equals(ExecutionState.COMPLETED)){
 				i.remove();
-				model.reportProcessEnded(p, this);
+				model.reportProcessEnded(this,p);
 			}
 		}
 

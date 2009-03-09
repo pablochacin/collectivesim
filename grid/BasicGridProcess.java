@@ -11,7 +11,7 @@ public class BasicGridProcess implements GridProcess {
 	
 	private long startTime;
 		
-	private long executionTime;
+	private long cpuTime;
 	
 	private GridTask task;
 	
@@ -22,7 +22,7 @@ public class BasicGridProcess implements GridProcess {
 		this.task = task;
 		this.startTime = lrm.getCurrentTime();
 		this.endTime = 0;
-		this.executionTime = 0;
+		this.cpuTime = 0;
 		this.state = ExecutionState.RUNNING;
 	}
 
@@ -69,13 +69,13 @@ public class BasicGridProcess implements GridProcess {
 	 *  
 	 * @param time
 	 */
-	public void accountExecutionTime(long time){
+	public void accountCpuTime(long time){
 		if(state.equals(ExecutionState.COMPLETED)){
 			throw new IllegalStateException();
 		}
 		
-		executionTime += time;
-		if(executionTime >= task.getDuration()){
+		cpuTime += time;
+		if(cpuTime >= task.getDuration()){
 			state = ExecutionState.COMPLETED;
 			endTime = lrm.getCurrentTime();
 		}
@@ -83,10 +83,14 @@ public class BasicGridProcess implements GridProcess {
 
 
 	@Override
-	public long getExecutionTime() {
-		return executionTime;
+	public long getCpuTime() {
+		return cpuTime;
 	}
 
+	@Override
+	public long getExecutionTime(){
+		return startTime-endTime;
+	}
 
 	@Override
 	public ExecutionState getState() {
