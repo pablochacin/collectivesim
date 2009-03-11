@@ -1,11 +1,10 @@
 package edu.upc.cnds.collectivesim.topology.ordered;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import edu.upc.cnds.collectives.identifier.IdSpace;
 import edu.upc.cnds.collectives.node.Node;
-import edu.upc.cnds.collectives.node.NodeIdComparator;
+import edu.upc.cnds.collectives.node.NodeAttributeComparator;
 import edu.upc.cnds.collectives.node.NodeSelector;
 import edu.upc.cnds.collectives.node.OrderedSelector;
 import edu.upc.cnds.collectives.node.RandomSelector;
@@ -13,8 +12,6 @@ import edu.upc.cnds.collectives.topology.BasicTopology;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
-import edu.upc.cnds.collectivesim.model.ModelAgent;
-import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.topology.TopologyAgent;
 import edu.upc.cnds.collectivesim.topology.TopologyModel;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
@@ -29,13 +26,13 @@ import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
  */
 public class OrderedTopologyModel extends TopologyModel{
 
-	private int size;
+	protected int viewSize;
 		
 	private IdSpace space;
 	
-	public OrderedTopologyModel(String name,Experiment experiment,UnderlayModel underlay,int size,IdSpace space) {
+	public OrderedTopologyModel(String name,Experiment experiment,UnderlayModel underlay,int viewSize,IdSpace space) {
 		super(name,experiment,underlay);
-		this.size = size;
+		this.viewSize = viewSize;
 		this.space = space;
 	}
 
@@ -45,11 +42,8 @@ public class OrderedTopologyModel extends TopologyModel{
 	protected void buildTopology() {
 		
 		for(UnderlayNode node: underlay.getNodes()){
-		
-			List<Node>seeds = node.getKnownNodes();
-		
-			NodeSelector selector = new OrderedSelector(new NodeIdComparator(space.getDistanceComparator(node.getId())));
-			Topology topology = new BasicTopology(node,seeds,selector,size,false);
+							
+			Topology topology = createTopology(node);
 			
 			//initiate the topology (without this call,the seeds are not considered!)
 			//topology.update();
@@ -58,6 +52,24 @@ public class OrderedTopologyModel extends TopologyModel{
 		}
 	}
 
+	
+	/**
+	 * Creates the selector used to construct the topology
+	 * 
+	 * @param node
+	 * @return
+	 */
+	protected Topology createTopology(UnderlayNode node){
+		//TODO: find a way to create the comparator without calling space.getDistanceComparator
+		//      to allow creating the OrderedSelector from model parameters
+
+		NodeSelector selector = new OrderedSelector(new NodeAttributeComparator("key",space.getDistanceComparator(node.getId())));
+		List<Node>seeds = node.getKnownNodes();
+		Topology topology = new BasicTopology(node,seeds,selector,viewSize,false);
+		
+		return topology;
+	}
+	
 	/**
 	 * Factory method to create the TopologyAgents. Allows the subclasses of TopologyModel to
 	 * instantiate their own agent classes.
@@ -68,7 +80,7 @@ public class OrderedTopologyModel extends TopologyModel{
 	 * 
 	 */
 	public TopologyAgent createAgent(Topology topology){
-		OrderedTopologyAgent agent = new OrderedTopologyAgent(this,topology, new RandomSelector(), size);
+		OrderedTopologyAgent agent = new OrderedTopologyAgent(this,topology, new RandomSelector(), viewSize);
 		return agent;
 	}
 

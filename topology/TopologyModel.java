@@ -88,7 +88,6 @@ public abstract class TopologyModel extends AbstractModel implements EventCollec
 			super.addAgent(agent);
 		}
 		
-		addBehavior("Topology Update", "updateTopology",30,10);
 	}
 	
 	/**

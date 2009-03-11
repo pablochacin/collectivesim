@@ -1,16 +1,10 @@
 package edu.upc.cnds.collectivesim.topology.ordered;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.node.NodeSelector;
-import edu.upc.cnds.collectives.topology.BasicTopology;
 import edu.upc.cnds.collectives.topology.Topology;
-import edu.upc.cnds.collectives.topology.TopologyObserver;
-import edu.upc.cnds.collectives.util.FormattingUtils;
-import edu.upc.cnds.collectivesim.model.imp.ReflexionModelAgent;
 import edu.upc.cnds.collectivesim.topology.TopologyAgent;
 import edu.upc.cnds.collectivesim.topology.TopologyModel;
 
@@ -21,21 +15,21 @@ import edu.upc.cnds.collectivesim.topology.TopologyModel;
  *
  */
 public class OrderedTopologyAgent extends TopologyAgent {
+			
+	/**
+	 * Size of the topology's view
+	 */
+	protected int size;
 	
-	private static Logger log = Logger.getLogger("colectivesim.topology");
-		
-	private OrderedTopologyModel model;
+	/**
+	 * Node selector used to select candidates for topology view
+	 */
+	protected NodeSelector selector;
 	
-	private int size;
-	
-	NodeSelector selector;
-	
-	public OrderedTopologyAgent(OrderedTopologyModel model,Topology topology,NodeSelector selector,int size){
+	public OrderedTopologyAgent(TopologyModel model,Topology topology,NodeSelector selector,int size){
 		super(model,topology);
-		this.model = model;
 		this.selector = selector;
 		this.size = size;
-		topology.addObserver(this);
 	}
 
 	public void updateTopology(){
@@ -43,19 +37,7 @@ public class OrderedTopologyAgent extends TopologyAgent {
 		topology.propose(candidates);
 		topology.update();
 		
-		//log.info("Topology at node " + topology.getLocalNode().getId() + 
-		//		 " "+FormattingUtils.listToString(topology.getNodes()));
 	}
 
-	@Override
-	public void join(Node node) {
-		model.nodeJoin(this.topology.getLocalNode(),node);
-		
-	}
 
-	@Override
-	public void leave(Node node) {
-		model.nodeLeave(this.topology.getLocalNode(),node);
-		
-	}
 }

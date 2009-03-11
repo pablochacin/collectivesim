@@ -19,7 +19,7 @@ import edu.upc.cnds.collectivesim.model.imp.ReflexionModelAgent;
  */
 public class TopologyAgent extends ReflexionModelAgent implements TopologyObserver{
 	
-	private static Logger log = Logger.getLogger("colectivesim.topology");
+	protected static Logger log = Logger.getLogger("colectivesim.topology");
 	
 	protected Topology topology;
 	
@@ -33,8 +33,6 @@ public class TopologyAgent extends ReflexionModelAgent implements TopologyObserv
 
 	public void updateTopology(){
 		topology.update();
-		//log.info("Topology at node " + topology.getLocalNode().getId() + 
-		//		 " "+FormattingUtils.listToString(topology.getNodes()));
 	}
 
 	@Override
@@ -48,4 +46,5 @@ public class TopologyAgent extends ReflexionModelAgent implements TopologyObserv
 		model.nodeLeave(this.topology.getLocalNode(),node);
 		
 	}
+	
 }
