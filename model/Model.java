@@ -29,6 +29,26 @@ public interface Model {
 			Stream<? extends Object> ... args);
 
 	/**
+	 * Convenience method to specify the frequency as fixed value
+	 * 
+	 * @param name a String that identifies the behavior
+	 * @param method a Strings with the name of the method
+	 * @param sampler an AgentSampler used to select the agents on which the behavior will be applied
+	 * @param streams an array with the Streams to feed the method invocation
+	 * @param active a boolean that indicates if the behavior must be inserted active
+	 *         or will be inactive until the model activates it.
+	 * @param iterations the maximum of executions of the behavior         
+	 * @param frequency a long that specifies the frequency of execution of the behavior
+	 * @param delay the time the behavior will begin to execute. 0 means start running immediately.
+	 * @param endTime the maximum time the executions will be scheduled
+	 * @param args a variable number of Streams of that are used to retrieve the arguments for the
+	 *        behavior's method on each iteration
+	 */
+	public abstract void addBehavior(String name, String method,AgentSampler sampler,
+			boolean active, int iterations,long frequency, long delay, long endTime,
+			Stream<? extends Object> ... args);
+
+	/**
 	 * Convenience method, to add a behavior that starts immediately, has neither end time nor
 	 * maximum number of iterations and don't use an AgentSampler to select agents.
 	 * 
@@ -74,11 +94,12 @@ public interface Model {
 	 * a DataSeries with the resulting values
 	 * 
 	 * @param name a String with the name of the observer
-	 * @param operator the Operator used to calculate the attribute
+	 * @param observer a ModelObserver that will receive the value of the attribute
+	 * @param sampler an AgentSampler used to select the agents from which the attributes will be picked
 	 * @param attribute the name of the attribute
 	 * @param frequency the frequency of update
 	 */
-	public abstract void addObserver(String name, ModelObserver observer,
+	public abstract void addObserver(String name, ModelObserver observer,AgentSampler sampler,
 			String attribute, boolean active, long frequency);
 
 	

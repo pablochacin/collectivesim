@@ -101,6 +101,12 @@ public abstract class AbstractModel implements Model{
 			boolean active, int iterations,Stream<Long> frequency, long delay, long endTime,
 			Stream<? extends Object> ... args){
 	
+		//the sampler is optional, if none specified, use a dummy one, 
+		//to assure there is always one
+		if(sampler == null){
+			sampler = new DummySampler();
+		}
+		
 		BehaviorVisitor behavior = new BehaviorVisitor(this,name,sampler,method, active,args);
 		behaviors.put(name,behavior);
 		
@@ -108,6 +114,14 @@ public abstract class AbstractModel implements Model{
 	}
 	
 		
+	public  void addBehavior(String name, String method,AgentSampler sampler,
+			boolean active, int iterations,long frequency, long delay, long endTime,
+			Stream<? extends Object> ... args){
+		
+		addBehavior(name, method,sampler, active, iterations,new SingleValueStream<Long>("",frequency), 
+				delay, endTime,args);
+		
+	}
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, long, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
@@ -132,9 +146,15 @@ public abstract class AbstractModel implements Model{
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addObserver(java.lang.String, edu.upc.cnds.collectivesim.model.ModelObserver, java.lang.String, boolean, long)
 	 */
-	public void addObserver(String name, ModelObserver observer, String attribute,boolean active,long frequency) {
+	public void addObserver(String name, ModelObserver observer, AgentSampler sampler,String attribute,boolean active,long frequency) {
 
-		ModelObserverVisitor action = new ModelObserverVisitor(this,name,new DummySampler(),observer,attribute,active);
+		//the sampler is optional, if none specified, use a dummy one, 
+		//to assure there is always one
+		if(sampler == null){
+			sampler = new DummySampler();
+		}
+		
+		ModelObserverVisitor action = new ModelObserverVisitor(this,name,sampler,observer,attribute,active);
 		
 		observers.put(name,action);
 
