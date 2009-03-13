@@ -1,13 +1,12 @@
 package edu.upc.cnds.collectivesim.identifier;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.math.BigInteger;
-
-import com.sun.corba.se.pept.encoding.OutputObject;
 
 import edu.upc.cnds.collectives.identifier.BasicIdentifier;
 import edu.upc.cnds.collectives.identifier.IdSpace;
@@ -24,7 +23,7 @@ public class IdFileGenerator {
 
 	private String file;
 	
-	private ObjectOutputStream output;
+	private PrintWriter output;
 	
 	int numIds;
 	
@@ -39,7 +38,7 @@ public class IdFileGenerator {
 		this.space = new DirectedCircularIdSpace();
 		
 		try {
-			this.output = new ObjectOutputStream(new FileOutputStream(file));
+			this.output = new PrintWriter(new FileOutputStream(file));
 		} catch (Exception e) {
 			throw new IllegalArgumentException("File "+ file + "is not accessible",e);
 		} 
@@ -56,9 +55,12 @@ public class IdFileGenerator {
 		for(long i = 0; i < numIds;i++){
 			Identifier id = new BasicIdentifier(idValue,length);
 			System.out.println(id.toString());
-			output.writeObject(id);
+			output.println(id.toString());
 			idValue = idValue.add(distance);
 		}
+		
+		output.flush();
+		output.close();
 	}
 	
 	
