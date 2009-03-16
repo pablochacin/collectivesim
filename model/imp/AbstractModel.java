@@ -227,7 +227,7 @@ public abstract class AbstractModel implements Model{
 	 }
 
 	 
-	 public ModelAgent etAgent(String name){
+	 public ModelAgent getAgent(String name){
 		 return agentMap.get(name);
 	 }
 	 
