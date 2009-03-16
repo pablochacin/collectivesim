@@ -12,15 +12,14 @@ import edu.upc.cnds.collectives.protocol.ProtocolException;
 import edu.upc.cnds.collectives.routing.Route;
 import edu.upc.cnds.collectives.routing.RouteObserver;
 import edu.upc.cnds.collectives.routing.RoutingProtocol;
-import edu.upc.cnds.collectivesim.protocol.ProtocolModel;
 import edu.upc.cnds.collectivesim.protocol.ProtocolModelAgent;
 
 public class KbrProtocolAgent extends ProtocolModelAgent implements RouteObserver{
 
 	private KbrProtocolModel kbrmodel; 
 	
-	public KbrProtocolAgent(RoutingProtocol protocol,KbrProtocolModel model) {
-		super(protocol,model);
+	public KbrProtocolAgent(String name, RoutingProtocol protocol,KbrProtocolModel model) {
+		super(name,protocol,model);
 		this.kbrmodel = model;
 		protocol.addRouteObserver(this);
 	}

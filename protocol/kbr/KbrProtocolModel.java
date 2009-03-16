@@ -18,6 +18,8 @@ import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.transport.Transport;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
+import edu.upc.cnds.collectivesim.model.AgentSampler;
+import edu.upc.cnds.collectivesim.model.ModelObserver;
 import edu.upc.cnds.collectivesim.protocol.ProtocolModel;
 import edu.upc.cnds.collectivesim.protocol.ProtocolModelAgent;
 import edu.upc.cnds.collectivesim.topology.TopologyModel;
@@ -50,7 +52,7 @@ public class KbrProtocolModel extends ProtocolModel {
 		
 		RoutingProtocol protocol = new KbrProtocolImp(name,topology,function,algorithm,transport);
 				
-		return new KbrProtocolAgent(protocol,this);
+		return new KbrProtocolAgent(topology.getLocalNode().getId().toString(),protocol,this);
 	}
 	
 	/**
@@ -80,6 +82,5 @@ public class KbrProtocolModel extends ProtocolModel {
 		
 		hops.addItem(attributes, new Double(route.getHops()));
 	}
-
 
 }

@@ -38,8 +38,8 @@ public class ProtocolModelAgent extends ReflexionModelAgent implements ProtocolO
 
 	protected ProtocolModel model;
 	
-	public ProtocolModelAgent(Protocol protocol,ProtocolModel model){
-		super();
+	public ProtocolModelAgent(String name, Protocol protocol,ProtocolModel model){
+		super(name);
 		log = Logger.getLogger("colectivesim.protocol."+this.getClass().getSimpleName());
 		this.protocol = protocol;
 		protocol.addObserver(this);
