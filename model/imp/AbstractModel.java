@@ -47,6 +47,11 @@ public abstract class AbstractModel implements Model{
 	private List<ModelAgent> agents;
 
 	/**
+	 * Map of agents by name
+	 */
+	private Map<String,ModelAgent>agentMap;
+	
+	/**
 	 * behaviors currently registered in the model
 	 */
 	private HashMap<String,BehaviorVisitor> behaviors;
@@ -80,6 +85,7 @@ public abstract class AbstractModel implements Model{
 		this.name = name;
 		this.scheduler = experiment.getScheduler();
 		this.agents = new ArrayList<ModelAgent>();
+		this.agentMap = new HashMap<String,ModelAgent>();
 		this.behaviors = new HashMap<String,BehaviorVisitor>();
 		this.observers = new HashMap<String, ModelObserverVisitor>();
 	}
@@ -89,6 +95,7 @@ public abstract class AbstractModel implements Model{
 		return  experiment;
 	}
 
+	
 	@Override
 	public String getName(){
 		return name;
@@ -210,12 +217,20 @@ public abstract class AbstractModel implements Model{
 	  */
 	 protected void addAgent(ModelAgent agent) {
 		 	agents.add(agent);
+		 	agentMap.put(agent.getName(), agent);
 	 }
 
+	 
+	 
 	 protected void addAgent(Object target){
 		 addAgent(new ReflexionModelAgent(target));
 	 }
 
+	 
+	 public ModelAgent etAgent(String name){
+		 return agentMap.get(name);
+	 }
+	 
 	 /**
 	  * Convenience method to insert a batch of agents
 	  * @param agents

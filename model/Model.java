@@ -139,4 +139,12 @@ public interface Model {
 	 * @return the name of the model
 	 */
 	public String getName();
+	
+	
+	/**
+	 * Returns a reference to the given agent
+	 * @param name
+	 * @return
+	 */
+	public ModelAgent getAgent(String name);
 }
