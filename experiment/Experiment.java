@@ -1,16 +1,17 @@
 package edu.upc.cnds.collectivesim.experiment;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.events.EventObserver;
 import edu.upc.cnds.collectives.events.imp.FilteringObserver;
+import edu.upc.cnds.collectives.util.FileUtils;
 import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectives.util.TypedMap;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
@@ -55,6 +56,12 @@ import edu.upc.cnds.collectivesim.scheduler.Scheduler;
  */
 public class Experiment {
 
+	/**
+	 * Executes the termination tasks defined in the experiment
+	 * 
+	 * @author Pablo Chacin
+	 *
+	 */
 	private class ExperimentTermination implements Runnable{
 		public void run(){
 			for(Runnable r: endTasks){
@@ -69,7 +76,7 @@ public class Experiment {
 	
 	private Map<String,Stream> streams;
 	
-	private Map<String,Counter>counters;
+	private Map<String,StateValue>stateValues;
 	
 	private Map<String,DataSeries>series;
 	
@@ -87,14 +94,40 @@ public class Experiment {
 	
 	private List<Runnable>endTasks;
 	
-	public Experiment(String description,Scheduler scheduler,long endTime){
+	/**
+	 * Directory on which result or working files should be created
+	 */
+	private File workingDir;
+	
+	/**
+	 * start time of the experiment in real time
+	 */
+	private long beginTime;
+	
+	/**
+	 * End time of the experiment in real time
+	 */
+	private long endTime;
+		
+	
+	private boolean exitOnEnd;
+	
+	/**
+	 * Duration of the experiment in simulated time
+	 */
+	private long runTime;
+	
+	public Experiment(String description,Scheduler scheduler,String rootDir, long endTime,boolean exitOnEnd){
 		
 		this.log = Logger.getLogger("colectivesim.experiment");
+				
+		this.beginTime = System.currentTimeMillis();
+		this.endTime = 0;
 		
 		this.description = description;
 		this.scheduler = scheduler;
 		this.models = new HashMap<String,Model>();
-		this.counters = new HashMap<String, Counter>();
+		this.stateValues = new HashMap<String, StateValue>();
 		this.tables = new HashMap<String, Table>();
 		this.series = new HashMap<String, DataSeries>();
 		this.streams = new HashMap<String, Stream>();
@@ -102,6 +135,7 @@ public class Experiment {
 		this.observers = new ArrayList<EventObserver>();
 		this.initTasks = new ArrayList<Runnable>();
 		this.endTasks = new ArrayList<Runnable>();
+		this.workingDir = FileUtils.createWorkingDirectory(rootDir);
 		
 		//If the experiment has an end time, schedule its termination
 		if(endTime != 0){
@@ -110,14 +144,42 @@ public class Experiment {
 					stop();
 				}
 			}, endTime);
+			this.exitOnEnd = exitOnEnd;
+		}
+		else{
+			exitOnEnd = false;
 		}
 	}
 	
+	
+
+	public long beginTime(){
+		return beginTime;
+	}
+	
+	public long endTime(){
+		return endTime;
+	}
+	
+	public long getRunTime(){
+		return runTime;
+	}
 	
 	public String getDescription(){
 		return description;
 	}
 	
+	public String getWorkingDirectory(){
+		return workingDir.getAbsolutePath();
+	}
+	
+	/**
+	 * 
+	 * @return the current real time
+	 */
+	public Long getRealTime(){
+		return System.currentTimeMillis();
+	}
 	/**
 	 * @param name of the stream
 	 * @return a Stream with the given name or null, if none exists
@@ -139,13 +201,49 @@ public class Experiment {
 	public Counter addCounter(String name){
 	
 		Counter counter = new Counter(name);
-		counters.put(name, counter);
+		stateValues.put(name, counter);
 		return counter;
 	}
 
 	
+	public Double getStateValue(String name){
+		StateValue value = stateValues.get(name); 
+		if(value == null){
+			throw new IllegalArgumentException("Value not found: "+name);
+		}
+		
+		return value.getValue();
+	}
+	
 	public Counter getCounter(String name){
-		return counters.get(name);
+		StateValue value = stateValues.get(name); 
+		if(value == null){
+			throw new IllegalArgumentException("Counter not found: "+name);
+		}
+		
+		//check if it is a counter, as counters and calculated values
+		//are together in the same map
+		if(!Counter.class.isInstance(value)){
+			throw new IllegalArgumentException(name + " is not a Counter");
+		}
+		
+		return (Counter)value;
+	}
+	
+	
+	/**
+	 * Adds a new calculated value, whose value is obtained by applying
+	 * a function to a list of state values (counters or other calculated values)
+	 * 
+	 * @param values
+	 * @param function
+	 */
+	public void addCalculatedValue(String name,String[]arguments,Function function){
+		StateValue[] values = new StateValue[arguments.length];
+		for(int i=0;i < values.length;i++){
+			values[i] = stateValues.get(arguments[i]);
+		}
+		stateValues.put(name,new CalculatedValue(name,values,function));
 	}
 	
 	/**
@@ -199,46 +297,25 @@ public class Experiment {
 	}
 	
 	/**
-	 * Generates a Dataseries by observing the counter's value periodically.
+	 * Generates a Dataseries by observing a StateValue periodically.
 	 * 
-	 * @param counter
+	 * @param name
 	 * @param dataSeries
 	 * @param frequency
 	 */
-	public void addCounterObserver(String counter,String dataSeries,long frequency){
+	public void addStateObserver(String name,String dataSeries,long frequency){
 	
-		CounterObserverAction observer = new CounterObserverAction(getCounter(counter),
-				                                                   getDataSeries(dataSeries));
-		
-		scheduler.scheduleRepetitiveAction(observer, new SingleValueStream<Long>("",new Long(frequency)));
-	}
-
-
-	/**
-	 * Generates a DataSeries by calculating periodically a function with the values from some
-	 * counters.
-	 * 
-	 * Function's <code>calculate</code> method is called on each update cycle passing the value of 
-	 * the counters in the given order. If the number of counters specified is different from 
-	 * those expected by the Function, the function might throw a InvalidArgumentException.
-	 * 
-	 * @param counters
-	 * @param function
-	 * @param frequency
-	 */
-	public void addCalculatingObserver(String[] counterNames,Function function,String dataSeries,long frequency){
-		
-		Counter[] counters = new Counter[counterNames.length];
-		for(int i=0;i<counters.length;i++){
-			counters[i] = getCounter(counterNames[i]);
+		StateValue value = stateValues.get(name);
+		if(value == null){
+			throw new IllegalArgumentException("Value [" + name + "] not found");
 		}
+		StateValueObserver observer = new StateValueObserver(value,
+				                                             getDataSeries(dataSeries));
 		
-		FunctionCalculatorCounterObserver observer = new FunctionCalculatorCounterObserver(counters, getDataSeries(dataSeries), function);
-
 		scheduler.scheduleRepetitiveAction(observer, new SingleValueStream<Long>("",new Long(frequency)));
-
 	}
-	
+
+
 	public void start() throws ExperimentException{
 		
 		//execute initiation tasks
@@ -268,9 +345,18 @@ public class Experiment {
 	 */
 	public void stop(){
 		
+		scheduler.reset();
+		
+		this.runTime = scheduler.getTime();
+		this.endTime = System.currentTimeMillis();
+		
 		//execute termination tasks
 		for(Runnable r: endTasks){
 			r.run();
+		}
+		
+		if(exitOnEnd){
+			System.exit(0);
 		}
 
 	}
@@ -394,5 +480,22 @@ public class Experiment {
 		}
 		
 	}
+
+
+	/**
+	 * Takes a snapshot of the state of the Experiment
+	 * 
+	 * @return a map with the values
+	 */
+	public Map<String,Double> getState() {
+
+		Map<String,Double> values = new HashMap<String,Double>();
+			for(StateValue v: stateValues.values()){
+				values.put(v.getName(), v.getValue());
+		}
+			
+		return values;
+	}
+
 
 }

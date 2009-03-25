@@ -1,21 +1,14 @@
 package edu.upc.cnds.collectivesim.experiment;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import edu.upc.cnds.collectivesim.dataseries.DataItem;
-import edu.upc.cnds.collectivesim.dataseries.baseImp.BaseDataItem;
 
 /**
  * Maintains a counter of experiment related events, which are updated by
  * models. 
- * 
- * It extends DataItem to facilitate reading it periodically and putting it on a DataSeries.
- * 
+ *  
  * @author Pablo Chacin 
  *
  */
-public class Counter {
+public class Counter implements StateValue {
 
 
 	private Double value;
@@ -46,6 +39,13 @@ public class Counter {
 	
 	public synchronized void increment(){
 		value++;
+	}
+	
+	/**
+	 * sets the counter to its initialization value
+	 */
+	public void reset(){
+		value = 0.0;
 	}
 
 }
