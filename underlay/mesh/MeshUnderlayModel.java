@@ -5,18 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import edu.upc.cnds.collectives.identifier.IdSpace;
 import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.metrics.Metric;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.underlay.UnderlayException;
 import edu.upc.cnds.collectives.underlay.UnderlayMetricType;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
+import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.Stream;
-import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
-import edu.upc.cnds.collectivesim.underlay.UnderlayModelNode;
-import edu.upc.cnds.collectivesim.underlay.UnderlayModelNodeAddress;
 import edu.upc.cnds.collectivesim.underlay.Grid2D.UnderlayModelException;
 
 /**
@@ -29,8 +26,8 @@ import edu.upc.cnds.collectivesim.underlay.Grid2D.UnderlayModelException;
 public class MeshUnderlayModel extends UnderlayModel {
 
 	
-	public MeshUnderlayModel(Scheduler scheduler,Stream<Identifier> ids,int numNodes) {
-		super(scheduler, ids, numNodes);
+	public MeshUnderlayModel(String name,Experiment experiment,Stream<Identifier> ids,int numNodes) {
+		super(name,experiment, ids, numNodes);
 	}
 
 	@Override
@@ -63,6 +60,11 @@ public class MeshUnderlayModel extends UnderlayModel {
 			//Do nothing. The mesh topology implies that all nodes know each other, so
 		    //there is no need to create any topological structure
 		
+	}
+
+	@Override
+	protected void terminate() {		
+		//Do nothing.
 	}
 
 
