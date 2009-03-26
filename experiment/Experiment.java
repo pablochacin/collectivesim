@@ -16,6 +16,7 @@ import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectives.util.TypedMap;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.dataseries.baseImp.BaseDataSeries;
+import edu.upc.cnds.collectivesim.experiment.imp.ExperimentTask;
 import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.SingleValueStream;
@@ -56,20 +57,6 @@ import edu.upc.cnds.collectivesim.scheduler.Scheduler;
  */
 public class Experiment {
 
-	/**
-	 * Executes the termination tasks defined in the experiment
-	 * 
-	 * @author Pablo Chacin
-	 *
-	 */
-	private class ExperimentTermination implements Runnable{
-		public void run(){
-			for(Runnable r: endTasks){
-				r.run();
-			}
-		}
-	}
-	
 	private Logger log;
 	
 	private Map<String, Model> models;
@@ -77,6 +64,8 @@ public class Experiment {
 	private Map<String,Stream> streams;
 	
 	private Map<String,StateValue>stateValues;
+	
+	private Map<String,Counter>counters;
 	
 	private Map<String,DataSeries>series;
 	
@@ -90,9 +79,36 @@ public class Experiment {
 		
 	private String description;
 	
-	private List<Runnable> initTasks;
+	/**
+	 * Taskt to execute at the begining of the experiment
+	 */
+	private List<Runnable> initializationTasks;
 	
-	private List<Runnable>endTasks;
+	/**
+	 * Tasks to execute at the end of the experiment
+	 */
+	private List<Runnable>terminationTasks;
+	
+	/**
+	 * Tasks to execute at the begin of each run
+	 */
+	private List<Runnable>beginRunTasks;
+	
+	/**
+	 * Tasks to execute at the end of each run
+	 */
+	private List<Runnable>endRunTasks;
+	
+	
+	/**
+	 * Tasks to be scheduled for each experiment run.
+	 */
+	private List<ExperimentTask>scheduledTasks;
+
+	/**
+	 * List of DataSeries that must be reseted before each experiment round
+	 */
+	private List<DataSeries>resetableDataSeries;
 	
 	/**
 	 * Directory on which result or working files should be created
@@ -117,38 +133,53 @@ public class Experiment {
 	 */
 	private long runTime;
 	
-	public Experiment(String description,Scheduler scheduler,String rootDir, long endTime,boolean exitOnEnd){
+	/**
+	 * Number of runs for the experiment
+	 */
+	private int runs;
+	
+	public Experiment(String description,Scheduler scheduler,String rootDir, int runs,long endTime,boolean exitOnEnd){
 		
 		this.log = Logger.getLogger("colectivesim.experiment");
 				
 		this.beginTime = System.currentTimeMillis();
 		this.endTime = 0;
 		
+		this.runs = runs;
+		
 		this.description = description;
 		this.scheduler = scheduler;
 		this.models = new HashMap<String,Model>();
 		this.stateValues = new HashMap<String, StateValue>();
+		this.counters = new HashMap<String, Counter>();		
 		this.tables = new HashMap<String, Table>();
 		this.series = new HashMap<String, DataSeries>();
+		this.resetableDataSeries = new ArrayList<DataSeries>();
+
 		this.streams = new HashMap<String, Stream>();
 		this.parameters = new TypedMap();
 		this.observers = new ArrayList<EventObserver>();
-		this.initTasks = new ArrayList<Runnable>();
-		this.endTasks = new ArrayList<Runnable>();
+		this.initializationTasks = new ArrayList<Runnable>();
+		this.terminationTasks = new ArrayList<Runnable>();
+		this.beginRunTasks = new ArrayList<Runnable>();
+		this.endRunTasks = new ArrayList<Runnable>();
+		this.scheduledTasks = new ArrayList<ExperimentTask>();
+
 		this.workingDir = FileUtils.createWorkingDirectory(rootDir);
+		this.exitOnEnd = exitOnEnd;
 		
 		//If the experiment has an end time, schedule its termination
 		if(endTime != 0){
-			scheduler.scheduleAction(new Runnable(){
+			
+			Runnable endTask = new Runnable(){
 				public void run(){
-					stop();
+					endRun();
 				}
-			}, endTime);
-			this.exitOnEnd = exitOnEnd;
+			};
+
+			scheduledTasks.add(new ExperimentTask(scheduler,endTask,endTime,0));
 		}
-		else{
-			exitOnEnd = false;
-		}
+		
 	}
 	
 	
@@ -202,6 +233,7 @@ public class Experiment {
 	
 		Counter counter = new Counter(name);
 		stateValues.put(name, counter);
+		counters.put(name,counter);
 		return counter;
 	}
 
@@ -216,18 +248,12 @@ public class Experiment {
 	}
 	
 	public Counter getCounter(String name){
-		StateValue value = stateValues.get(name); 
-		if(value == null){
+		Counter counter = counters.get(name); 
+		if(counter == null){
 			throw new IllegalArgumentException("Counter not found: "+name);
 		}
 		
-		//check if it is a counter, as counters and calculated values
-		//are together in the same map
-		if(!Counter.class.isInstance(value)){
-			throw new IllegalArgumentException(name + " is not a Counter");
-		}
-		
-		return (Counter)value;
+		return counter;
 	}
 	
 	
@@ -265,27 +291,39 @@ public class Experiment {
 	
 	
 	/**
-	 * Created a default dataseries implementation
+	 * Created a  DataSeries 
+	 * @param name of the DataSeries
+	 * @param size maximum size. When this size is reached, new items displace older one.
+	 * @param persistent indicates if the DataSeries must persist across experiment runs.
+	 *        Notice that persistent DataSeries are erased at the end of the experiment.
+	 * @return the newly created DataSeries
+	 */
+	public DataSeries addDataSeries(String name,int size,boolean persistent){
+		
+		if(series.containsKey(name)){
+			throw new IllegalArgumentException("DataSeries " + name + " already exists");
+		}
+		
+		DataSeries dataseries = new BaseDataSeries(name,size);
+		series.put(name, dataseries);
+		
+		if(!persistent){
+			resetableDataSeries.add(dataseries);
+		}
+		
+		return dataseries;
+	}
+		
+
+	/**
+	 * Convenience method, assumes non persistent dataseries
 	 * @param name
 	 * @return
 	 */
 	public DataSeries addDataSeries(String name){
-		DataSeries dataseries = new BaseDataSeries(name);
-		series.put(name, dataseries);
-		return dataseries;
+		return addDataSeries(name,0,false);
 	}
 	
-
-	/**
-	 * Adds an existing DataSeries to the model
-	 * @param dataseries
-	 * @return
-	 */
-	public DataSeries addDataSeries(DataSeries dataseries){
-		series.put(dataseries.getName(), dataseries);
-		return dataseries;
-	}
-
 	/**
 	 * 
 	 * @param name
@@ -297,34 +335,93 @@ public class Experiment {
 	}
 	
 	/**
-	 * Generates a Dataseries by observing a StateValue periodically.
+	 * Generates a DataSeries by observing a StateValue periodically.
 	 * 
 	 * @param name
 	 * @param dataSeries
 	 * @param frequency
 	 */
-	public void addStateObserver(String name,String dataSeries,long frequency){
+	public void addStateObserver(String name,String dataSeries,long delay,long frequency){
 	
 		StateValue value = stateValues.get(name);
 		if(value == null){
 			throw new IllegalArgumentException("Value [" + name + "] not found");
 		}
-		StateValueObserver observer = new StateValueObserver(value,
-				                                             getDataSeries(dataSeries));
+		StateValueObserver observer = new StateValueObserver(value,getDataSeries(dataSeries));
 		
-		scheduler.scheduleRepetitiveAction(observer, new SingleValueStream<Long>("",new Long(frequency)));
+		scheduledTasks.add(new ExperimentTask(scheduler, observer,delay,frequency));
 	}
 
 
+	/**
+	 * Starts the experiment. Executes the initialization tasks and then the first run.
+	 * 
+	 * @throws ExperimentException
+	 */
 	public void start() throws ExperimentException{
 		
-		//execute initiation tasks
-		for(Runnable r: initTasks){
+	
+		//execute initialization tasks
+		for(Runnable r: initializationTasks){
 			r.run();
 		}
 		
-		//initiate schedulling of events
-		scheduler.start();
+		//execute first run
+		startRun();
+		
+	}
+	
+	
+	/**
+	 * Start each of the runs of the experiment
+	 * @throws ExperimentException
+	 */
+	private void startRun() throws ExperimentException{
+		
+						
+		//execute initiation tasks
+		for(Runnable r: beginRunTasks){
+			r.run();
+		}
+		
+		//schedule the experiment's tasks (e.g. observers)
+		for(ExperimentTask t: scheduledTasks){
+			t.schedule();
+		}
+		
+		//initiate scheduling of tasks
+		scheduler.start();		
+	}
+	
+
+	/**
+	 * Prepares for a new run
+	 */
+	private void reset(){
+		
+		//remove any pending task
+		scheduler.reset();
+		
+		//reset values
+		for(Counter c: counters.values()){
+			c.reset();
+		}
+		
+		//reset non persistent DataSeries 
+		for(DataSeries d: resetableDataSeries){
+			d.reset();
+		}
+		
+		//reset Streams
+		for(Stream s: streams.values()){
+			s.reset();
+		}
+		
+		//reset models 
+		for(Model m: models.values()){
+			m.reset();
+		}
+
 	}
 	/**
 	 * Pauses the execution of the experiment and all its models and observers
@@ -343,15 +440,34 @@ public class Experiment {
 	/**
 	 * Ends the execution of the experiment
 	 */
-	public void stop(){
+	public void endRun(){
 		
-		scheduler.reset();
+		//prevent the scheduler to further dispatch actions
+		scheduler.pause();
 		
 		this.runTime = scheduler.getTime();
 		this.endTime = System.currentTimeMillis();
 		
 		//execute termination tasks
-		for(Runnable r: endTasks){
+		for(Runnable r: endRunTasks){
+			r.run();
+		}
+		
+		//check for additional runs
+		runs--;
+		if(runs > 0){
+		  try {
+			
+			reset(); 
+			
+			startRun();
+		} catch (ExperimentException e) {
+			log.severe("Exception staring experiment run "+ FormattingUtils.getStackTrace(e));
+		}
+		}
+		
+		//execute tasks at the end of the experiment
+		for(Runnable r: terminationTasks){
 			r.run();
 		}
 		
@@ -379,11 +495,12 @@ public class Experiment {
 	 * @param task
 	 */
 	public void addInitilizationTask(Runnable task){
-		initTasks.add(task);
+		initializationTasks.add(task);
 	}
 	
 	/**
-	 * Adds a task whose run() method will be invoked before the experiment is stopped.
+	 * Adds a task whose run() method will be invoked after all experiment runs 
+	 * are executed and before the experiment ends.
 	 * 
 	 * There is no guarantee that tasks will be executed in the same order than they were added
 	 * and actual implementation might run them in sequence or parallel.
@@ -391,8 +508,38 @@ public class Experiment {
 	 * @param task
 	 */
 	public void addFinalizationTask(Runnable task){
-		endTasks.add(task);
+		terminationTasks.add(task);
 	}
+	
+	/**
+	 * Adds a task whose run() method will be invoked before each experiment run 
+	 * is executed.
+	 * 
+	 * There is no guarantee that tasks will be executed in the same order than they were added
+	 * and actual implementation might run them in sequence or parallel.
+	 *  
+	 * @param task
+	 */
+	
+	public void addBeginRunTask(Runnable task){
+		beginRunTasks.add(task);
+	}
+
+	
+	/**
+	 * Adds a task whose run() method will be invoked after each experiment run 
+	 * is executed.
+	 * 
+	 * There is no guarantee that tasks will be executed in the same order than they were added
+	 * and actual implementation might run them in sequence or parallel.
+	 *  
+	 * @param task
+	 */
+	
+	public void addEndRunTask(Runnable task){
+		endRunTasks.add(task);
+	}
+
 	
 	/**
 	 * Adds a task whose run() method will be invoked at the given frequency 
@@ -400,7 +547,8 @@ public class Experiment {
 	 * @param task
 	 */
 	public void addPeriodicTask(Runnable task,long delay, long frequency){
-		scheduler.scheduleRepetitiveAction(task,0,new SingleValueStream<Long>("", frequency),delay,0);
+		
+		scheduledTasks.add(new ExperimentTask(scheduler,task,delay,frequency));
 	}
 	
 	public TypedMap getParameters(){
@@ -433,7 +581,7 @@ public class Experiment {
 			    		log.severe("Exception starting mode "+model.getName()+FormattingUtils.getStackTrace(e));
 			    	}}};
 		
-		scheduler.scheduleAction(target, delay);
+		scheduledTasks.add(new ExperimentTask(scheduler,target, delay,0));
 		
 	}
 	
