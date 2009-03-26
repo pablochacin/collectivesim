@@ -1,5 +1,6 @@
 package edu.upc.cnds.collectivesim.underlay;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,13 +50,12 @@ public abstract class UnderlayModel extends AbstractModel implements Underlay {
 	}
 
 	@Override
-	public void start() throws ModelException{
+	public void populate() throws ModelException{
 		try {
 			generateUnderlay();
 		} catch (UnderlayModelException e) {
 			throw new ModelException("Exception generating underlay",e);
 		}
-		super.start();
 	}
 	
 	/**
