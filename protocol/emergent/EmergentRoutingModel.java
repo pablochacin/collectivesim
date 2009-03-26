@@ -38,7 +38,11 @@ public class EmergentRoutingModel extends KbrProtocolModel {
 		RoutingAlgorithm algorithm = new GreedyRouting(topology, function);
 		
 		RoutingProtocol protocol = new EmergingKbrProtocolImp(name,topology,function,algorithm,convergence,transport);
-				
+
+		//the routing protocol requires the node id as an attribute of the node
+		topology.getLocalNode().getAttributes().put("key",topology.getLocalNode().getId());
+		
+		
 		return new KbrProtocolAgent(topology.getLocalNode().getId().toString(),protocol,this);
 		
 	}
