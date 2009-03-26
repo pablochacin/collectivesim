@@ -84,8 +84,6 @@ public class RepastScheduler implements Scheduler {
 
 	private static long DEFAULT_SPEED = 1;
 
-	private static boolean DEFAULT_PAUSED = false;
-
 	private double nextTime = 0;
 
 	private boolean paused;
@@ -100,33 +98,40 @@ public class RepastScheduler implements Scheduler {
 	private Condition pausedCondition;
 	
 	/**
-	 * List of actions pending for cancelation
+	 * List of actions pending for cancellation 
 	 */
 	private List<BasicAction> cancelQueue;
 
 	public RepastScheduler() {
-		this(DEFAULT_SPEED,DEFAULT_PAUSED,0);
+		this(DEFAULT_SPEED,0);
 	}
 
-	public RepastScheduler(long speed,boolean paused,long endTime){
+	public RepastScheduler(long speed,long endTime){
 
 		this.speed = speed;
-		this.paused = paused;
+		this.paused = true;
 		this.endTime = endTime;
 		this.nextTime = 0;
 		this.updateLock = new ReentrantLock();
 		this.pausedCondition = updateLock.newCondition();
 		this.schedule = new Schedule(1);
 		this.cancelQueue = new ArrayList<BasicAction>();
-	}
-
-	public void start(){
+		
 		//Start the thread that will control the execution of actions
 		new Thread(new SimulationThread()).start();
 	}
+
+	/**
+	 * Start dispatching events
+	 */
+	public void start(){
+		
+		resume();
+
+	}
 	
 	public RepastScheduler(long speed) {
-		this(speed,DEFAULT_PAUSED,0);
+		this(speed,0);
 	}
 
 	/**
@@ -187,8 +192,22 @@ public class RepastScheduler implements Scheduler {
 		updateLock.unlock();
 	}
 
+	/**
+	 * TODO: there is no way to stop the Repast scheduler!
+	 *       I suspect that this is done automatically when there
+	 *       are no more pending actions in the queue? 
+	 */
 	public void reset() {
-		throw new UnsupportedOperationException();	
+		
+		//stop the dispatch thread
+		pause();	
+		
+		//clear the queue of pending cancelled tasks
+		cancelQueue.clear();
+		
+		//Reset repast scheduler
+		//TODO: as the repast scheduler don't allow to reset, create a new one
+		schedule = new Schedule(1);
 	}
 
 
@@ -215,7 +234,7 @@ public class RepastScheduler implements Scheduler {
 	}
 
 	/**
-	 * Adds tje given action to the queue of canceled actions. 
+	 * Adds the given action to the queue of canceled actions. 
 	 * Before next cycle, all canceled actions will be removed from the
 	 * Repast's scheduler. 
 	 * 
