@@ -41,19 +41,17 @@ public abstract class ProtocolModel  extends AbstractModel{
 		this.transport = transport;
 	}
 
-	/**
-	 * 
-	 * @return the name of the protocol
-	 */
-	public String getName(){
-		return name;
-	}
 	
-	public void start() throws ModelException {
-		installProtocol();
-		super.start();
-	}
+
 	
+	@Override
+	protected void populate() throws ModelException {
+		installProtocol();	
+	}
+
+
+
+
 	/**
 	 * Installs the protocol on each node
 	 * @param protocol
@@ -66,6 +64,8 @@ public abstract class ProtocolModel  extends AbstractModel{
 		}
 	}
 	
+
+
 	/**
 	 * 
 	 * @param node

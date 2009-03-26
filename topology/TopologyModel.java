@@ -6,19 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 import edu.upc.cnds.collectives.events.Event;
-import edu.upc.cnds.collectives.events.EventCollector;
-import edu.upc.cnds.collectives.events.EventFilter;
-import edu.upc.cnds.collectives.events.EventObserver;
 import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.node.Node;
-import edu.upc.cnds.collectives.topology.BasicTopology;
 import edu.upc.cnds.collectives.topology.Topology;
-import edu.upc.cnds.collectives.topology.monitoring.TopologyEvent;
+import edu.upc.cnds.collectives.topology.TopologyEvent;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
-import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 
 /**
@@ -29,11 +24,9 @@ import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
  * @author Pablo Chacin
  *
  */
-public abstract class TopologyModel extends AbstractModel implements EventCollector {
+public abstract class TopologyModel extends AbstractModel  {
 	
 
-	protected List<EventObserver>observers;
-	
 	protected UnderlayModel underlay;
 	
 	protected Map<Identifier,Topology>topologies;
@@ -42,7 +35,6 @@ public abstract class TopologyModel extends AbstractModel implements EventCollec
 	public TopologyModel(String name,Experiment experiment,UnderlayModel underlay) {
 		super(name,experiment);
 		this.underlay =  underlay;
-		this.observers = new ArrayList<EventObserver>();
 		this.topologies = new HashMap<Identifier,Topology>();			
 	}
 
@@ -63,9 +55,8 @@ public abstract class TopologyModel extends AbstractModel implements EventCollec
 		return underlay;
 	}
 	
-	public void start() throws ModelException{
+	public void populate() throws ModelException{
 		generateTopology();
-		super.start();
 	}
 	
 	/**
@@ -135,18 +126,5 @@ public abstract class TopologyModel extends AbstractModel implements EventCollec
 		
 	}
 	
-
-    /**
-     * Registers an observer to be notified of the events reported to this Collector
-     * 
-     * @param observer
-     */
-    public void registerObserver(EventObserver observer){
-    	this.observers.add(observer);
-    }
-
-    public void registerObserver(EventObserver observer, EventFilter filter){
-    	throw new UnsupportedOperationException();
-    }
     
 }

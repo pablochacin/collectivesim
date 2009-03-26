@@ -2,6 +2,7 @@ package edu.upc.cnds.collectivesim.transport;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.upc.cnds.collectives.node.Node;
@@ -64,7 +65,8 @@ public class TransportModel extends AbstractModel {
 				try {
 					agent.handleInvocation(protocol, method, args);
 				} catch (Exception e) {
-					log.severe("Exception invoking method " +method + 
+					if(log.isLoggable(Level.SEVERE))
+						log.severe("Exception invoking method " +method + 
 							   " in protocol "+ protocol + 
 							   FormattingUtils.getStackTrace(e));
 				}
@@ -75,7 +77,7 @@ public class TransportModel extends AbstractModel {
 	
 	
 	/**
-	 * Mantains the mapping of transport agents to nodes
+	 * Maintains the mapping of transport agents to nodes
 	 */
 	private Map<UnderlayAddress,TransportAgent> transportAgents;
 	
@@ -112,9 +114,8 @@ public class TransportModel extends AbstractModel {
 	}
 	
 	
-	public void start() throws ModelException{
+	public void populate() throws ModelException{
 		installTransport();
-		super.start();
 	}
 	
 	public void installTransport(){
@@ -158,4 +159,15 @@ public class TransportModel extends AbstractModel {
 	protected long getDelay(UnderlayNode source,UnderlayNode target){
 		return 1;
 	}
+
+
+	@Override
+	protected void terminate() {
+		
+		transportAgents.clear();
+		
+	}
+	
+	
+	
 }

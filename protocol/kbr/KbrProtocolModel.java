@@ -19,6 +19,7 @@ import edu.upc.cnds.collectives.transport.Transport;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.AgentSampler;
+import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.ModelObserver;
 import edu.upc.cnds.collectivesim.protocol.ProtocolModel;
 import edu.upc.cnds.collectivesim.protocol.ProtocolModelAgent;
@@ -51,7 +52,10 @@ public class KbrProtocolModel extends ProtocolModel {
 		RoutingAlgorithm algorithm = new GreedyRouting(topology, function);
 		
 		RoutingProtocol protocol = new KbrProtocolImp(name,topology,function,algorithm,transport);
-				
+
+		//the routing protocol requires the node id as an attribute of the node
+		topology.getLocalNode().getAttributes().put("key",topology.getLocalNode().getId());
+		
 		return new KbrProtocolAgent(topology.getLocalNode().getId().toString(),protocol,this);
 	}
 	
@@ -82,5 +86,16 @@ public class KbrProtocolModel extends ProtocolModel {
 		
 		hops.addItem(attributes, new Double(route.getHops()));
 	}
+
+
+
+
+	@Override
+	protected void terminate() {
+		// Do nothing
+		
+	}
+
+
 
 }

@@ -85,4 +85,12 @@ public class OrderedTopologyModel extends TopologyModel{
 	}
 
 
+
+	@Override
+	protected void terminate() {
+		// Do nothing
+		
+	}
+
+
 }

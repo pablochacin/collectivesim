@@ -160,14 +160,12 @@ public class RandomUnderlayModel extends UnderlayModel {
 
 	@Override
 	public UnderlayMetricType[] getSupportedMetrics() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public List<Node> resolve(InetAddress host) throws UnderlayException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -200,6 +198,14 @@ public class RandomUnderlayModel extends UnderlayModel {
 		}
 		
 		return neighbors;
+	}
+
+
+	@Override
+	protected void terminate() {
+		
+		//do nothing
+		
 	}
 
 }
