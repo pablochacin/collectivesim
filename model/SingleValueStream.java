@@ -29,5 +29,12 @@ public class SingleValueStream<T> implements Stream<T> {
 		return value;
 	}
 
+
+	@Override
+	public void reset() {
+		//DO nothing.
+		
+	}
+
 	
 }

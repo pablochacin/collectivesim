@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.RandomAccessFile;
 
 import edu.upc.cnds.collectives.identifier.BasicIdentifier;
 import edu.upc.cnds.collectives.identifier.Identifier;
@@ -21,9 +22,11 @@ public class FileStream<T> implements Stream<T> {
 	private String name;
 	
 	
-	private BufferedReader input;
+	private RandomAccessFile input;
 	
 	private Class type;
+	
+	private String file;
 	
 	/**
 	 * Constructor from the path to a file
@@ -34,8 +37,9 @@ public class FileStream<T> implements Stream<T> {
 	public FileStream(String name, String file,Class type){
 		try {
 			this.name = name;
+			this.file = file;
 			this.type = type;
-			input = new BufferedReader(new FileReader(file));
+			input = new RandomAccessFile(file,"r");
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Exception accessing file " + file,e);
 		}
@@ -61,13 +65,16 @@ public class FileStream<T> implements Stream<T> {
 		} 
 	}
 
-	public static void main(String[] args){
-		Stream<Identifier> ids = new FileStream<Identifier>("ids","/tmp/ids",BasicIdentifier.class);
-		
-		Identifier id = ids.getValue();
-		while(id != null){
-			System.out.println(id);
-			id = ids.getValue();
+	
+	@Override
+	public void reset() {
+
+		try {
+			input.seek(0);
+		} catch (IOException e) {
+			throw new IllegalStateException("Can't reset file stream for file " + file,e);
 		}
 	}
+
+
 }

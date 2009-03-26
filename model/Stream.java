@@ -23,4 +23,10 @@ public interface Stream<T> {
 	 * @return
 	 */
 	public T getValue();
+	
+	/**
+	 * Resets the stream. This is convenient to re-position file bases streams
+	 * or change the seed for random value streams.
+	 */
+	public void reset();
 }
