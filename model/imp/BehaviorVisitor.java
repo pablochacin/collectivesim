@@ -1,5 +1,6 @@
 package edu.upc.cnds.collectivesim.model.imp;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.upc.cnds.collectives.util.FormattingUtils;
@@ -21,11 +22,7 @@ import edu.upc.cnds.collectivesim.model.Stream;
  */
 public class BehaviorVisitor extends AgentVisitor{
 
-
-	private static Logger log = Logger.getLogger("collectivesim.model");
-    /**
-
-
+	
     /**
      * Name of the methods to be executed
      */
@@ -33,20 +30,20 @@ public class BehaviorVisitor extends AgentVisitor{
 
     
     /**
-     * Strems to feed the arguments for the method
+     * Stream to feed the arguments for the method
      */
     private Stream<? extends Object>[] streams;
     
-
-
     
     /**
      * Default constructor
      * @param method a String the name of the method to be execute
      * @param streams an array of Streams to feed the arguments of the method
      */
-    public BehaviorVisitor(Model model,String name,AgentSampler sampler,String method, boolean active,Stream<? extends Object> ... streams){
-    	super(model,name,sampler,active);
+    public BehaviorVisitor(Model model,String name,AgentSampler sampler,String method, boolean active,int iterations,Stream<Long> frequency, long delay, long endTime,Stream<? extends Object> ... streams){
+    	super(model,name,sampler,active,iterations,frequency,delay,endTime);
+
+        
     	this.method = method;
         if (streams == null){
         	this.streams = new Stream[0];
@@ -72,14 +69,21 @@ public class BehaviorVisitor extends AgentVisitor{
     	try {
 			agent.execute(method,arguments);
 		} catch (ModelException e) {
-			log.severe("Exception invoking method" +method+": "+ FormattingUtils.getStackTrace(e));
+			if(log.isLoggable(Level.SEVERE))
+				log.severe("Exception invoking method" +method+": "+ FormattingUtils.getStackTrace(e));
 			return false;
 		}
     	
 		return true;
     }
     
-  
+
+
+	public Model getModel() {
+		return model;
+	}
+
+
 
 
 }

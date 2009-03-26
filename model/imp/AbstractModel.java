@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
-import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.AgentSampler;
 import edu.upc.cnds.collectivesim.model.Model;
@@ -16,9 +16,9 @@ import edu.upc.cnds.collectivesim.model.SingleValueStream;
 import edu.upc.cnds.collectivesim.model.Stream;
 import edu.upc.cnds.collectivesim.model.imp.BehaviorVisitor;
 import edu.upc.cnds.collectivesim.model.imp.DummySampler;
-import edu.upc.cnds.collectivesim.model.imp.ModelObserverVisitor;
+import edu.upc.cnds.collectivesim.model.imp.ObserverVisitor;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
-import edu.upc.cnds.collectivesim.topology.TopologyAgent;
+
 
 
 /**
@@ -31,8 +31,9 @@ import edu.upc.cnds.collectivesim.topology.TopologyAgent;
  * model some actions. This class offers methods to allow subclasses to insert those agents to the model, but 
  * doesn't offer any default method to create new agents. 
  *  
- * TODO: Add AgentSampler as an optional parameter to adBbehavior and addObserver methods
- * TODO: Allows a Stream as frequency (not only fixed values) to addBehavior method
+ *  Current implementation maintains a separate Map for Observers and Behaviors to allow runtime 
+ *  inspection (for example, from a GUI) to discover and manipulate them (for example, pause/resume a
+ *  behavior)
  * 
  * @author Pablo Chacin
  *
@@ -40,6 +41,8 @@ import edu.upc.cnds.collectivesim.topology.TopologyAgent;
 
 public abstract class AbstractModel implements Model{
 
+	
+	private static Logger log = Logger.getLogger("collectivesim.model");
 
 	/**
 	 * List of active agents
@@ -74,8 +77,13 @@ public abstract class AbstractModel implements Model{
 	/**
 	 * list of active observers 
 	 */
-	private Map<String,ModelObserverVisitor> observers;
+	private Map<String,ObserverVisitor> observers;
 
+	/**
+	 * Actions to be scheduled by this model (observers and behaviors)
+	 */
+	private List<ModelAction>actions;
+	
 	/**
 	 * Constructor
 	 * @param name 
@@ -86,8 +94,9 @@ public abstract class AbstractModel implements Model{
 		this.scheduler = experiment.getScheduler();
 		this.agents = new ArrayList<ModelAgent>();
 		this.agentMap = new HashMap<String,ModelAgent>();
+		this.actions = new ArrayList<ModelAction>();
 		this.behaviors = new HashMap<String,BehaviorVisitor>();
-		this.observers = new HashMap<String, ModelObserverVisitor>();
+		this.observers = new HashMap<String, ObserverVisitor>();
 	}
 
 	@Override
@@ -104,7 +113,7 @@ public abstract class AbstractModel implements Model{
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, edu.upc.cnds.collectivesim.scheduler.Stream, int, long, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
-	public  void addBehavior(String name, String method,AgentSampler sampler,
+	public final void addBehavior(String name, String method,AgentSampler sampler,
 			boolean active, int iterations,Stream<Long> frequency, long delay, long endTime,
 			Stream<? extends Object> ... args){
 	
@@ -114,14 +123,14 @@ public abstract class AbstractModel implements Model{
 			sampler = new DummySampler();
 		}
 		
-		BehaviorVisitor behavior = new BehaviorVisitor(this,name,sampler,method, active,args);
+		BehaviorVisitor behavior = new BehaviorVisitor(this,name,sampler,method, active,iterations,frequency,delay,endTime,args);
 		behaviors.put(name,behavior);
+		actions.add(behavior);
 		
-		scheduler.scheduleRepetitiveAction(behavior,iterations,frequency,delay,endTime);	
 	}
 	
 		
-	public  void addBehavior(String name, String method,AgentSampler sampler,
+	public final void addBehavior(String name, String method,AgentSampler sampler,
 			boolean active, int iterations,long frequency, long delay, long endTime,
 			Stream<? extends Object> ... args){
 		
@@ -132,19 +141,19 @@ public abstract class AbstractModel implements Model{
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, long, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
-	public void addBehavior(String name,String method,int iterations,long frequency,Stream<? extends Object> ...args){
+	public final void addBehavior(String name,String method,int iterations,long frequency,Stream<? extends Object> ...args){
 		addBehavior(name, method,new DummySampler(),true, iterations,new SingleValueStream<Long>(name,frequency),0,0, args);
 	}
 
 
-	public void addBehavior(String name, String method,	long frequency, long delay,long endTime,Stream<? extends Object>... args){
+	public final void addBehavior(String name, String method,	long frequency, long delay,long endTime,Stream<? extends Object>... args){
 		addBehavior(name, method,new DummySampler(),true, 0,new SingleValueStream<Long>(name,frequency),delay,endTime, args);
 		
 	}
 	
 	
 	@Override
-	public void addBehavior(String name, String method, long frequency, Stream<? extends Object>... args) {
+	public final void addBehavior(String name, String method, long frequency, Stream<? extends Object>... args) {
 		addBehavior(name, method,new DummySampler(),true, 0,new SingleValueStream<Long>(name,frequency),0,0, args);
 		
 	}
@@ -153,7 +162,7 @@ public abstract class AbstractModel implements Model{
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addObserver(java.lang.String, edu.upc.cnds.collectivesim.model.ModelObserver, java.lang.String, boolean, long)
 	 */
-	public void addObserver(String name, ModelObserver observer, AgentSampler sampler,String attribute,boolean active,long frequency) {
+	public final void addObserver(String name, ModelObserver observer, AgentSampler sampler,String attribute,boolean active,long frequency) {
 
 		//the sampler is optional, if none specified, use a dummy one, 
 		//to assure there is always one
@@ -161,12 +170,10 @@ public abstract class AbstractModel implements Model{
 			sampler = new DummySampler();
 		}
 		
-		ModelObserverVisitor action = new ModelObserverVisitor(this,name,sampler,observer,attribute,active);
+		ObserverVisitor visitor = new ObserverVisitor(this,name,sampler,observer,attribute,active,0,new SingleValueStream<Long>("",frequency),0,0);
 		
-		observers.put(name,action);
-
-		//schedule observer at a fixed interval using a Stream with a fixed value
-		scheduler.scheduleRepetitiveAction(action,new SingleValueStream<Long>(name,new Long(frequency)));
+		observers.put(name,visitor);
+		actions.add(visitor);
 		
 	}
 
@@ -174,39 +181,66 @@ public abstract class AbstractModel implements Model{
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#getAgents()
 	 */
-	public List<ModelAgent> getAgents() {
-
+	public final List<ModelAgent> getAgents() {
+		
+		//return a new List to avoid concurrency problems
 		return new ArrayList<ModelAgent>(agents);
 	}
 
+	@Override
+	public final void reset(){
+		
+		//be sure that all agents are eliminated from the model
+		agents.clear();
+		
+		//call subclass to clean up its resources
+		terminate();
+	}
 
-	/* (non-Javadoc)
-	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#pause()
-	 */
-	 public void pause() {
+	@Override
+	 public final void pause() {
 
-		 //pause behaviors
-		 for(BehaviorVisitor b: behaviors.values()){
-			 b.pause();
+		 //pause behaviors and observers
+		 for(ModelAction a: actions){
+			 a.pause();
+		 }
+		 
+
+	 }
+
+	 @Override
+	 public final void resume(){
+		 //resume behaviors and observers
+		 for(ModelAction a: actions){
+			 a.resume();
 		 }
 	 }
 
-
+	 
 	 /* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#start()
 	 */
 
-	 public void start() throws ModelException {
+	 public final void start() throws ModelException {
+		 
+		 //add agents to model
+		 populate();
+		 if(agents.size() == 0){
+			 log.warning("Model" + name + " has no agents");
+		 }
+		 
 		 //start behaviors
 		 //TODO: this is rather dangerous because if a subclass doesn't call super().start()
 		 //       Behaviors will not start. Consider to add an abstract method to be
 		 //       extended by subclasses and call it from the abstract model's start method.
 		 for(BehaviorVisitor b: behaviors.values()){
-			 b.start();
+			 scheduler.scheduleRepetitiveAction((Runnable)b, b.getIterations(), b.getFrequency(), b.getDelay(), b.getEndTime());
+		 }
+		 
+		 for(ObserverVisitor o: observers.values()){
+			 scheduler.scheduleRepetitiveAction((Runnable)o, o.getIterations(), o.getFrequency(), o.getDelay(), o.getEndTime());
 		 }
 	 }
-
-
 
 	 /**
 	  * inserts an agent to the model. This method can be invoked by the subclasses to add agents 
@@ -215,14 +249,14 @@ public abstract class AbstractModel implements Model{
 	  * 
 	  * @param agent
 	  */
-	 protected void addAgent(ModelAgent agent) {
+	 protected final void addAgent(ModelAgent agent) {
 		 	agents.add(agent);
 		 	agentMap.put(agent.getName(), agent);
 	 }
 
 	 
 	 
-	 protected void addAgent(Object target){
+	 protected final void addAgent(Object target){
 		 addAgent(new ReflexionModelAgent(target));
 	 }
 
@@ -235,13 +269,13 @@ public abstract class AbstractModel implements Model{
 	  * Convenience method to insert a batch of agents
 	  * @param agents
 	  */
-	 protected void addAgents(List<ModelAgent>agents) {
+	 protected final void addAgents(List<ModelAgent>agents) {
 		for(ModelAgent a: agents) {
 			addAgent(a);
 		}
 	 }
 
-	public long getCurrentTime() {
+	public final long getCurrentTime() {
 	 return scheduler.getTime();		
 	}
 	
@@ -256,10 +290,23 @@ public abstract class AbstractModel implements Model{
 	 * @param method
 	 * @param args
 	 */
-	protected void addEvent(ModelAgent agent,long delay,String method,Object ... args){
-		scheduler.scheduleAction(new EventAction(agent,method,args), delay);
+	protected final void addEvent(ModelAgent agent,long delay,String method,Object ... args){
+		scheduler.scheduleAction(new ModelEvent(agent,method,args), delay);
 	}
 
 
-
+	/**
+	 * Create agents for this model and populate it by calling the {@link #addAgent(ModelAgent)} method
+	 * of any of its variants.
+	 * 
+	 */
+	protected abstract void populate() throws ModelException;
+	
+	/**
+	 * Terminates the model, cleaning up any resource. Prepares it for 
+	 * a new run. This method is executed after the model is executed.
+	 * It is not called before the first execution.
+	 * @throws ModelException
+	 */
+	protected abstract void terminate();
 }

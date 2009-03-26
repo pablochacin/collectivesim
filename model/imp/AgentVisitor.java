@@ -1,6 +1,7 @@
 package edu.upc.cnds.collectivesim.model.imp;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.upc.cnds.collectives.util.FormattingUtils;
@@ -8,6 +9,7 @@ import edu.upc.cnds.collectivesim.model.AgentSampler;
 import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
+import edu.upc.cnds.collectivesim.model.Stream;
 
 
 /**
@@ -22,10 +24,8 @@ import edu.upc.cnds.collectivesim.model.ModelException;
  * @author Pablo Chacin
  *
  */
-public abstract class AgentVisitor implements Runnable{
-
-
-	protected static Logger log = Logger.getLogger("collectivesim.model");
+public abstract class AgentVisitor extends ModelAction{
+		
 	
 	/**
      * Model on which the agents this model applies to, reside
@@ -44,10 +44,7 @@ public abstract class AgentVisitor implements Runnable{
 
  
     
-    /**
-     * Indicates if the behavior is active
-     */
-    private boolean active=false;
+
     
     
     
@@ -58,30 +55,19 @@ public abstract class AgentVisitor implements Runnable{
      * @param active a boolean that indicates if the behavior must be inserted active
      *        or will be deactivated until the realm activates it.
      */
-    public AgentVisitor(Model model,String name, AgentSampler sampler, boolean active){
+    public AgentVisitor(Model model,String name, AgentSampler sampler, 
+    		            boolean active,int iterations,Stream<Long>frequency,long delay,long endTime){
+    	
+    	super(active,iterations,frequency,delay,endTime);
         this.name = name;
         this.model = model;
         this.sampler = sampler;
-        
-        //if visitor is active must be created active
-        if(active){
-            this.start();
-        }
+
+
     }
 
-    /**
-     * starts the execution of the behavior 
-     */	
-    public void start(){
-          active = true;
-    }
 
-    /**
-     * pause the execution of the behavior
-     */
-    public void pause(){
-        active = false;
-    }
+
 
     
     
@@ -92,11 +78,9 @@ public abstract class AgentVisitor implements Runnable{
      *
      * TODO: apply filter to agents
      */
-    public void run() {
+    public void execute() {
    
-    	if(!active) {
-    		return;
-    	}
+
     	
 		List<ModelAgent> agents = sampler.sample(model.getAgents());   
     	
@@ -111,7 +95,8 @@ public abstract class AgentVisitor implements Runnable{
 					break;
 				}
 			} catch (ModelException e) {
-				log.severe("Exception visiting agent "+ FormattingUtils.getStackTrace(e));
+				if(log.isLoggable(Level.SEVERE))
+					log.severe("Exception visiting agent "+ FormattingUtils.getStackTrace(e));
 				break;
 			}
     	}
@@ -149,5 +134,8 @@ public abstract class AgentVisitor implements Runnable{
     protected String getName(){
     	return name;
     }
+
+
+ 
     
 }
