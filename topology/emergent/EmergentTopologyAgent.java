@@ -56,7 +56,7 @@ public class EmergentTopologyAgent extends OrderedTopologyAgent {
 		topology.setSize(this.adaptationViewSize);
 		OrderedSelector selector = (OrderedSelector) ((BasicTopology)topology).getSelector();
 		NodeAttributeComparator comparator = (NodeAttributeComparator)selector.getComparator();
-		comparator.setAttribute(adaptationAttribute);
+		selector.setCompatator(new NodeAttributeComparator(adaptationAttribute));
 	}
 	
 	/**
