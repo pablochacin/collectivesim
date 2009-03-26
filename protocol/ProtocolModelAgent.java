@@ -61,7 +61,7 @@ public class ProtocolModelAgent extends ReflexionModelAgent implements ProtocolO
 
 
 	@Override
-	public void propagated(Protocol protocol, Destination destination, Node target, Serializable... args) {
+	public void propagated(Protocol protocol, Destination destination, Serializable... args) {
 		propagated++;		
 	}
 
