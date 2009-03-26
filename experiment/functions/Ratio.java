@@ -1,5 +1,7 @@
 package edu.upc.cnds.collectivesim.experiment.functions;
 
+import edu.upc.cnds.collectivesim.experiment.Function;
+
 /**
  * Calculates the ratio among two double values
  * 
