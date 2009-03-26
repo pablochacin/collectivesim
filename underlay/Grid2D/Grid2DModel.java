@@ -13,6 +13,7 @@ import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.underlay.UnderlayException;
 import edu.upc.cnds.collectives.underlay.UnderlayMetricType;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
+import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.Stream;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
@@ -69,8 +70,8 @@ public class Grid2DModel extends UnderlayModel{
  * @param scope diameter of a location's neighborhood 
  * @param strategy LocationStrategy used to place nodes
  */
-    public Grid2DModel(Scheduler scheduler,Stream<Identifier>ids, int numNodes,int sizeX, int sizeY,int scope,LocationStrategy strategy){
-    	super(scheduler,ids,numNodes);
+    public Grid2DModel(String name,Experiment experiment,Stream<Identifier>ids, int numNodes,int sizeX, int sizeY,int scope,LocationStrategy strategy){
+    	super(name,experiment,ids,numNodes);
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.scope = scope;
@@ -151,5 +152,12 @@ public class Grid2DModel extends UnderlayModel{
 			throws UnderlayModelException {
 	
 		//There is no need to do anything, as the topology is created as the nodes are added
+	}
+
+
+	@Override
+	protected void terminate() {
+		grid = new Object2DGrid(sizeX,sizeY);
+		
 	}
 }
