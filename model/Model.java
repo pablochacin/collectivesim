@@ -122,6 +122,14 @@ public interface Model {
 
 	public abstract void start() throws ModelException;
 
+	
+	/**
+	 * Resets the model's state and prepares it for a new run.
+	 * This method is invoked after the execution of the model
+	 * (it is not invoked before the first execution)
+	 */
+	public void reset();
+	
 	/**
 	 * Returns the current simulation time for the model
 	 * @return
@@ -147,4 +155,9 @@ public interface Model {
 	 * @return
 	 */
 	public ModelAgent getAgent(String name);
+
+	/**
+	 * Resume execution of Model (behaviors and observers)
+	 */
+	void resume();
 }
