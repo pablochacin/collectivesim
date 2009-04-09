@@ -1,6 +1,8 @@
 package edu.upc.cnds.collectivesim.underlay;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.upc.cnds.collectives.identifier.Identifier;
@@ -30,12 +32,12 @@ public class UnderlayModelNode extends AbstractUnderlayNode  {
 	
 	
 	public UnderlayModelNode(String type,Identifier id, UnderlayAddress address,UnderlayModel model) {
-		super(model,id,address);
+		super(model,id,address,new HashMap());
 		this.model = model;
 	}
 	
-	public UnderlayModelNode(Identifier id, UnderlayAddress address,UnderlayModel model) {
-		super(model,id, address);
+	public UnderlayModelNode(Identifier id, UnderlayAddress address,UnderlayModel model,Map attributes) {
+		super(model,id, address,attributes);
 	    this.model = model;
 	}
 

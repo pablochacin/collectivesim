@@ -70,8 +70,8 @@ public class Grid2DModel extends UnderlayModel{
  * @param scope diameter of a location's neighborhood 
  * @param strategy LocationStrategy used to place nodes
  */
-    public Grid2DModel(String name,Experiment experiment,Stream<Identifier>ids, int numNodes,int sizeX, int sizeY,int scope,LocationStrategy strategy){
-    	super(name,experiment,ids,numNodes);
+    public Grid2DModel(String name,Experiment experiment,Stream<Identifier>ids, int numNodes,int sizeX, int sizeY,int scope,LocationStrategy strategy,Stream ...attributes){
+    	super(name,experiment,ids,numNodes,attributes);
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.scope = scope;

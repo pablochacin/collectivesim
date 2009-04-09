@@ -1,11 +1,9 @@
 package edu.upc.cnds.collectivesim.underlay;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 
 import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.metrics.Metric;
@@ -19,7 +17,6 @@ import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.Stream;
 import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
-import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.underlay.Grid2D.UnderlayModelException;
 
 /**
@@ -42,11 +39,14 @@ public abstract class UnderlayModel extends AbstractModel implements Underlay {
      */
     protected Stream<Identifier> idStream;
     
-	public UnderlayModel(String name,Experiment experiment, Stream<Identifier> idStream,int numNodes) {
+    protected Stream[] attributeStreams;
+    
+	public UnderlayModel(String name,Experiment experiment, Stream<Identifier> idStream,int numNodes,Stream...attributeStreams) {
 		super(name, experiment);
 		this.idStream = idStream;
 		this.numNodes = numNodes;
         this.nodes = new HashMap<Identifier,UnderlayModelNode>(); 
+        this.attributeStreams = attributeStreams;
 	}
 
 	@Override
@@ -113,7 +113,11 @@ public abstract class UnderlayModel extends AbstractModel implements Underlay {
 	 * @throws UnderlayModelException 
 	 */
 	protected UnderlayModelNode buildNode(Identifier id) throws UnderlayModelException{
-		UnderlayModelNode node = new UnderlayModelNode(id,new UnderlayModelNodeAddress(""),this);
+		Map attributes = new HashMap();
+		for(Stream s: attributeStreams){
+			attributes.put(s.getName(),s.getValue());
+		}
+		UnderlayModelNode node = new UnderlayModelNode(id,new UnderlayModelNodeAddress(""),this,attributes);
 		return node;
 
 	}

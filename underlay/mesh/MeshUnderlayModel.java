@@ -26,8 +26,8 @@ import edu.upc.cnds.collectivesim.underlay.Grid2D.UnderlayModelException;
 public class MeshUnderlayModel extends UnderlayModel {
 
 	
-	public MeshUnderlayModel(String name,Experiment experiment,Stream<Identifier> ids,int numNodes) {
-		super(name,experiment, ids, numNodes);
+	public MeshUnderlayModel(String name,Experiment experiment,Stream<Identifier> ids,int numNodes,Stream...attributes) {
+		super(name,experiment, ids, numNodes,attributes);
 	}
 
 	@Override
