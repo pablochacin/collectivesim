@@ -14,6 +14,7 @@ import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
+import edu.upc.cnds.collectivesim.topology.TopologyAgent;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 
 /**
@@ -28,58 +29,31 @@ public abstract class TopologyModel extends AbstractModel  {
 	
 
 	protected UnderlayModel underlay;
-	
-	protected Map<Identifier,Topology>topologies;
+
 	
 		
 	public TopologyModel(String name,Experiment experiment,UnderlayModel underlay) {
 		super(name,experiment);
-		this.underlay =  underlay;
-		this.topologies = new HashMap<Identifier,Topology>();			
+		this.underlay =  underlay;			
 	}
 
-	/**
-	 * Generates the local view of the topology for a particular UnderlayNode
-	 * 
-	 * @param node the UnderlayNode to generate the view for.
-	 * 
-	 * @return the local view of the topology for a node
-	 * 
-	 */
-	public Topology getTopology(UnderlayNode node){
-		
-		return topologies.get(node.getId());		
-	}
 	
 	public UnderlayModel getUnderlay(){
 		return underlay;
 	}
 	
 	public void populate() throws ModelException{
-		generateTopology();
-	}
-	
-	/**
-	 * Generates a topology. 
-	 */
-	public void generateTopology(){
-		
-		//invoke topology building algorithm
-		buildTopology();
-		
+
 		//create the topology agent to maintain each topology
 		for(UnderlayNode n: underlay.getNodes()){
 			
-			Topology topology = getTopology(n);
-
-			TopologyAgent agent =  createAgent(topology);
-		
-			topology.update();
-			
+			TopologyAgent agent =  createAgent(n);
+					
 			super.addAgent(agent);
 		}
-		
+
 	}
+	
 	
 	/**
 	 * Creates a TopologyAgent responsible for the given local view of the topology.
@@ -87,20 +61,9 @@ public abstract class TopologyModel extends AbstractModel  {
 	 * @param topology the local representation of the topology for the agent
 	 * @return
 	 */
-	protected abstract TopologyAgent createAgent(Topology topology);
+	protected abstract TopologyAgent createAgent(UnderlayNode node);
 	
-	/**
-	 * Constructs an initial topology for each node
-	 * 
-	 * @param node
-	 * @return
-	 */
-	protected abstract void buildTopology() ;
-	
-
-	public List<Topology> getTopologies(){
-		return new ArrayList<Topology>(topologies.values());
-	}
+		
 	/**
 	 * 
 	 * @param localNode

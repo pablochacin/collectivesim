@@ -3,8 +3,10 @@ package edu.upc.cnds.collectivesim.topology;
 import java.util.logging.Logger;
 
 import edu.upc.cnds.collectives.node.Node;
+import edu.upc.cnds.collectives.topology.BasicTopology;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.topology.TopologyObserver;
+import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.model.imp.ReflexionModelAgent;
 
 /**
@@ -22,6 +24,10 @@ public class TopologyAgent extends ReflexionModelAgent implements TopologyObserv
 	protected TopologyModel model;
 	
 	public TopologyAgent(TopologyModel model,Topology topology){
+		
+		//use node id as name for the agent
+		super(topology.getLocalNode().getId().toString());
+		
 		this.topology = topology;
 		this.model = model;
 		this.topology.addObserver(this);
@@ -31,6 +37,11 @@ public class TopologyAgent extends ReflexionModelAgent implements TopologyObserv
 		topology.update();
 	}
 
+	
+	public Topology getTopology(){
+		return topology;
+	}
+	
 	@Override
 	public void join(Node node) {
 		model.nodeJoin(this.topology.getLocalNode(),node);
