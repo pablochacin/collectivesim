@@ -1,6 +1,5 @@
 package edu.upc.cnds.collectivesim.dataseries;
 
-import edu.upc.cnds.collectivesim.dataseries.baseImp.BaseDataItem;
 
 /**
  * Generates a DataSeries of values applying a SeriesFunction to the values
@@ -52,8 +51,7 @@ public class FunctionCalculatorSeriesObserver implements DataSeriesObserver {
 			i--;
 		}
 
-		DataItem value = new BaseDataItem(function.getResult());
-		calculatedValues.addItem(value);
+		calculatedValues.addItem(function.getResult());
 	}					
 
 
