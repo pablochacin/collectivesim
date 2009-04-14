@@ -21,7 +21,7 @@ public class BaseDataItem implements DataItem {
 		this(value, new HashMap());
 	}
 	
-	public Map getCategories() {
+	public Map getAttributes() {
 		return categories;
 	}
 
