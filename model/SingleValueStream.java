@@ -36,5 +36,9 @@ public class SingleValueStream<T> implements Stream<T> {
 		
 	}
 
-	
+	@Override
+	public void open() {
+		// Do nothing.
+		
+	}
 }

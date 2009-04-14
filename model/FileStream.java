@@ -1,17 +1,9 @@
 package edu.upc.cnds.collectivesim.model;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.RandomAccessFile;
 
-import edu.upc.cnds.collectives.identifier.BasicIdentifier;
-import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.util.ReflectionUtils;
 
 /**
@@ -35,18 +27,19 @@ public class FileStream<T> implements Stream<T> {
 	 * @param file a String with the path to the input Stream
 	 */
 	public FileStream(String name, String file,Class type){
-		try {
 			this.name = name;
 			this.file = file;
 			this.type = type;
-			input = new RandomAccessFile(file,"r");
-		} catch (Exception e) {
-			throw new IllegalArgumentException("Exception accessing file " + file,e);
-		}
-
 	}
 	
 
+	public void open() throws StreamException{
+		try {
+			input = new RandomAccessFile(file,"r");
+		} catch (FileNotFoundException e) {
+			throw new StreamException("Exception accessing file "+file,e);
+		}
+	}
 	
 	@Override
 	public String getName() {

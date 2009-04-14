@@ -47,4 +47,9 @@ public class RandomTableStream<T> implements Stream<T> {
 		//do nothing
 	}
 
+	@Override
+	public void open() {
+		// Do nothing.
+		
+	}
 }

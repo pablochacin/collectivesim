@@ -16,6 +16,12 @@ public interface Stream<T> {
 	 */
 	public String getName();
 	
+	/**
+	 * Initiates the access to the Stream. Useful when accessing external resources like files or data bases.
+	 * 
+	 * @throws StreamException
+	 */
+	public void open() throws StreamException;
 	
 	/**
 	 * Return the next value of the Stream
