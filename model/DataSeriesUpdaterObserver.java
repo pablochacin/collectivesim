@@ -11,7 +11,7 @@ import edu.upc.cnds.collectivesim.model.ModelObserver;
  * 
  * A ModelObserver that adds the values from a model's agents to a DataSeries.
  * 
- * Each time the values are updated, if the DataSeries doesn't have the append option, 
+ * Each time the values are updated, if the append option is false, 
  * the serie's DataItems are removed before the new values are added. 
  * 
  * @author Pablo Chacin
@@ -26,7 +26,7 @@ public class DataSeriesUpdaterObserver implements ModelObserver {
 	
 	/**
 	 * Defines if the values of each update are appended to the previous values of the data series
-	 * or sustitute them.
+	 * or substitute them.
 	 */
 	boolean append;
 	
@@ -53,7 +53,7 @@ public class DataSeriesUpdaterObserver implements ModelObserver {
 			series.reset();
 		
 		for(Object value: values){
-			series.addItem(new BaseDataItem((Double)value));
+			series.addItem((Double)value);
 
 		}
 		
