@@ -111,4 +111,28 @@ public interface DataSeries {
 	 * @param observer
 	 */
 	public void removeObserver(DataSeriesObserver observer);
+	
+	
+	/**
+	 * Applies a function to the series and returns a result
+	 * 
+	 * @param function
+
+	 * @return
+	 */
+	public Double applyFunction(SeriesFunction function);
+	
+	/**
+	 * Applies a series of functions to the values of a series and returns
+	 * the results as an array of Doubles.
+	 * 
+	 * This method is convenient when iterating along very large series
+	 * stored (or partially backed) in secondary storage to avoid repetitive
+	 * scans.
+	 * 
+	 * @param functions
+	 * @return
+	 */
+	public Double[] applyFunctions(SeriesFunction functions[]);
+	
 }
