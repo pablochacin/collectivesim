@@ -61,9 +61,12 @@ public class GradientTopologyModel extends TopologyModel{
 
 		
 		//create ordered topology using the utility as a attribute of comparison
-		NodeSelector orderedSelector = new OrderedSelector(new NodeAttributeComparator("utility"));
+		
+		NodeSelector orderedSelector = new OrderedSelector(new NodeAttributeComparator("utility",new GradientComparator(node)));
+		//NodeSelector orderedSelector = new RandomSelector();
 		Topology gradientTopology = new BasicTopology(node, node.getKnownNodes(),orderedSelector,
 				                                      gradientTopologySize,false);
+
 		
 		//create random topology
 		NodeSelector randomSelector = new RandomSelector();
