@@ -34,4 +34,15 @@ public class IdRandomStream implements Stream<Identifier> {
 		return space.getRandomIdentifier();
 	}
 
+	@Override
+	public void reset() {
+		//Do nothing. Reseting this stream has no effect
+	}
+
+	@Override
+	public void open() {
+		// Do nothing.
+		
+	}
+
 }
