@@ -13,7 +13,7 @@ public class Average implements SeriesFunction {
 			return Double.NaN;
 		}
 		
-		return count/sum;
+		return sum/count;
 	}
 
 	public void reset() {
