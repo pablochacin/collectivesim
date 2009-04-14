@@ -31,6 +31,7 @@ public class TopologyAgent extends ReflexionModelAgent implements TopologyObserv
 		this.topology = topology;
 		this.model = model;
 		this.topology.addObserver(this);
+		this.topology.update();
 	}
 
 	public void updateTopology(){
