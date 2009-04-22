@@ -1,13 +1,11 @@
 package edu.upc.cnds.collectivesim.topology.gradient;
 
 import java.util.List;
-import java.util.Vector;
 
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.node.NodeSelector;
 import edu.upc.cnds.collectives.node.RandomSelector;
 import edu.upc.cnds.collectives.topology.Topology;
-import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectivesim.topology.TopologyAgent;
 import edu.upc.cnds.collectivesim.topology.TopologyModel;
 
@@ -48,20 +46,9 @@ public class GradientTopologyAgent extends TopologyAgent {
 	 * Get new candidates and update the topology 
 	 */
 	public void updateTopology(){
-		exchangePeers();
 		topology.update();
+		exchangePeers();
 
-		if(topology.getLocalNode().getId().toString().equals("0000000000000000")){
-			Vector<Double> utilities = new Vector<Double>();
-			for(Node n: topology.getNodes()){
-				utilities.add((Double)n.getAttributes().get("utility"));
-			}
-			
-			System.out.println("-- utility="+ topology.getLocalNode().getAttributes().get("utility")+ 
-					           " Gradient=" + getGradient() +"\n" + 
-					           FormattingUtils.collectionToString(utilities));
-			
-		}
 	}
 
 
@@ -73,42 +60,48 @@ public class GradientTopologyAgent extends TopologyAgent {
 	 */
 	protected void exchangePeers(){
 
-			Node peer = randomSelector.getSample(topology.getNodes(),1).get(0);
+			Node peer =topology.getNodes().get(0);
 			GradientTopologyAgent agent = (GradientTopologyAgent)model.getAgent(peer.getId().toString());
-			List<Node> candidates = agent.getPeers();
-			topology.propose(candidates);
+			List<Node>candidates = topology.getNodes();
+			candidates.add(topology.getLocalNode());
+			agent.propose(candidates);
 
 	}
 
+	
 	/**
-	 * 
-	 * @return the list of current peers
+	 * Consider nodes for the next update
+	 * @param candidates
 	 */
-	protected List<Node> getPeers(){
-		return  topology.getNodes();
-	}
-
-
-	protected List<Node> getRandomPeers(){
-		return randomTopology.getNodes();	
-	}
-
-	/**
-	 * Select a node from its list of random peers, contact it and exchange random	 * 
-	 * peers. It is assumed there is at least a random peer.
-	 * 
-	 * random peers are also considered candidates for the gradient topology.
-	 */
-	public void randomWalk(){
-
-
-		Node peer = randomSelector.getSample(randomTopology.getNodes(),1).get(0);
-		GradientTopologyAgent peerAgent = (GradientTopologyAgent)model.getAgent(peer.getId().toString());
-		List<Node> candidates = peerAgent.getRandomPeers();
-		randomTopology.propose(candidates);
-		randomTopology.update();
-		
+	protected void propose(List<Node>candidates){
 		topology.propose(candidates);
+	}
+	
+	
+	/**
+	 * 
+	 * Gets the peers form other node and consider them as candidates
+	 * 
+	 * @param candidates
+	 */
+	public void updateRandom(){
+
+			randomTopology.update();
+			Node peer = randomSelector.getSample(randomTopology.getNodes(),1).get(0);
+			GradientTopologyAgent agent = (GradientTopologyAgent)model.getAgent(peer.getId().toString());
+			List<Node>candidates = randomTopology.getNodes();
+			candidates.add(randomTopology.getLocalNode());
+			agent.proposeRandom(candidates);
+
+	}
+
+
+	/**
+	 * Consider nodes for the next update
+	 * @param candidates
+	 */
+	protected void proposeRandom(List<Node>candidates){
+		randomTopology.propose(candidates);
 	}
 
 
@@ -119,6 +112,14 @@ public class GradientTopologyAgent extends TopologyAgent {
 	 */
 	public void updateUtility(Double variation){
 		Double utility = (Double)topology.getLocalNode().getAttributes().get("utility");
+
+		if((utility == 1) && (variation > 0)){
+			variation = -1.0*variation;
+		}
+
+		if((utility == 0) && (variation < 0)){
+			variation = -1.0*variation;
+		}
 
 		//ensure that 0 <= utility+variation `<= 1
 		if(variation < 0)
