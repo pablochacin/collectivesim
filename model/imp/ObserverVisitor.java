@@ -8,7 +8,7 @@ import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.ModelObserver;
-import edu.upc.cnds.collectivesim.model.Stream;
+import edu.upc.cnds.collectivesim.stream.Stream;
 
 /**
  * Observes the Collective and calculates an attribute from applying an operator

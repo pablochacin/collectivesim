@@ -1,5 +1,6 @@
 package edu.upc.cnds.collectivesim.model.imp;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -9,7 +10,7 @@ import edu.upc.cnds.collectivesim.model.AgentSampler;
 import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
-import edu.upc.cnds.collectivesim.model.Stream;
+import edu.upc.cnds.collectivesim.stream.Stream;
 
 
 /**
@@ -83,7 +84,7 @@ public abstract class AgentVisitor extends ModelAction{
 
     	
 		List<ModelAgent> agents = sampler.sample(model.getAgents());   
-    	
+    			
     	startVisit();
     	
     	for(ModelAgent a: agents) {

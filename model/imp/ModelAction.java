@@ -2,7 +2,7 @@ package edu.upc.cnds.collectivesim.model.imp;
 
 import java.util.logging.Logger;
 
-import edu.upc.cnds.collectivesim.model.Stream;
+import edu.upc.cnds.collectivesim.stream.Stream;
 
 /**
  * An repetitive action that is executed in a Model
