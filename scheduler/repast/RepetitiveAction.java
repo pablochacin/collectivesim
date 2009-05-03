@@ -2,7 +2,7 @@ package edu.upc.cnds.collectivesim.scheduler.repast;
 
 import java.util.logging.Logger;
 
-import edu.upc.cnds.collectivesim.model.Stream;
+import edu.upc.cnds.collectivesim.stream.Stream;
 
 public class RepetitiveAction extends AbstractScheduledAction {
 
