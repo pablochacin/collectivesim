@@ -1,6 +1,6 @@
 package edu.upc.cnds.collectivesim.scheduler;
 
-import edu.upc.cnds.collectivesim.model.Stream;
+import edu.upc.cnds.collectivesim.stream.Stream;
 
 
 /**
