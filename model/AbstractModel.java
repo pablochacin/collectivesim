@@ -11,14 +11,14 @@ import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.ModelObserver;
-import edu.upc.cnds.collectivesim.model.SingleValueStream;
-import edu.upc.cnds.collectivesim.model.Stream;
 import edu.upc.cnds.collectivesim.model.imp.BehaviorVisitor;
 import edu.upc.cnds.collectivesim.model.imp.DummySampler;
 import edu.upc.cnds.collectivesim.model.imp.ModelEvent;
 import edu.upc.cnds.collectivesim.model.imp.ObserverVisitor;
 import edu.upc.cnds.collectivesim.model.imp.ReflexionModelAgent;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
+import edu.upc.cnds.collectivesim.stream.FixedValueStream;
+import edu.upc.cnds.collectivesim.stream.Stream;
 
 
 
@@ -120,7 +120,7 @@ public abstract class AbstractModel implements Model{
 			boolean active, int iterations,long frequency, long delay, long endTime,
 			Stream<? extends Object> ... args){
 		
-		addBehavior(name, method,sampler, active, iterations,new SingleValueStream<Long>("",frequency), 
+		addBehavior(name, method,sampler, active, iterations,new FixedValueStream<Long>("",frequency), 
 				delay, endTime,args);
 		
 	}
@@ -128,19 +128,19 @@ public abstract class AbstractModel implements Model{
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, long, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
 	public void addBehavior(String name,String method,int iterations,long frequency,Stream<? extends Object> ...args){
-		addBehavior(name, method,new DummySampler(),true, iterations,new SingleValueStream<Long>(name,frequency),0,0, args);
+		addBehavior(name, method,new DummySampler(),true, iterations,new FixedValueStream<Long>(name,frequency),0,0, args);
 	}
 
 
 	public void addBehavior(String name, String method,	long frequency, long delay,long endTime,Stream<? extends Object>... args){
-		addBehavior(name, method,new DummySampler(),true, 0,new SingleValueStream<Long>(name,frequency),delay,endTime, args);
+		addBehavior(name, method,new DummySampler(),true, 0,new FixedValueStream<Long>(name,frequency),delay,endTime, args);
 		
 	}
 	
 	
 	@Override
 	public void addBehavior(String name, String method, long frequency, Stream<? extends Object>... args) {
-		addBehavior(name, method,new DummySampler(),true, 0,new SingleValueStream<Long>(name,frequency),0,0, args);
+		addBehavior(name, method,new DummySampler(),true, 0,new FixedValueStream<Long>(name,frequency),0,0, args);
 		
 	}
 
@@ -156,7 +156,7 @@ public abstract class AbstractModel implements Model{
 			sampler = new DummySampler();
 		}
 		
-		ObserverVisitor action = new ObserverVisitor(this,name,sampler,observer,attribute,active,0,new SingleValueStream<Long>("",frequency),delay,0);
+		ObserverVisitor action = new ObserverVisitor(this,name,sampler,observer,attribute,active,0,new FixedValueStream<Long>("",frequency),delay,0);
 		
 		observers.put(name,action);
 

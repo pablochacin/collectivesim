@@ -5,6 +5,7 @@ import java.util.List;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelObserver;
+import edu.upc.cnds.collectivesim.stream.Stream;
 
 public interface Model {
 
