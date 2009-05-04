@@ -13,8 +13,18 @@ import edu.upc.cnds.collectivesim.dataseries.DataSeriesObserver;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
 
+/**
+ * 
+ * Implements a DataSeries as a in memory data structure
+ * 
+ * @author Pablo Chacin
+ *
+ */
 public class MemoryDataSeries implements DataSeries {
 
+	/**
+	 * A sequence of DataItems 
+	 */
 	private class DataItemsSequence implements DataSequence{
 		
 		private Vector<DataItem> items;
@@ -55,16 +65,19 @@ public class MemoryDataSeries implements DataSeries {
 	
 	private List<DataSeriesObserver>observers;
 	
+	protected int sequence;
+	
 	/**
 	 * 
 	 * @param name
-	 * @param size maximun number of elements to hold. 0 means unbounded number of elements
+	 * @param size maximum number of elements to hold. 0 means unbounded number of elements
 	 */
 	public MemoryDataSeries(String name,int size) {
 		this.name = name;
 		this.maxSize = size;
 		this.dataItems = new Vector<DataItem>(maxSize>0?maxSize:DEFAULT_SIZE);
 		this.observers = new ArrayList<DataSeriesObserver>();
+		this.sequence =  0;
 	}
 
 	public MemoryDataSeries(String name){
@@ -86,15 +99,23 @@ public class MemoryDataSeries implements DataSeries {
 		return true;
 	}
 
-	public boolean addItem(Double value) {
-		return addItem(new BaseDataItem(value));
-
+	public boolean addItem(String attribute, Double value) {
+		return addItem(new BaseDataItem(this,++sequence,attribute,value));
 
 	}
 
-	public boolean addItem(Map categories, Double value){
-		return addItem(new BaseDataItem(value,categories));
+	public boolean addItem(String attribute, Boolean value) {
+		return addItem(new BaseDataItem(this,++sequence,attribute,value));
 
+	}
+	
+	public boolean addItem(String attribute, String value) {
+		return addItem(new BaseDataItem(this,++sequence,attribute,value));
+
+	}
+	public boolean addItem(Map attributes){
+		
+		return addItem(new BaseDataItem(this,++sequence,attributes));
 	}
 
 	public String getName() {
@@ -146,36 +167,6 @@ public class MemoryDataSeries implements DataSeries {
 		observers.remove(observer);
 	}
 
-	@Override
-	public Double applyFunction(SeriesFunction function) {
-		function.reset();
-		
-		for(DataItem i: dataItems){
-			function.calculate(i);
-		}
-		
-		return function.getResult();
-	}
 
-	
-	public Double[] applyFunctions(SeriesFunction functions[]){
-		
-		for(SeriesFunction f: functions){
-			f.reset();
-		}
-		
-		for(DataItem i: dataItems){
-			for(SeriesFunction f: functions){
-				f.calculate(i);
-			}
-		}
-		
-		Double[] result = new Double[functions.length];
-		for(int i=0;i < result.length;i++){
-			result[i] = functions[i].getResult();
-		}
-		
-		return result;
-	}
 	
 }
