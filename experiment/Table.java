@@ -19,7 +19,7 @@ public interface Table<T> {
 	 * @throws ExperimentException if there is any error loading values, like IOException, 
 	 *         lack of memory, etc.
 	 */
-	public void load() throws ExperimentException;
+	public void load() throws TableException;
 	
 	public String getName();
 	

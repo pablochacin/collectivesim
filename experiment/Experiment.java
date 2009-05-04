@@ -9,19 +9,23 @@ import java.util.logging.Logger;
 
 
 import edu.upc.cnds.collectives.events.Event;
+import edu.upc.cnds.collectives.events.EventFilter;
 import edu.upc.cnds.collectives.events.EventObserver;
-import edu.upc.cnds.collectives.events.imp.FilteringObserver;
+import edu.upc.cnds.collectives.events.EventTypeFilter;
+import edu.upc.cnds.collectives.events.FilteringEventObserver;
 import edu.upc.cnds.collectives.util.FileUtils;
 import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectives.util.TypedMap;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
-import edu.upc.cnds.collectivesim.dataseries.baseImp.BaseDataSeries;
+import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
+import edu.upc.cnds.collectivesim.dataseries.baseImp.MemoryDataSeries;
+import edu.upc.cnds.collectivesim.experiment.imp.DataSeriesObserverTask;
 import edu.upc.cnds.collectivesim.experiment.imp.ExperimentTask;
 import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelException;
-import edu.upc.cnds.collectivesim.model.SingleValueStream;
-import edu.upc.cnds.collectivesim.model.Stream;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
+import edu.upc.cnds.collectivesim.stream.Stream;
+import edu.upc.cnds.collectivesim.stream.StreamException;
 
 /**
  * Represents a simulation experiment. Supports the execution of Models, and hosts
@@ -79,6 +83,8 @@ public class Experiment {
 		
 	private String description;
 	
+
+	
 	/**
 	 * Taskt to execute at the begining of the experiment
 	 */
@@ -105,10 +111,6 @@ public class Experiment {
 	 */
 	private List<ExperimentTask>scheduledTasks;
 
-	/**
-	 * List of DataSeries that must be reseted before each experiment round
-	 */
-	private List<DataSeries>resetableDataSeries;
 	
 	/**
 	 * Directory on which result or working files should be created
@@ -154,8 +156,6 @@ public class Experiment {
 		this.counters = new HashMap<String, Counter>();		
 		this.tables = new HashMap<String, Table>();
 		this.series = new HashMap<String, DataSeries>();
-		this.resetableDataSeries = new ArrayList<DataSeries>();
-
 		this.streams = new HashMap<String, Stream>();
 		this.parameters = new TypedMap();
 		this.observers = new ArrayList<EventObserver>();
@@ -282,7 +282,6 @@ public class Experiment {
 	public void addTable(Table table) throws ExperimentException{
 	
 		tables.put(table.getName(),table);
-		table.load();
 	}
 	
 	public Table getTable(String name){
@@ -294,22 +293,16 @@ public class Experiment {
 	 * Created a  DataSeries 
 	 * @param name of the DataSeries
 	 * @param size maximum size. When this size is reached, new items displace older one.
-	 * @param persistent indicates if the DataSeries must persist across experiment runs.
-	 *        Notice that persistent DataSeries are erased at the end of the experiment.
 	 * @return the newly created DataSeries
 	 */
-	public DataSeries addDataSeries(String name,int size,boolean persistent){
+	public DataSeries addDataSeries(String name,int size){
 		
 		if(series.containsKey(name)){
 			throw new IllegalArgumentException("DataSeries " + name + " already exists");
 		}
 		
-		DataSeries dataseries = new BaseDataSeries(name,size);
+		DataSeries dataseries = new MemoryDataSeries(name,size);
 		series.put(name, dataseries);
-		
-		if(!persistent){
-			resetableDataSeries.add(dataseries);
-		}
 		
 		return dataseries;
 	}
@@ -321,7 +314,7 @@ public class Experiment {
 	 * @return
 	 */
 	public DataSeries addDataSeries(String name){
-		return addDataSeries(name,0,false);
+		return addDataSeries(name,0);
 	}
 	
 	/**
@@ -331,8 +324,54 @@ public class Experiment {
 	 * @return the DataSeries registered under the given name or null if none exists
 	 */
 	public DataSeries getDataSeries(String name) {
-		return series.get(name);
+		
+		DataSeries dataseries = series.get(name);
+		
+		if(dataseries == null){
+			throw new IllegalArgumentException("DataSeries " + name +" is not valid");
+		}
+		
+		return dataseries;
 	}
+	
+	/**
+	 * Creates an observer that periodically applies a SeriesFunction to a DataSeries and puts the
+	 * result in another DataSeries.
+	 * 
+	 * @param series
+	 * @param function
+	 * @param result
+	 * @param frequency
+	 */
+	public void addDataSeriesObserver(String target, SeriesFunction function, String result,long delay,long frequency){
+		
+		DataSeries targetSeries = getDataSeries(target);
+
+		DataSeries resultSeries = getDataSeries(result);
+		
+		DataSeriesObserverTask observer = new DataSeriesObserverTask(targetSeries,function,resultSeries);
+		
+		scheduledTasks.add(new ExperimentTask(scheduler, observer,delay,frequency));
+	}
+	
+	/**
+	 * Adds an observer that applies a SeriesFunction to a target DataSeries each time it is 
+	 * updated and produces a result DataSeries.
+	 * 
+	 * @param target
+	 * @param function
+	 * @param result
+	 */
+	public void addDataSeriesObserver(String target, SeriesFunction function, String result){
+
+		DataSeries targetSeries = getDataSeries(target);
+
+		DataSeries resultSeries = getDataSeries(result);
+		
+		DataSeriesObserverTask observer = new DataSeriesObserverTask(targetSeries,function,resultSeries);
+	
+		targetSeries.addObserver(observer);
+	}	
 	
 	/**
 	 * Generates a DataSeries by observing a StateValue periodically.
@@ -364,6 +403,23 @@ public class Experiment {
 		//execute initialization tasks
 		for(Runnable r: initializationTasks){
 			r.run();
+		}
+		
+		//load tables
+		for(Table t: tables.values()){
+			try {
+				t.load();
+			} catch (TableException e) {
+				throw new ExperimentException("Exception loading table "+t.getName(),e);
+			}
+		}
+		
+		for(Stream s: streams.values()){
+			try {
+				s.open();
+			} catch (StreamException e) {
+				throw new ExperimentException("Exception initialization stream "+s.getName(),e);
+			}
 		}
 		
 		//execute first run
@@ -408,7 +464,7 @@ public class Experiment {
 		}
 		
 		//reset non persistent DataSeries 
-		for(DataSeries d: resetableDataSeries){
+		for(DataSeries d: series.values()){
 			d.reset();
 		}
 		
@@ -487,7 +543,8 @@ public class Experiment {
 	}
 	
 	/**
-	 * Adds a task whose run() method will be invoked before the experiment is started
+	 * Adds a task whose run() method will be invoked before the experiment runs are started.
+	 * Can be used to setup the environment, creating data files, etc.
 	 * 
 	 * There is no guarantee that tasks will be executed in the same order than they were added
 	 * and actual implementation might run them in sequence or parallel.
@@ -615,9 +672,18 @@ public class Experiment {
 	 * @param events
 	 */
 	public void registerEventObserver(EventObserver observer,String[] events){
-		observers.add(new FilteringObserver(events,observer));
+		observers.add(new FilteringEventObserver(new EventTypeFilter(events),observer));
 	}
 
+	/**
+	 * Add an observer with a filter
+	 * 
+	 * @param observer
+	 * @param filter
+	 */
+	public void registerEventObserver(EventObserver observer,EventFilter filter){
+		observers.add(new FilteringEventObserver(filter,observer));	
+	}	
 	/**
 	 * Reports an event from a Model
 	 * @param event
@@ -646,4 +712,21 @@ public class Experiment {
 	}
 
 
+	/**
+	 * 
+	 * @return a Map with the Streams defined in the experiment
+	 */
+	public Map<String,Stream> getStreams() {
+		return new HashMap(streams);
+	}
+
+
+	/**
+	 * @return a Map with the Tables defined in the experiment
+	 */
+	public Map<String,Table> getTables(){
+		return new HashMap(tables);
+	}
+
+	
 }

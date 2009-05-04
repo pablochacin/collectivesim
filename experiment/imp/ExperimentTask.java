@@ -1,7 +1,7 @@
 package edu.upc.cnds.collectivesim.experiment.imp;
 
-import edu.upc.cnds.collectivesim.model.SingleValueStream;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
+import edu.upc.cnds.collectivesim.stream.FixedValueStream;
 
 /**
  * An Experiment related task planned for execution in the Scheduler.
@@ -71,7 +71,7 @@ public class ExperimentTask {
 			scheduler.scheduleAction(task, delay);
 		}
 		else{
-			scheduler.scheduleRepetitiveAction(task, 0, new SingleValueStream<Long>("",frequency), delay, 0);
+			scheduler.scheduleRepetitiveAction(task, 0, new FixedValueStream<Long>("",frequency), delay, 0);
 		}
 	}
 }
