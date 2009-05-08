@@ -107,19 +107,24 @@ public class StatisticalSummary implements SeriesFunction {
 	
 	protected void getResult(DataSeries result) {
 
+		if(count == 0){
+			return;
+		}
+		
 		Double avg = sumX/count;
 		Double stdev = Math.sqrt((sumX2/count)-(avg*avg));
 		Double stderr = stdev/Math.sqrt(count);
 		
 		Map<String,Object>attributes = new HashMap<String,Object>();
 		attributes.put("count", new Double(count));
-		attributes.put("average", avg);
+		attributes.put("avg", avg);
 		attributes.put("stdev", stdev);
 		attributes.put("min", min);
 		attributes.put("max", max);
+		attributes.put("errorlow", Math.max(min, avg-stdev));
+		attributes.put("errorhigh", Math.min(max, avg+stdev));
 		attributes.put("stderr", stderr);
-		attributes.put("errorhigh", avg+1.96*stderr);
-		attributes.put("errorlow", avg-1.96*stderr);		
+
 		
 		
 		result.addItem(attributes);
