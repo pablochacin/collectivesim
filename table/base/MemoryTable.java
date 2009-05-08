@@ -1,14 +1,20 @@
-package edu.upc.cnds.collectivesim.experiment.imp;
+package edu.upc.cnds.collectivesim.table.base;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.upc.cnds.collectives.identifier.BasicIdentifier;
 import edu.upc.cnds.collectives.util.ReflectionUtils;
-import edu.upc.cnds.collectivesim.experiment.ExperimentException;
-import edu.upc.cnds.collectivesim.experiment.Table;
+import edu.upc.cnds.collectivesim.table.Table;
+import edu.upc.cnds.collectivesim.table.TableException;
 
+/**
+ * Implements a table in memory, loading values from text
+ * 
+ * @author Pablo Chacin
+ *
+ * @param <T>
+ */
 public class MemoryTable<T> implements Table<T> {
 
 	protected List<T>values;
@@ -22,6 +28,18 @@ public class MemoryTable<T> implements Table<T> {
 	public MemoryTable(String name,List<T>values){
 		this.name = name;
 		this.values = new ArrayList<T>(values);
+	}
+	
+	public MemoryTable(String name,String[] values,Class type){
+		this.name = name;
+		this.values = new ArrayList<T>();
+		parseValues(values,type);
+	}
+	
+	public MemoryTable(String name,String values,String delimiter,Class type){
+		this.name = name;
+		this.values = new ArrayList<T>();
+		parseValues(values,delimiter,type);		
 	}
 	
 	@Override
@@ -58,7 +76,7 @@ public class MemoryTable<T> implements Table<T> {
 	}
 
 	@Override
-	public void load() throws ExperimentException {	
+	public void load() throws TableException {	
 		
 	}
 	/**
@@ -108,18 +126,46 @@ public class MemoryTable<T> implements Table<T> {
 		parseValues(Arrays.asList(values),type);
 	}
 	
+	protected void parseValues(String values,String delimiter,Class type){
+		String[] valueArray = values.split(delimiter);
+		parseValues(valueArray,type);
+		
+	}
+	
+	
+	public String toString(){
+	
+		if(getNumValues() == 0){
+			return "{}";
+		}
+		
+		StringBuffer buffer = new StringBuffer();		
+		buffer.append("{");
+		buffer.append(getElement(0).toString());
+		for(int i=1;i<getNumValues();i++){
+			buffer.append(",");
+			buffer.append(getElement(i));
+		}
+		buffer.append("}");
+		
+		return buffer.toString();
+	}
 	
 	public static void main(String[] args){
 		
-		MemoryTable<Long> table = new MemoryTable<Long>("table");
 	
-		List<String> textValues = new ArrayList<String>();
-		textValues.add("0032");
-		textValues.add("0320");
+		List<Long> valueList = new ArrayList<Long>();
+		valueList.add(new Long(0032));
+		valueList.add(new Long(0320));
 		
-		table.parseValues(textValues,BasicIdentifier.class);
-		for(int i = 0;i<table.getNumValues();i++){
-			System.out.println(table.getElement(i));
-		}
+		MemoryTable<Long> table1 = new MemoryTable<Long>("table",valueList);
+		MemoryTable<Long> table2 = new MemoryTable<Long>("table 2","0032;0320",";",Long.class);
+		String[] valueArray = {"0032","0320"};
+		MemoryTable<Long> table3 = new MemoryTable<Long>("table 3",valueArray,Long.class);
+		
+		
+		System.out.println("table1 \n" + table1.toString());
+		System.out.println("table2 \n" + table2.toString());
+		System.out.println("table3 \n" + table3.toString());
 	}
 }

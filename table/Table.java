@@ -1,6 +1,8 @@
-package edu.upc.cnds.collectivesim.experiment;
+package edu.upc.cnds.collectivesim.table;
 
 import java.util.List;
+
+import edu.upc.cnds.collectivesim.experiment.ExperimentException;
 
 /**
  * A series of values that can be accessed sequential or randomly. It behaves like an

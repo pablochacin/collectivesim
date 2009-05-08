@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.experiment;
+package edu.upc.cnds.collectivesim.table;
 
 public class TableException extends Exception {
 
