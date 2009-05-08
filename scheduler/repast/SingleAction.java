@@ -3,15 +3,9 @@ package edu.upc.cnds.collectivesim.scheduler.repast;
 
 public class SingleAction extends AbstractScheduledAction {	
 	
-	/**
-	 * object on which the action will be executed
-	 */
-	private Runnable target;
-	
-
 	
 	/**
-	 * Deleay between executions of the action
+	 * Delay between executions of the action
 	 */
 	private long delay;
 
@@ -22,8 +16,7 @@ public class SingleAction extends AbstractScheduledAction {
 	 * @param delay time between executions
 	 */
 	public SingleAction(RepastScheduler scheduler,Runnable target,long delay) {
-		super(scheduler);
-		this.target = target;
+		super(scheduler,target);
         this.delay = delay;
         setNextTime(delay);
         
@@ -36,22 +29,14 @@ public class SingleAction extends AbstractScheduledAction {
 	public double getDelay(){
 		return this.delay;
 	}
-	     
-	/**
-	 * Return target object.
-	 * 
-	 */
-     public Object getTarget(){
-    	 return this.target;
-     }
-          
+	               
      
      
      /**
       * Execute's the action
       *
       */
-     public void execute() {
+     public void doExecute() {
     	 
     	 target.run();
      }

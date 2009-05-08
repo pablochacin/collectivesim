@@ -9,20 +9,11 @@ public class RepetitiveAction extends AbstractScheduledAction {
 	private static Logger log = Logger.getLogger("collectivesim.scheduler");
 	
 	
-	/**
-	 * Scheduler on which this action is executed
-	 */
-	RepastScheduler schedule;
-	
-	/**
-	 * object on which the action will be executed
-	 */
-	private Runnable target;
-	
+		
 	/**
 	 * Delay between executions of the action
 	 */
-	private Stream<Long> distribution;
+	private Stream<Long> frequency;
 	
 	private Double interval;
 
@@ -43,17 +34,16 @@ public class RepetitiveAction extends AbstractScheduledAction {
      * @param maxIterations maximum number of executions of the task
      * @param endTime time limit for execution of the task
 	 */
-	public RepetitiveAction(RepastScheduler schedule,Runnable target,Stream<Long> distribution,long maxIterations,Double endTime) {
-		super(schedule);
-		this.schedule = schedule;
+	public RepetitiveAction(RepastScheduler scheduler,Runnable target,Stream<Long> frequency,long maxIterations,Double endTime) {
+		super(scheduler,target);
 		this.target = target;
-        this.distribution = distribution;
+        this.frequency = frequency;
         this.iterations = 0;
         this.maxIterations = maxIterations;
         this.endTime = endTime;
 	   
    	 //calculate the interval until next execution
-   	 interval = (double)distribution.getValue();
+   	 interval = (double)frequency.getValue();
    	 
    	 //set interval time
    	 super.setIntervalTime(interval);
@@ -70,40 +60,31 @@ public class RepetitiveAction extends AbstractScheduledAction {
 	public RepetitiveAction(RepastScheduler schedule,Runnable target,Stream<Long> distribution) {
 		this(schedule,target,distribution,0,0.0);
 	}
-
-
-	
-	/**
-	 * Return target object.
-	 * 
-	 */
-     public Object getTarget(){
-    	 return this.target;
-     }
-               
+	               
      
      /**
       * Execute's the action
       *
       */
-     public void execute() {
+     public void doExecute() {
+    	 
     	 
     	 //call the target
     	 target.run();
     	 
 
     	 //calculate the interval until next execution
-    	 interval = (double)distribution.getValue();
+    	 interval = (double)frequency.getValue();
 
     	 //check if must continue executin
     	 iterations++;
     	 if((maxIterations != 0) && (iterations == maxIterations)) {
-    		 schedule.cancelAction(this);
+    		 scheduler.cancelAction(this);
     	 }
 
     	 //check if next invocation would pass execution limit
-    	 if((endTime != 0) && ((schedule.getTime()+interval) >= endTime)){
-    		 schedule.cancelAction(this);
+    	 if((endTime != 0) && ((scheduler.getTime()+interval) >= endTime)){
+    		 scheduler.cancelAction(this);
     		 
     	 }
     	 
@@ -124,6 +105,7 @@ public class RepetitiveAction extends AbstractScheduledAction {
       * Returns the next execution time, calculated from the current time
       */
      public double getNextTime() {
-    	 return schedule.getTime()+interval;
+    	 return scheduler.getTime()+interval;
      }
+     
 }

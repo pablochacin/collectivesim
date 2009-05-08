@@ -149,14 +149,14 @@ public class RepastScheduler implements Scheduler {
 	}
 
 
-	public synchronized ScheduledAction scheduleRepetitiveAction(Runnable target,int iterations,Stream<Long> distribution, long delay, long endTime) {
+	public synchronized ScheduledAction scheduleRepetitiveAction(Runnable target,int iterations,Stream<Long> frequency, long delay, long endTime) {
 
-		RepetitiveAction action = new RepetitiveAction(this,target,distribution,iterations, new Double(endTime));
+		RepetitiveAction action = new RepetitiveAction(this,target,frequency,iterations, new Double(endTime));
 
 	
 		double initTime = delay;
 		if(initTime == 0){
-			initTime = (double)distribution.getValue();
+			initTime = (double)frequency.getValue();
 		}
 	
 		nextTime = Math.min(nextTime, initTime);

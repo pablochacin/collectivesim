@@ -14,15 +14,26 @@ public abstract class AbstractScheduledAction extends BasicAction implements Sch
 	
 	protected RepastScheduler scheduler;
 	
+	/**
+	 * object on which the action will be executed
+	 */
+	protected Runnable target;
+	
 
 	
-	public AbstractScheduledAction(RepastScheduler scheduler) {
+	public AbstractScheduledAction(RepastScheduler scheduler,Runnable target) {
 		this.scheduler = scheduler;
+		this.target = target;
 	}
 	
 	@Override
-	public abstract void execute();
+	public void execute(){
+   	 	log.finest("[" + scheduler.getTime() + "]" + target.getClass().getName());
+		doExecute();
+	}
 	
+	
+	public abstract void doExecute();
 	
     /* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.models.imp.ScheduledAction#cancel()
@@ -33,4 +44,11 @@ public abstract class AbstractScheduledAction extends BasicAction implements Sch
     }
     
 
+	/**
+	 * Return target object.
+	 * 
+	 */
+     public Object getTarget(){
+    	 return this.target;
+     }
 }
