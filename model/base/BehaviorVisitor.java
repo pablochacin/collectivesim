@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.model.imp;
+package edu.upc.cnds.collectivesim.model.base;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -71,7 +71,8 @@ public class BehaviorVisitor extends AgentVisitor{
 		} catch (ModelException e) {
 			if(log.isLoggable(Level.SEVERE))
 				log.severe("Exception invoking method" +method+": "+ FormattingUtils.getStackTrace(e));
-			return false;
+				this.pause();
+				return false;
 		}
     	
 		return true;

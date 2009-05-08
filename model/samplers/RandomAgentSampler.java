@@ -1,8 +1,11 @@
-package edu.upc.cnds.collectivesim.model;
+package edu.upc.cnds.collectivesim.model.samplers;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import edu.upc.cnds.collectivesim.model.AgentSampler;
+import edu.upc.cnds.collectivesim.model.ModelAgent;
 /**
  * Selects a random sample of ModelAgents from a list, up to a given
  * maximum. This maximum can be specified either as a absolute number or

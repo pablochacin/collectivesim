@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.model.imp;
+package edu.upc.cnds.collectivesim.model.base;
 
 import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectives.util.ReflectionUtils;

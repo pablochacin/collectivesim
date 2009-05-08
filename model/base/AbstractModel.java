@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.model.imp;
+package edu.upc.cnds.collectivesim.model.base;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,18 +6,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.AgentSampler;
 import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
-import edu.upc.cnds.collectivesim.model.ModelObserver;
-import edu.upc.cnds.collectivesim.model.imp.BehaviorVisitor;
-import edu.upc.cnds.collectivesim.model.imp.DummySampler;
-import edu.upc.cnds.collectivesim.model.imp.ObserverVisitor;
+import edu.upc.cnds.collectivesim.model.base.BehaviorVisitor;
+import edu.upc.cnds.collectivesim.model.base.DummySampler;
+import edu.upc.cnds.collectivesim.model.base.ObserverVisitor;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
-import edu.upc.cnds.collectivesim.stream.FixedValueStream;
 import edu.upc.cnds.collectivesim.stream.Stream;
+import edu.upc.cnds.collectivesim.stream.base.FixedValueStream;
 
 
 
@@ -162,7 +162,7 @@ public abstract class AbstractModel implements Model{
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addObserver(java.lang.String, edu.upc.cnds.collectivesim.model.ModelObserver, java.lang.String, boolean, long)
 	 */
-	public final void addObserver(String name, ModelObserver observer, AgentSampler sampler,String attribute,boolean active,long frequency) {
+	public final void addObserver(String name, AgentSampler sampler,String[] attributes,DataSeries values,boolean reset,long frequency,long delay) {
 
 		//the sampler is optional, if none specified, use a dummy one, 
 		//to assure there is always one
@@ -170,7 +170,7 @@ public abstract class AbstractModel implements Model{
 			sampler = new DummySampler();
 		}
 		
-		ObserverVisitor visitor = new ObserverVisitor(this,name,sampler,observer,attribute,active,0,new FixedValueStream<Long>("",frequency),0,0);
+		ObserverVisitor visitor = new ObserverVisitor(this,name,sampler,attributes,values,reset,0,new FixedValueStream<Long>("",frequency),delay,0);
 		
 		observers.put(name,visitor);
 		actions.add(visitor);
@@ -178,6 +178,12 @@ public abstract class AbstractModel implements Model{
 	}
 
 
+	public final void addObserver(String name, AgentSampler sampler,String attribute,DataSeries values,boolean reset,long frequency,long delay) {
+	
+		String[] attributes = {attribute};
+		addObserver(name,sampler, attributes,values,reset,frequency,delay);
+	}
+	
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#getAgents()
 	 */
@@ -289,11 +295,16 @@ public abstract class AbstractModel implements Model{
 	 * @param delay
 	 * @param method
 	 * @param args
+	 * 
 	 */
-	protected final void addEvent(ModelAgent agent,long delay,String method,Object ... args){
+	public final void scheduleEvent(ModelAgent agent,long delay,String method,Object ... args){
 		scheduler.scheduleAction(new ModelEvent(agent,method,args), delay);
 	}
 
+	public final void scheduleEvent(String name,long delay, String method,Object...args){
+		ModelAgent agent = getAgent(name);
+		scheduleEvent(agent,delay,method,args);
+	}
 
 	/**
 	 * Create agents for this model and populate it by calling the {@link #addAgent(ModelAgent)} method

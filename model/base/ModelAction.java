@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.model.imp;
+package edu.upc.cnds.collectivesim.model.base;
 
 import java.util.logging.Logger;
 
@@ -95,4 +95,6 @@ public abstract class ModelAction implements Runnable {
 	 * Execute the action's logic.
 	 */
 	protected abstract void execute();
+	
+	
 }

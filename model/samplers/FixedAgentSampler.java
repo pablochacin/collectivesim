@@ -1,7 +1,10 @@
-package edu.upc.cnds.collectivesim.model;
+package edu.upc.cnds.collectivesim.model.samplers;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import edu.upc.cnds.collectivesim.model.AgentSampler;
+import edu.upc.cnds.collectivesim.model.ModelAgent;
 
 /**
  * AgentSampler that returns the agent with the given name.

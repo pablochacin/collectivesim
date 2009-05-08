@@ -2,9 +2,9 @@ package edu.upc.cnds.collectivesim.model;
 
 import java.util.List;
 
+import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
-import edu.upc.cnds.collectivesim.model.ModelObserver;
 import edu.upc.cnds.collectivesim.stream.Stream;
 
 public interface Model {
@@ -89,21 +89,18 @@ public interface Model {
 	public abstract void addBehavior(String name, String method,
 			long frequency, long delay,long endTime,Stream<? extends Object>... args);
 
-
-	/**
-	 * Adds an observer to calculate an attribute over the agents of the collective and generate 
-	 * a DataSeries with the resulting values
-	 * 
-	 * @param name a String with the name of the observer
-	 * @param observer a ModelObserver that will receive the value of the attribute
-	 * @param sampler an AgentSampler used to select the agents from which the attributes will be picked
-	 * @param attribute the name of the attribute
-	 * @param frequency the frequency of update
-	 */
-	public abstract void addObserver(String name, ModelObserver observer,AgentSampler sampler,
-			String attribute, boolean active, long frequency);
-
 	
+	/**
+	 * Convenience method to generate a series from a single attribute
+	 * @param name
+	 * @param sampler
+	 * @param attribute
+	 * @param values
+	 * @param reset
+	 * @param frequency
+	 */
+	public abstract void addObserver(String name,AgentSampler sampler,
+			                      String attribute, DataSeries values,boolean reset,long delay,long frequency);
 	
 	/**
 	 * 
@@ -161,4 +158,6 @@ public interface Model {
 	 * Resume execution of Model (behaviors and observers)
 	 */
 	void resume();
+	
+	
 }

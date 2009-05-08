@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.model.imp;
+package edu.upc.cnds.collectivesim.model.base;
 
 import java.util.logging.Logger;
 

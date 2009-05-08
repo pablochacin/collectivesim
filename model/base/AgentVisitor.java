@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.model.imp;
+package edu.upc.cnds.collectivesim.model.base;
 
 import java.util.Collections;
 import java.util.List;
@@ -85,6 +85,7 @@ public abstract class AgentVisitor extends ModelAction{
     	
 		List<ModelAgent> agents = sampler.sample(model.getAgents());   
     			
+		
     	startVisit();
     	
     	for(ModelAgent a: agents) {
