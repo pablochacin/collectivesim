@@ -17,8 +17,8 @@ import edu.upc.cnds.collectivesim.dataseries.DataItem;
 import edu.upc.cnds.collectivesim.dataseries.DataSequence;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
-import edu.upc.cnds.collectivesim.experiment.Table;
 import edu.upc.cnds.collectivesim.stream.Stream;
+import edu.upc.cnds.collectivesim.table.Table;
 
 /**
  * Utility class that dumps the experiment's description and relevant information (parameters and resulting values)
