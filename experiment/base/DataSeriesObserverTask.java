@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.experiment.imp;
+package edu.upc.cnds.collectivesim.experiment.base;
 
 import edu.upc.cnds.collectivesim.dataseries.DataItem;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;

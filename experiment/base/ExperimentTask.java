@@ -1,7 +1,7 @@
-package edu.upc.cnds.collectivesim.experiment.imp;
+package edu.upc.cnds.collectivesim.experiment.base;
 
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
-import edu.upc.cnds.collectivesim.stream.FixedValueStream;
+import edu.upc.cnds.collectivesim.stream.base.FixedValueStream;
 
 /**
  * An Experiment related task planned for execution in the Scheduler.

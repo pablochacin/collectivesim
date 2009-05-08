@@ -18,14 +18,21 @@ import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectives.util.TypedMap;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
-import edu.upc.cnds.collectivesim.dataseries.baseImp.MemoryDataSeries;
-import edu.upc.cnds.collectivesim.experiment.imp.DataSeriesObserverTask;
-import edu.upc.cnds.collectivesim.experiment.imp.ExperimentTask;
+import edu.upc.cnds.collectivesim.dataseries.base.BaseDataSeries;
+import edu.upc.cnds.collectivesim.experiment.base.DataSeriesObserverTask;
+import edu.upc.cnds.collectivesim.experiment.base.ExperimentTask;
 import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
+import edu.upc.cnds.collectivesim.state.CalculatedValue;
+import edu.upc.cnds.collectivesim.state.Counter;
+import edu.upc.cnds.collectivesim.state.StateValue;
+import edu.upc.cnds.collectivesim.state.StateValueObserver;
+import edu.upc.cnds.collectivesim.state.ValueFunction;
 import edu.upc.cnds.collectivesim.stream.Stream;
 import edu.upc.cnds.collectivesim.stream.StreamException;
+import edu.upc.cnds.collectivesim.table.Table;
+import edu.upc.cnds.collectivesim.table.TableException;
 
 /**
  * Represents a simulation experiment. Supports the execution of Models, and hosts
@@ -264,7 +271,7 @@ public class Experiment {
 	 * @param values
 	 * @param function
 	 */
-	public void addCalculatedValue(String name,String[]arguments,Function function){
+	public void addCalculatedValue(String name,String[]arguments,ValueFunction function){
 		StateValue[] values = new StateValue[arguments.length];
 		for(int i=0;i < values.length;i++){
 			values[i] = stateValues.get(arguments[i]);
@@ -301,7 +308,7 @@ public class Experiment {
 			throw new IllegalArgumentException("DataSeries " + name + " already exists");
 		}
 		
-		DataSeries dataseries = new MemoryDataSeries(name,size);
+		DataSeries dataseries = new BaseDataSeries(name,size);
 		series.put(name, dataseries);
 		
 		return dataseries;
@@ -343,7 +350,7 @@ public class Experiment {
 	 * @param result
 	 * @param frequency
 	 */
-	public void addDataSeriesObserver(String target, SeriesFunction function, String result,long delay,long frequency){
+	public void addDataSeriesObserver(String target, SeriesFunction function, String result,long frequency,long delay){
 		
 		DataSeries targetSeries = getDataSeries(target);
 
@@ -380,7 +387,7 @@ public class Experiment {
 	 * @param dataSeries
 	 * @param frequency
 	 */
-	public void addStateObserver(String name,String dataSeries,long delay,long frequency){
+	public void addStateObserver(String name,String dataSeries,long frequency,long delay){
 	
 		StateValue value = stateValues.get(name);
 		if(value == null){
