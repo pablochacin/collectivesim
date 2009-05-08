@@ -1,4 +1,6 @@
-package edu.upc.cnds.collectivesim.stream;
+package edu.upc.cnds.collectivesim.stream.base;
+
+import edu.upc.cnds.collectivesim.stream.Stream;
 
 
 /**

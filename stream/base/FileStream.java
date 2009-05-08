@@ -1,10 +1,12 @@
-package edu.upc.cnds.collectivesim.stream;
+package edu.upc.cnds.collectivesim.stream.base;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import edu.upc.cnds.collectives.util.ReflectionUtils;
+import edu.upc.cnds.collectivesim.stream.Stream;
+import edu.upc.cnds.collectivesim.stream.StreamException;
 
 /**
  * Reads  a series of objects from a file stream

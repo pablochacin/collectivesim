@@ -1,8 +1,9 @@
-package edu.upc.cnds.collectivesim.stream;
+package edu.upc.cnds.collectivesim.stream.base;
 
 import java.util.Random;
 
-import edu.upc.cnds.collectivesim.experiment.Table;
+import edu.upc.cnds.collectivesim.stream.Stream;
+import edu.upc.cnds.collectivesim.table.Table;
 
 /**
  * Generates a Stream of values by picking randomly elements from a table

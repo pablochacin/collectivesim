@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.stream;
+package edu.upc.cnds.collectivesim.stream.base;
 
 import cern.jet.random.AbstractDistribution;
 import cern.jet.random.Beta;
@@ -6,6 +6,7 @@ import cern.jet.random.Gamma;
 import cern.jet.random.Normal;
 import cern.jet.random.engine.DRand;
 import cern.jet.random.engine.MersenneTwister64;
+import edu.upc.cnds.collectivesim.stream.Stream;
 
 
 /**
