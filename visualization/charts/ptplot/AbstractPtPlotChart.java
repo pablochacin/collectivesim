@@ -16,7 +16,7 @@ import ptolemy.plot.PlotBox;
 import edu.upc.cnds.collectives.util.Parameter;
 import edu.upc.cnds.collectives.util.ParameterList;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
-import edu.upc.cnds.collectivesim.dataseries.baseImp.MemoryDataSeries;
+import edu.upc.cnds.collectivesim.dataseries.base.BaseDataSeries;
 import edu.upc.cnds.collectivesim.visualization.charts.Chart;
 import edu.upc.cnds.collectivesim.visualization.charts.UnsoportedChartProperty;
 
@@ -261,7 +261,7 @@ public abstract class AbstractPtPlotChart implements Chart {
 
 		Random rnd = new Random();
 		
-    	DataSeries series = new MemoryDataSeries("Test");
+    	DataSeries series = new BaseDataSeries("Test");
     	
     	for(int i = 0;i<10;i++){
     		series.addItem("value",new Double(rnd.nextDouble()));
