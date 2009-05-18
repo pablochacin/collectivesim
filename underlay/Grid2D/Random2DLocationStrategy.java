@@ -1,5 +1,7 @@
 package edu.upc.cnds.collectivesim.underlay.Grid2D;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 
@@ -19,31 +21,43 @@ public class Random2DLocationStrategy implements LocationStrategy{
      */
     private Random rand;
 
+    private List<Grid2DLocation>locations;
+    
+    private int sizeX,sizeY;
+    
     /**
      * Default Constructor
      */
-    public Random2DLocationStrategy(){
-        rand = new Random();
+    public Random2DLocationStrategy(int sizeX,int sizeY){
+    	this.sizeX = sizeX;
+    	this.sizeY = sizeY;
+        rand = new Random();        
+        locations = new ArrayList<Grid2DLocation>(sizeX*sizeY);
+        for(int x = 0;x<sizeX;x++){
+        	for(int y =0;y<sizeY;y++){
+        		locations.add(new Grid2DLocation(x,y));
+        	}
+        }
     }
     
+    /**
+     * Convenience constructor. Calculates the size of the grid to accomodate the nodes.
+     * 
+     * @param numNodes
+     */
+    public Random2DLocationStrategy(int numNodes){
+    	this((int)Math.ceil(Math.sqrt(numNodes)),(int)Math.ceil(Math.sqrt(numNodes)));
+    }
 
 	public Grid2DLocation getLocation(Grid2DModel grid) throws UnderlayModelException{
 		
-		//Attempts to retry if selected location is not free.
+		if(locations.isEmpty()){
+			throw new UnderlayModelException("Not available cell found");
+		}
 		
-		int attempts  = grid.getSizeX()*grid.getSizeY();
+		Grid2DLocation location = locations.remove(rand.nextInt(locations.size()));
 		
-        for(int i =0;i<attempts;i++){
-            int x = rand.nextInt(grid.getSizeX()-1);
-            int y = rand.nextInt(grid.getSizeY()-1);
-            
-            if(grid.isFree(x, y)){
-                return new Grid2DLocation(x,y);
-            }
-        }
-        
-        throw new UnderlayModelException("Not available cell found");
-
+		return location;
 	}
 
 

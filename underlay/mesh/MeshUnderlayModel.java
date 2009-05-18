@@ -9,10 +9,9 @@ import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.metrics.Metric;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.underlay.UnderlayException;
-import edu.upc.cnds.collectives.underlay.UnderlayMetricType;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
-import edu.upc.cnds.collectivesim.model.Stream;
+import edu.upc.cnds.collectivesim.stream.Stream;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 import edu.upc.cnds.collectivesim.underlay.Grid2D.UnderlayModelException;
 
@@ -39,20 +38,13 @@ public class MeshUnderlayModel extends UnderlayModel {
 	}
 
 
-	@Override
-	public UnderlayMetricType[] getSupportedMetrics() {
-		return new UnderlayMetricType[0];
-	}
 
 	@Override
 	public List<Node> resolve(InetAddress host) throws UnderlayException {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
-	public Metric[] probe(UnderlayNode source, UnderlayNode target,UnderlayMetricType[] metrics) {
-		throw new UnsupportedOperationException();
-	}
+
 
 	@Override
 	protected void generateNetworkTopology(List<? extends UnderlayNode> nodes)
@@ -66,6 +58,7 @@ public class MeshUnderlayModel extends UnderlayModel {
 	protected void terminate() {		
 		//Do nothing.
 	}
+
 
 
 }

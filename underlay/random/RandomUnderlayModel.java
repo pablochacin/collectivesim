@@ -10,13 +10,11 @@ import java.util.Vector;
 import Model.RouterWaxman;
 import Topology.Topology;
 import edu.upc.cnds.collectives.identifier.Identifier;
-import edu.upc.cnds.collectives.metrics.Metric;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.underlay.UnderlayException;
-import edu.upc.cnds.collectives.underlay.UnderlayMetricType;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
-import edu.upc.cnds.collectivesim.model.Stream;
+import edu.upc.cnds.collectivesim.stream.Stream;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 import edu.upc.cnds.collectivesim.underlay.Grid2D.UnderlayModelException;
 import graph.Graph;
@@ -150,18 +148,6 @@ public class RandomUnderlayModel extends UnderlayModel {
 	}
 
 
-	@Override
-	public Metric[] probe(UnderlayNode source, UnderlayNode target,
-			UnderlayMetricType[] metrics) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public UnderlayMetricType[] getSupportedMetrics() {
-		throw new UnsupportedOperationException();
-	}
 
 	@Override
 	public List<Node> resolve(InetAddress host) throws UnderlayException {
@@ -175,7 +161,7 @@ public class RandomUnderlayModel extends UnderlayModel {
        
         graph = networkTopology.getGraph();
         
-        
+      
         //assign underlay nodes to graph nodes
         graph.Node[] graphNodes = graph.getNodesArray();
         
@@ -206,6 +192,13 @@ public class RandomUnderlayModel extends UnderlayModel {
 		
 		//do nothing
 		
+	}
+
+
+
+	@Override
+	public String[] getSupportedMetrics() {
+		throw new UnsupportedOperationException();
 	}
 
 }

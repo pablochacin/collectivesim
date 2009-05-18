@@ -2,22 +2,20 @@ package edu.upc.cnds.collectivesim.underlay.Grid2D;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Logger;
 
 import uchicago.src.sim.space.Object2DGrid;
 import edu.upc.cnds.collectives.identifier.Identifier;
-import edu.upc.cnds.collectives.metrics.Metric;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.underlay.UnderlayException;
-import edu.upc.cnds.collectives.underlay.UnderlayMetricType;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
-import edu.upc.cnds.collectivesim.model.Stream;
-import edu.upc.cnds.collectivesim.scheduler.Scheduler;
+import edu.upc.cnds.collectivesim.stream.Stream;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
-import edu.upc.cnds.collectivesim.underlay.UnderlayModelNode;
 
 
 /**
@@ -30,10 +28,7 @@ import edu.upc.cnds.collectivesim.underlay.UnderlayModelNode;
  */
 public class Grid2DModel extends UnderlayModel{
 
-    /**
-     * Location strategies
-     */
-    static public LocationStrategy RANDOM = new Random2DLocationStrategy();
+
        
     
     private static Logger log = Logger.getLogger("collectivesim.underlay.Grid2D");
@@ -43,6 +38,9 @@ public class Grid2DModel extends UnderlayModel{
      */
     private Object2DGrid grid; 
     
+    
+    private Map<UnderlayNode,Grid2DLocation> locations;
+
     /**
      * Size of the space
      */
@@ -81,9 +79,22 @@ public class Grid2DModel extends UnderlayModel{
         //create the Repast's Object2Dgrid that supports this space
         grid = new Object2DGrid(sizeX,sizeY);
                       
+        locations = new HashMap<UnderlayNode,Grid2DLocation>();
      }
         
-    
+    /**
+     * Convenience constructor. Calculates the size of the grid to accomodate the nodes
+     * @param name
+     * @param experiment
+     * @param ids
+     * @param numNodes
+     * @param scope
+     * @param strategy
+     * @param attributes
+     */
+    public Grid2DModel(String name,Experiment experiment,Stream<Identifier>ids, int numNodes,int scope,LocationStrategy strategy,Stream ...attributes){
+    	 this(name,experiment,ids,numNodes,(int)Math.ceil(Math.sqrt(numNodes)),(int)Math.ceil(Math.sqrt(numNodes)),scope,strategy,attributes);
+    } 	
     public boolean isFree(int x, int y) {
 
         //check if the location is empty
@@ -102,31 +113,16 @@ public class Grid2DModel extends UnderlayModel{
 
 	@Override
 	public List<Node> getKnownNodes(UnderlayNode node) {
-    	Vector nodes = grid.getMooreNeighbors(((Grid2DUnderlayNode)node).getLocation().getCoordX(),
-    															   ((Grid2DUnderlayNode)node).getLocation().getCoordY(), false);
+		
+		Grid2DLocation location = locations.get(node);
+		
+    	Vector nodes = grid.getMooreNeighbors(location.getCoordX(),location.getCoordY(),false);
    	 
     	return (new ArrayList<Node>(nodes));
 	}
 
 
-	@Override
-	//TODO maybe makes more sense to populate the grid in the creteNetworkTopology method
-	//     but the node's constructor requires the location. Maybe put this  info in a 
-	//     Map<Identifier,Location> and populate it in that method (no need to extend UnderlayNode)
-	public UnderlayModelNode buildNode(Identifier id) throws UnderlayModelException {
-	    	
-		Grid2DLocation location;
 
-			location = locationStrategy.getLocation(this);
-			Grid2DUnderlayNode node = new Grid2DUnderlayNode(id,null,location,this);
-			
-	   		grid.putObjectAt(location.getCoordX(),location.getCoordY(), node);
-		    		
-	   		super.addNode(node);
-	   		
-	   		return node;	  	
-
-	}
 
 
 	@Override
@@ -136,13 +132,7 @@ public class Grid2DModel extends UnderlayModel{
 
 
 	@Override
-	public Metric[] probe(UnderlayNode source, UnderlayNode target,	UnderlayMetricType[] metrics) {
-		throw new UnsupportedOperationException();
-	}
-
-
-	@Override
-	public UnderlayMetricType[] getSupportedMetrics() {
+	public String[] getSupportedMetrics() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -150,8 +140,20 @@ public class Grid2DModel extends UnderlayModel{
 	@Override
 	protected void generateNetworkTopology(List<? extends UnderlayNode> nodes)
 			throws UnderlayModelException {
-	
-		//There is no need to do anything, as the topology is created as the nodes are added
+		
+		for(UnderlayNode n: nodes){
+			Grid2DLocation location = locationStrategy.getLocation(this);
+			
+			double positionX = (double)location.getCoordX()/(double)sizeX;
+			double positionY = (double)location.getCoordY()/(double)sizeY;
+		
+			n.getAttributes().put("positionX", positionX);
+			n.getAttributes().put("positionY", positionY);
+		
+			grid.putObjectAt(location.getCoordX(),location.getCoordY(), n);
+			locations.put(n,location);
+	    		   		
+		}
 	}
 
 
