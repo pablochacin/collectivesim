@@ -85,12 +85,18 @@ public abstract class AbstractModel implements Model{
 	private List<ModelAction>actions;
 	
 	/**
+	 * Stream of attributes used to initialize agents
+	 */
+	protected Stream[] attributeStreams;
+	
+	/**
 	 * Constructor
 	 * @param name 
 	 */
-	public AbstractModel(String name, Experiment experiment){
+	public AbstractModel(String name, Experiment experiment,Stream...attributeStreams){
 		this.experiment = experiment;
 		this.name = name;
+		this.attributeStreams = attributeStreams;
 		this.scheduler = experiment.getScheduler();
 		this.agents = new ArrayList<ModelAgent>();
 		this.agentMap = new HashMap<String,ModelAgent>();
@@ -104,6 +110,19 @@ public abstract class AbstractModel implements Model{
 		return  experiment;
 	}
 
+	
+	/**
+	 * Builds a Map of attributes that can be passed to agent constructors
+	 * @return
+	 */
+	protected Map getAttributes(){
+		Map attributes = new HashMap();
+		for(Stream s: attributeStreams){
+			attributes.put(s.getName(),s.getValue());
+		}
+		
+		return attributes;
+	}
 	
 	@Override
 	public String getName(){
@@ -266,6 +285,9 @@ public abstract class AbstractModel implements Model{
 		 addAgent(new ReflexionModelAgent(target));
 	 }
 
+	 protected final void addAgent(String name,Object target){
+		 addAgent(new ReflexionModelAgent(name,target));
+	 }
 	 
 	 public ModelAgent getAgent(String name){
 		 return agentMap.get(name);
@@ -319,5 +341,7 @@ public abstract class AbstractModel implements Model{
 	 * It is not called before the first execution.
 	 * @throws ModelException
 	 */
-	protected abstract void terminate();
+	protected void terminate(){
+		return;
+	}
 }
