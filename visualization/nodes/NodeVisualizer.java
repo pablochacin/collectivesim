@@ -22,7 +22,7 @@ import edu.upc.cnds.collectives.util.FormattingUtils;
 public class NodeVisualizer implements EventObserver {
 
 
-	private final static Logger logger = Logger.getLogger("collectives.visualizer");
+	private final static Logger logger = Logger.getLogger("collectivesim.visualizer");
 
 
 

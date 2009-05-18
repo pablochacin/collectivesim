@@ -22,6 +22,8 @@ import edu.uci.ics.jung.graph.decorators.ConstantVertexPaintFunction;
 import edu.uci.ics.jung.graph.decorators.ConstantVertexSizeFunction;
 import edu.uci.ics.jung.graph.decorators.EllipseVertexShapeFunction;
 import edu.uci.ics.jung.graph.decorators.ToolTipFunction;
+import edu.uci.ics.jung.graph.decorators.VertexColorFunction;
+import edu.uci.ics.jung.graph.decorators.VertexPaintFunction;
 import edu.uci.ics.jung.graph.decorators.VertexStringer;
 import edu.uci.ics.jung.graph.impl.DirectedSparseEdge;
 import edu.uci.ics.jung.graph.impl.DirectedSparseGraph;
@@ -136,7 +138,7 @@ public class JungNodeView implements NodeView {
 	 * @param space
 	 * @param labelNodes indicates if nodes must be labled with its ID
 	 */
-	public JungNodeView(String name,String tooltip, String label, int sizeX, int sizeY,VertexLocationFunction locationFunction,boolean labelNodes) {
+	public JungNodeView(String name,String tooltip, String label, int sizeX, int sizeY,VertexLocationFunction locationFunction,VertexPaintFunction colorFunction, boolean labelNodes) {
 		
 		this.name = name;
 		this.tooltip = tooltip;
@@ -155,8 +157,9 @@ public class JungNodeView implements NodeView {
 		((Layout) layout).initialize(new Dimension(sizeX,sizeY));
 		
 		PluggableRenderer pr = new PluggableRenderer();
+		pr.setVertexPaintFunction(colorFunction);
 		pr.setEdgePaintFunction(new  ConstantEdgePaintFunction(Color.lightGray, null));
-		pr.setVertexPaintFunction(new ColorScaleVertexPaintFunction(Color.black,"utility",0.0,1.0));	
+		//pr.setVertexPaintFunction(new ColorScaleVertexPaintFunction(Color.black,"utility",0.0,1.0));	
 		//pr.setVertexPaintFunction(new ConstantVertexPaintFunction(Color.black,Color.lightGray));
 		//pr.setVertexPaintFunction(new DiscreteColorScaleVertexPaintFunction(Color.black,"utility",0.0,1.0,5));
 		
@@ -181,7 +184,7 @@ public class JungNodeView implements NodeView {
 	 * @param space
 	 */
 	public JungNodeView(String name,int sizeX,int sizeY,VertexLocationFunction locationFunction) {
-		this(name,null,null,sizeX,sizeY,locationFunction,false);
+		this(name,null,null,sizeX,sizeY,locationFunction,new ConstantVertexPaintFunction(Color.lightGray, null),false);
 	}
 
 	
