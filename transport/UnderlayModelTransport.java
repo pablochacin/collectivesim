@@ -61,7 +61,7 @@ public class UnderlayModelTransport extends DynamicProxyTransport {
 	protected void invoke(Node target, Protocol protocol,Method method, Object[] args) throws Throwable {
 		
 		 // get the destination Node
-		 UnderlayModelNode targetNode = (UnderlayModelNode)underlay.getAgent(target.getId().toString());
+		 UnderlayModelNode targetNode = (UnderlayModelNode)underlay.getNode(target.getId());
 				 		 
 		 if(deliveryFails(node, targetNode)){
 			notifyUndeliverable(node, targetNode, protocol.getName(), new Exception("Delivery failed")); 
@@ -69,6 +69,7 @@ public class UnderlayModelTransport extends DynamicProxyTransport {
 		 else{
 			 Long delay = getDelay(node,targetNode);
 			 node.sendTransportMessage(targetNode,delay,protocol.getName(),method.getName(),args);
+			 //targetNode.handleTransportMessage(this.node, protocol.getName(), method.getName(), args);
 
 		 }
 		 
