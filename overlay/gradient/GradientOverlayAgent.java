@@ -50,14 +50,12 @@ public class GradientOverlayAgent extends OverlayAgent {
 	}
 
 	
-	public List<Node>getPeers(){
-		List<Node> peers = new ArrayList<Node>(overlay.getNodes());
-		return peers;
-		
-	}
+
+	
 	public void updateOverlay(){
 
 		overlay.update();
+
 		
 		/*overlay.getTopology().update();
 		
@@ -95,6 +93,7 @@ public class GradientOverlayAgent extends OverlayAgent {
 	 */
 	public void updateUtility(Double variation){
 		
+		
 		Double utility = (Double)overlay.getLocalNode().getAttributes().get("utility");
 				
 		if((utility == 1) && (variation > 0))
@@ -130,7 +129,10 @@ public class GradientOverlayAgent extends OverlayAgent {
 		Double utility = (Double)overlay.getLocalNode().getAttributes().get("utility");
 		Double gradient = 0.0;
 		for(Node n: overlay.getNodes()){
-			Double otherUtility = (Double)n.getAttributes().get("utility");
+			//get the actual utility of the node,not the local value 
+			GradientOverlayAgent agent = (GradientOverlayAgent)model.getAgent(n.getId().toString());
+			
+			Double otherUtility = (Double)agent.getUtility();
 			Double difference = + Math.abs(utility-otherUtility);
 			gradient += difference;
 		}
@@ -140,4 +142,13 @@ public class GradientOverlayAgent extends OverlayAgent {
 
 	}
 
+	
+	
+	
+	
+	public List<Node>getPeers(){
+		List<Node> peers = new ArrayList<Node>(overlay.getNodes());
+		return peers;
+		
+	}
 }

@@ -1,10 +1,12 @@
 package edu.upc.cnds.collectivesim.overlay.gradient;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.node.NodeSelector;
+import edu.upc.cnds.collectives.node.base.BasicNode;
 import edu.upc.cnds.collectives.node.base.NodeAttributeComparator;
 import edu.upc.cnds.collectives.node.base.OrderedSelector;
 import edu.upc.cnds.collectives.node.base.RandomSelector;
@@ -35,10 +37,15 @@ import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
  * @author Pablo Chacin
  *
  */
-public class GradientTopologyModel extends OverlayModel{
+public class GradientOverlayModel extends OverlayModel{
 
 			
 	protected int viewSize;
+	
+	/**
+	 * Fraction of neighbors to propagate the updates
+	 */
+	protected int fraction;
 	
 	/**
 	 * Constructor
@@ -48,9 +55,10 @@ public class GradientTopologyModel extends OverlayModel{
 	 * @param gradientTopologySize maximum size of the gradient Topology
 	 * @param randomTopologySize maximum size of the random topology
 	 */
-	public GradientTopologyModel(String name,Experiment experiment,UnderlayModel underlay, int viewSize) {
+	public GradientOverlayModel(String name,Experiment experiment,UnderlayModel underlay, int viewSize,int fraction) {
 		super(name,experiment,underlay);
 		this.viewSize =viewSize;
+		this.fraction = fraction;
 	}
 
 
@@ -74,7 +82,11 @@ public class GradientTopologyModel extends OverlayModel{
 		NodeSelector orderedSelector = new OrderedSelector(new NodeAttributeComparator("utility",new GradientComparator(node)));
 	
 		//use known nodes from underly as seeds
-		List<Node>seeds = node.getKnownNodes();
+		List<Node>seeds = new ArrayList<Node>();
+		for(Node n : node.getKnownNodes()){
+			seeds.add(n.getReference());
+			
+		}
 		
 		//create a basic topology 
 		Topology topology = new BasicTopology(node,seeds,orderedSelector,viewSize,false);
@@ -84,7 +96,7 @@ public class GradientTopologyModel extends OverlayModel{
 		RoutingAlgorithm greedyKey = new GreedyRoutingAlgorithm(topology,new DummyMatch(1.0));
 		Routing utilityRouter = new GenericRouter("utility",topology, new DummyMatch(0.0),greedyKey,node.getTransport());
 		
-		RoutingAlgorithm epidemic = new EpidemicRoutingAlgorithm(topology,new DummyMatch(1.0),new RandomSelector(),1);
+		RoutingAlgorithm epidemic = new EpidemicRoutingAlgorithm(topology,new DummyMatch(1.0),new RandomSelector(),fraction);
 		
 		Routing epidemicRouter = new GenericRouter("epidemic",topology,new DummyMatch(1.0),epidemic,node.getTransport());
 		
