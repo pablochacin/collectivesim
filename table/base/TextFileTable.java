@@ -19,9 +19,13 @@ import edu.upc.cnds.collectivesim.table.TableException;
  */
 public class TextFileTable<T> extends MemoryTable<T> {
 
+	private static String DEFAULT_DELIMITER = ",";
+	
 	private BufferedReader reader;
 	
 	private String file;
+	
+	private String delimiter;
 	
 	private Class type;
 	
@@ -29,6 +33,12 @@ public class TextFileTable<T> extends MemoryTable<T> {
 		super(name);
 		this.file = file;
 		this.type = type;
+		this.delimiter = delimiter;
+	}
+
+	
+	public TextFileTable(String name,String file,Class type) {
+		this(name,file,DEFAULT_DELIMITER,type);
 	}
 
 	@Override
@@ -44,7 +54,7 @@ public class TextFileTable<T> extends MemoryTable<T> {
 					continue;
 				}
 				
-				parseValues(values,"",type);
+				parseValues(values,delimiter,type);
 				values = reader.readLine();
 			}
 		} catch (Exception e) {
