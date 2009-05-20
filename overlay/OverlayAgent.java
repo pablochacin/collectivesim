@@ -26,47 +26,42 @@ import edu.upc.cnds.collectivesim.state.Counter;
 public class OverlayAgent extends CompositeReflexionModelAgent implements TopologyObserver, RouteObserver {
 	
 	protected static Logger log = Logger.getLogger("colectivesim.topology");
-	
-	protected Overlay overlay;
-	
+		
 	protected OverlayModel model;
 	
 
-	
-
+	protected Topology topology;
+		
+	protected Routing router;
 	
 	/**
 	 * 
 	 * @param model
 	 * @param overlay
 	 */
-	public OverlayAgent(OverlayModel model,Overlay overlay){
+	public OverlayAgent(OverlayModel model,Topology topology,Routing router){
 		
-		super(overlay.getLocalNode().getId().toString(),overlay);
+		super(topology.getLocalNode().getId().toString(),topology,router);
 		
 		this.model = model;
-		this.overlay = overlay;
-		this.overlay.getTopology().addObserver(this);
-		this.overlay.getTopology().update();
-		this.overlay.addRouteObserver(this);
+		this.topology = topology;
+		this.router = router;
+		this.topology.addObserver(this);
+		this.router.addRouteObserver(this);
 
 		
 	}
 	
-	
-	public void updateOverlay(){
-		overlay.update();
-	}
-	
+		
 	@Override
 	public void join(Node node) {
-		model.nodeJoin(overlay.getLocalNode(),node);
+		model.nodeJoin(topology.getLocalNode(),node);
 		
 	}
 
 	@Override
 	public void leave(Node node) {
-		model.nodeLeave(overlay.getLocalNode(),node);
+		model.nodeLeave(topology.getLocalNode(),node);
 		
 	}
 	
@@ -117,12 +112,6 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	public void unreachable(Routing router, Destination destination,
 			Serializable... args) {
 		unreachable++;
-	}
-
-
-
-	public UnderlayNode getLocalNode() {
-		return this.overlay.getLocalNode();
 	}
 
 
