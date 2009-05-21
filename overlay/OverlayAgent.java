@@ -12,7 +12,7 @@ import edu.upc.cnds.collectives.routing.RoutingException;
 import edu.upc.cnds.collectives.routing.RoutingHandler;
 import edu.upc.cnds.collectives.routing.base.Route;
 import edu.upc.cnds.collectives.topology.Topology;
-import edu.upc.cnds.collectives.topology.TopologyObserver;
+import edu.upc.cnds.collectives.topology.ViewObserver;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.model.base.CompositeReflexionModelAgent;
 import edu.upc.cnds.collectivesim.state.Counter;
@@ -23,31 +23,28 @@ import edu.upc.cnds.collectivesim.state.Counter;
  * @author Pablo Chacin
  *
  */
-public class OverlayAgent extends CompositeReflexionModelAgent implements TopologyObserver, RouteObserver {
+public class OverlayAgent extends CompositeReflexionModelAgent implements ViewObserver, RouteObserver {
 	
 	protected static Logger log = Logger.getLogger("colectivesim.topology");
 		
 	protected OverlayModel model;
 	
-
-	protected Topology topology;
+	protected Overlay overlay;
 		
-	protected Routing router;
 	
 	/**
 	 * 
 	 * @param model
 	 * @param overlay
 	 */
-	public OverlayAgent(OverlayModel model,Topology topology,Routing router){
+	public OverlayAgent(OverlayModel model,Overlay overlay){
 		
-		super(topology.getLocalNode().getId().toString(),topology,router);
+		super(overlay.getLocalNode().getId().toString(),overlay);
 		
 		this.model = model;
-		this.topology = topology;
-		this.router = router;
-		this.topology.addObserver(this);
-		this.router.addRouteObserver(this);
+		this.overlay = overlay;
+		this.overlay.addViewObserver(this);
+		this.overlay.addRouteObserver(this);
 
 		
 	}
@@ -55,13 +52,13 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 		
 	@Override
 	public void join(Node node) {
-		model.nodeJoin(topology.getLocalNode(),node);
+		model.nodeJoin(overlay.getLocalNode(),node);
 		
 	}
 
 	@Override
 	public void leave(Node node) {
-		model.nodeLeave(topology.getLocalNode(),node);
+		model.nodeLeave(overlay.getLocalNode(),node);
 		
 	}
 	
@@ -77,6 +74,7 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 			Route route, Serializable... args) {
 		
 		routed++;
+		
 	}
 
 
