@@ -43,85 +43,53 @@ import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
  * @author Pablo Chacin
  *
  */
-public class StatisticalSummary extends AbstractFunction {
-
-	/**
-	 * Sum of values
-	 */
-	private Double sumX;
-	
-	/**
-	 * Sum of square of values, used to calculate the stdev
-	 */
-	private Double sumX2;
-	
-	/**
-	 * Number of items processed
-	 */
-	private Double count;
-	
-	/**
-	 * Minimum value encountered
-	 */
-	private Double min;
-	
-	/**
-	 * Maximum value encountered
-	 */
-	private Double max;
-	
+public abstract class AbstractFunction implements SeriesFunction {
 
 	
-	public StatisticalSummary(String attribute){
-		super(attribute);
+	/**
+	 * Name of the attributed used to calculate statistics
+	 */
+	protected String attribute;
+	
+	public AbstractFunction(String attribute){
+		this.attribute = attribute;
 	}
 	
-
-	protected boolean processItem(DataItem item){
-		Double value = item.getDouble(attribute);
-		count++;		
-		sumX += value;
-		sumX2 += value*value;
-		min = Math.min(min, value);
-		max = Math.max(max, value);
+	public void apply(DataSeries series,DataSeries result) {
 		
-		return true;	
-	}
-	
-	protected void getResult(DataSeries result) {
-
-		if(count == 0){
-			return;
+		reset();
+		
+		DataSequence sequence = series.getSequence();
+		
+		while(sequence.hasItems()){
+			if(!processItem(sequence.getItem())){
+				break;
+			}
 		}
 		
-		Double avg = sumX/count;
-		Double stdev = Math.sqrt((sumX2/count)-(avg*avg));
-		Double stderr = stdev/Math.sqrt(count);
-		
-		Map<String,Object>attributes = new HashMap<String,Object>();
-		attributes.put("count", new Double(count));
-		attributes.put("avg", avg);
-		attributes.put("stdev", stdev);
-		attributes.put("min", min);
-		attributes.put("max", max);
-		attributes.put("errorlow", Math.max(min, avg-stdev));
-		attributes.put("errorhigh", Math.min(max, avg+stdev));
-		attributes.put("stderr", stderr);
-
-		
-		
-		result.addItem(attributes);
+		getResult(result);
 	}
 
 	/**
-	 * Resets the function
+	 * Resets the function, reading it for a calculation
 	 */
-	protected void reset() {
-		sumX = 0.0;
-		sumX2 = 0.0;
-		min = Double.MAX_VALUE;
-		max = Double.MIN_VALUE;
-		count = 0.0;
-	}
+	protected abstract void reset();
+
+	/**
+	 * Process an item form the DataSeries.
+	 * 
+	 * @param item
+	 * 
+	 * @return true if the process must continue, false otherwise.
+	 */
+	protected abstract boolean processItem(DataItem item);
+	
+	
+	/**
+	 * 
+	 * @param result
+	 */
+	protected abstract void getResult(DataSeries result);
+
 
 }

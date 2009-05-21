@@ -94,13 +94,21 @@ public class BaseDataItem implements DataItem {
 		try{
 			return Double.valueOf(attributes.get(name).toString());
 		}
-		catch(NumberFormatException e){
+		catch(Exception e){
 				return Double.NaN;
 		}
 	}
 	
 	public String getString(String name){
-		return attributes.get(name).toString();
+		
+		Object value = attributes.get(name);
+		
+		if (value == null){
+			return "";
+		}
+		else{
+			return value.toString();
+		}
 	}
 	
 	
