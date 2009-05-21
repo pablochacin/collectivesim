@@ -2,7 +2,7 @@ package edu.upc.cnds.collectivesim.identifier;
 
 import edu.upc.cnds.collectives.identifier.IdSpace;
 import edu.upc.cnds.collectives.identifier.Identifier;
-import edu.upc.cnds.collectivesim.model.Stream;
+import edu.upc.cnds.collectivesim.stream.Stream;
 
 /**
  * Generates a random stream of Identifiers from an IdSpace.
