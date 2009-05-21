@@ -1,6 +1,11 @@
 package edu.upc.cnds.collectivesim.stream.base;
 
+import java.util.Date;
 import java.util.Random;
+
+import cern.jet.random.Empirical;
+import cern.jet.random.EmpiricalWalker;
+import cern.jet.random.engine.MersenneTwister64;
 
 import edu.upc.cnds.collectivesim.stream.Stream;
 import edu.upc.cnds.collectivesim.table.Table;
@@ -17,14 +22,24 @@ public class RandomTableStream<T> implements Stream<T> {
 
 	private String name;
 	
-	private Table<T>table;
+	private Table<T>values;
 	
-	private Random rand;
+	private Table<Double>distribution;
 	
-	public RandomTableStream(String name,Table<T> table) {
+	private EmpiricalWalker rand;
+	
+	public RandomTableStream(String name,Table<T> values,Table<Double>distribution) {
 		this.name = name;
-		this.table= table;
-		this.rand = new Random();
+		this.values= values;
+		this.distribution = distribution;
+		
+		double[] histogram = new double[distribution.getNumValues()];
+		for(int i=0;i<histogram.length;i++){
+			histogram[i] = distribution.getElement(i);
+		}
+		
+		this.rand = new EmpiricalWalker(histogram,Empirical.LINEAR_INTERPOLATION, new MersenneTwister64(new Date(System.currentTimeMillis())));
+
 	}
 
 
@@ -38,7 +53,7 @@ public class RandomTableStream<T> implements Stream<T> {
 
 	@Override
 	public T getValue() {
-	 return table.getElement(rand.nextInt(table.getNumValues()));
+	 return values.getElement(rand.nextInt());
 	}
 
 
@@ -55,6 +70,7 @@ public class RandomTableStream<T> implements Stream<T> {
 	}
 	
 	public String toString(){
-		return "Table " + table.getName();
+		return "Table Stream values " + values.toString() + 
+		       " distribution " + distribution.toString();
 	}
 }
