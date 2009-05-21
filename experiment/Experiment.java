@@ -223,7 +223,11 @@ public class Experiment {
 	 * @return a Stream with the given name or null, if none exists
 	 */
 	public Stream getStream(String name){
-		return streams.get(name);
+		Stream stream = streams.get(name);
+		if(stream == null)
+			throw new IllegalArgumentException("Stream not found " + name);
+		
+		return  stream;
 	}
 
 	/**
