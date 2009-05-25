@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.model.AgentSampler;
 import edu.upc.cnds.collectivesim.model.Model;
@@ -69,7 +70,8 @@ public class ObserverVisitor extends AgentVisitor{
 				agentAttributes.put(attribute,agent.getAttribute(attribute));
 				
 			} catch (ModelException e) {
-				log.warning("Attribute [" + attribute + "] not accessible to observer " + name);
+				log.warning("Exception accessing attribute [" + attribute + "] from observer" + name + 
+						    "\n" + FormattingUtils.getStackTrace(e));
 				this.pause();
 				return false;
 			}
