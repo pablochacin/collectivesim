@@ -25,13 +25,13 @@ public class FunctionCalculatorSeriesObserver implements DataSeriesObserver {
 	/**
 	 * Values calculated with the SeriesFunction
 	 */
-	private DataSeries calculatedValues;
+	private DataSeries result;
 
 
-	public FunctionCalculatorSeriesObserver(DataSeries dataseries, DataSeries calculatedValues,SeriesFunction function){
+	public FunctionCalculatorSeriesObserver(DataSeries dataseries, DataSeries result,SeriesFunction function){
 		this.dataseries = dataseries;
 		this.function = function;			
-		this.calculatedValues = calculatedValues;
+		this.result = result;
 
 		this.dataseries.addObserver(this);
 
@@ -47,11 +47,11 @@ public class FunctionCalculatorSeriesObserver implements DataSeriesObserver {
 		boolean continueVisit = true;
 		int i = dataseries.getSize()-1;
 		while( (i >= 0) && continueVisit) {
-			continueVisit = function.calculate(dataseries.getItem(i));
+			continueVisit = function.processItem(dataseries.getItem(i));
 			i--;
 		}
 
-		calculatedValues.addItem(function.getResult());
+		function.calculate(result);
 	}					
 
 
