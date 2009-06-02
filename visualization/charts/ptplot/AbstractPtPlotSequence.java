@@ -26,8 +26,13 @@ import edu.upc.cnds.collectivesim.visualization.charts.UnsoportedChartProperty;
 		/**
 		 * Attribute used in this sequence
 		 */
-		protected String attribute;
-				
+		protected String valueAttribute;
+		
+		/**
+		 * Indicates the position of the item in the plot
+		 */
+		protected String sequenceAttribute;
+		
 		/**
 		 * Number used in the Plot to identify this sequence
 		 */
@@ -42,10 +47,11 @@ import edu.upc.cnds.collectivesim.visualization.charts.UnsoportedChartProperty;
 		
 
 							
-		public AbstractPtPlotSequence(AbstractPtPlotChart chart,String name, DataSeries series, String attribute, int sequenceNumber) throws UnsoportedChartProperty {
+		public AbstractPtPlotSequence(AbstractPtPlotChart chart,String name, DataSeries series, String sequenceAttribute,String valueAttribute,int sequenceNumber) throws UnsoportedChartProperty {
 			this.chart = chart;
 			this.series = series;
-			this.attribute = attribute;
+			this.valueAttribute = valueAttribute;
+			this.sequenceAttribute = sequenceAttribute;
 			this.sequenceNumber = sequenceNumber; 
 		}
 

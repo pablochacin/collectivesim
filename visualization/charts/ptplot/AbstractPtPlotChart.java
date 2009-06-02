@@ -167,12 +167,12 @@ public abstract class AbstractPtPlotChart implements Chart {
 	}
 
 
-	
-	public void addSequence(String name,DataSeries series,String attribute,Map properties) throws UnsoportedChartProperty  {
+	@Override
+	public void addSequence(String name,DataSeries series,String sequenceAttribute,String valueAttribute,Map properties) throws UnsoportedChartProperty  {
 		
 		int seqNum = sequences.size()+1;
 		
-		PtPlotSequence sequence = createSequence(this,name,series,attribute,seqNum);
+		PtPlotSequence sequence = createSequence(this,name,series,sequenceAttribute,valueAttribute,seqNum);
 		
 		//Set the properties for this sequence
 		sequence.setSequenceProperties(ptplotBox, seqNum, properties);
@@ -198,11 +198,12 @@ public abstract class AbstractPtPlotChart implements Chart {
 	 * @return
 	 * @throws UnsoportedChartProperty
 	 */
-	protected abstract PtPlotSequence createSequence(AbstractPtPlotChart plot,String name,DataSeries series,String attribute,int seqNum) throws UnsoportedChartProperty;
+	protected abstract PtPlotSequence createSequence(AbstractPtPlotChart plot,String name,DataSeries series,
+			                             String sequenceAttribute,String valueAttribute,int seqNum) throws UnsoportedChartProperty;
 	
 	
-	public void addSequence(String name,DataSeries series,String attribute) throws UnsoportedChartProperty  {
-		addSequence(name,series, attribute,new HashMap());
+	public void addSequence(String name,DataSeries series,String sequenceAttribute,String valueAttribute) throws UnsoportedChartProperty  {
+		addSequence(name,series, sequenceAttribute,valueAttribute,new HashMap());
 	}
 
 	public void setProperties(Map properties) throws UnsoportedChartProperty {
@@ -267,7 +268,7 @@ public abstract class AbstractPtPlotChart implements Chart {
     		series.addItem("value",new Double(rnd.nextDouble()));
     	}
     	
-		addSequence("Test", series,"value");
+		addSequence("Test", series,"sequence","value");
 	}
 
 

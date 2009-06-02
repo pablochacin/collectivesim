@@ -69,8 +69,8 @@ public class PtPlotLinePlot extends AbstractPtPlotChart {
 		protected boolean withErrors;
 		
 		public PtPlotLineSequence(AbstractPtPlotChart chart, Plot ptplot, String name,
-				DataSeries series, String attribute,int sequenceNumber) 	throws UnsoportedChartProperty {
-			super(chart, name, series, attribute,sequenceNumber);
+				DataSeries series, String sequenceAttribute,String valueAttribute,int sequenceNumber) 	throws UnsoportedChartProperty {
+			super(chart, name, series, sequenceAttribute,valueAttribute,sequenceNumber);
 			
 			this.ptplot = ptplot;
 			this.ptplot.addLegend(sequenceNumber, name);
@@ -79,14 +79,18 @@ public class PtPlotLinePlot extends AbstractPtPlotChart {
 
 		@Override
 		protected void addPoint(DataItem item) {
-			double value = item.getDouble(attribute);
+			
+			itemNum++;
+			
+			Double sequence = item.getDouble(sequenceAttribute);
+			double value = item.getDouble(valueAttribute);
 			if(withErrors){
 				double errorHigh = item.getDouble(errorHighAttribute);
 				double errorLow = item.getDouble(errorLowAttribute);				
-				ptplot.addPointWithErrorBars(sequenceNumber,++itemNum,value,errorLow,errorHigh,true);				
+				ptplot.addPointWithErrorBars(sequenceNumber,sequence,value,errorLow,errorHigh,true);				
 			}
 			else{
-				ptplot.addPoint(sequenceNumber,++itemNum,value,true);
+				ptplot.addPoint(sequenceNumber,sequence,value,true);
 			}
 			
 		}
@@ -180,9 +184,9 @@ public class PtPlotLinePlot extends AbstractPtPlotChart {
 
 	@Override
 	protected PtPlotSequence createSequence(AbstractPtPlotChart chart, String name, DataSeries series, 
-			String attribute,int seqNum) throws UnsoportedChartProperty {
+			String sequenceAttribute,String valueAttribute,int seqNum) throws UnsoportedChartProperty {
 		
-			return new PtPlotLineSequence(chart, ptplot, name, series,attribute,seqNum);
+			return new PtPlotLineSequence(chart, ptplot, name, series,sequenceAttribute,valueAttribute,seqNum);
 		
 	}
 
@@ -199,6 +203,7 @@ public class PtPlotLinePlot extends AbstractPtPlotChart {
 		//TODO: optimize by checking if the chart needs refresh
 		return true;
 	}
+
 
 
 	

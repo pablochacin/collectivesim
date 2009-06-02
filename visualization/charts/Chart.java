@@ -45,7 +45,7 @@ public interface Chart extends View{
 	 * @param properties map of properties
 	 * 
 	 */
-	public void addSequence(String name,DataSeries series,String attibute,Map properties) throws UnsoportedChartProperty;
+	public void addSequence(String name,DataSeries series,String sequenceAttribute,String valueAttribute,Map properties) throws UnsoportedChartProperty;
 
 	/**
 	 * Adds a sequence to to the Plot using plot's default properties
@@ -53,7 +53,7 @@ public interface Chart extends View{
 	 * @param series DataSeries of values to plot
 	 * @param attribute a String with the name of the attribute
 	 */
-	public void addSequence(String name,DataSeries series,String attribute) throws UnsoportedChartProperty;
+	public void addSequence(String name,DataSeries series,String sequenceAttribute,String valueAttribute) throws UnsoportedChartProperty;
 
 	
 	/**
