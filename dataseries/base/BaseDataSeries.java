@@ -31,7 +31,7 @@ public class BaseDataSeries implements DataSeries {
 		
 		private Iterator<DataItem> iterator;
 
-		public DataItemsSequence(Vector<DataItem> items) {
+		public DataItemsSequence(Vector<BaseDataItem> items) {
 
 			this.items = new Vector<DataItem>(items.size());
 			this.items.addAll(items);
@@ -51,11 +51,12 @@ public class BaseDataSeries implements DataSeries {
 		public boolean hasItems() {
 			return iterator.hasNext();
 		}
-		
+
+
 	}
 
 	
-	private Vector<DataItem> dataItems;
+	private Vector<BaseDataItem> dataItems;
 
 	private String name;
 
@@ -75,7 +76,7 @@ public class BaseDataSeries implements DataSeries {
 	public BaseDataSeries(String name,int size) {
 		this.name = name;
 		this.maxSize = size;
-		this.dataItems = new Vector<DataItem>(maxSize>0?maxSize:DEFAULT_SIZE);
+		this.dataItems = new Vector<BaseDataItem>(maxSize>0?maxSize:DEFAULT_SIZE);
 		this.observers = new ArrayList<DataSeriesObserver>();
 		this.sequence =  0;
 	}
@@ -84,7 +85,11 @@ public class BaseDataSeries implements DataSeries {
 		this(name,0);
 	}
 	
-	public boolean addItem(DataItem item) {
+	public boolean addItem(DataItem item){
+		return addItem(item.getAttributes());
+	}
+	
+	protected boolean addItem(BaseDataItem item) {
 		
 		if((maxSize > 0) && (dataItems.size() == maxSize)) {
 			dataItems.remove(dataItems.firstElement());
@@ -100,22 +105,22 @@ public class BaseDataSeries implements DataSeries {
 	}
 
 	public boolean addItem(String attribute, Double value) {
-		return addItem(new BaseDataItem(this,++sequence,attribute,value));
+		return addItem(new BaseDataItem(++sequence,attribute,value));
 
 	}
 
 	public boolean addItem(String attribute, Boolean value) {
-		return addItem(new BaseDataItem(this,++sequence,attribute,value));
+		return addItem(new BaseDataItem(++sequence,attribute,value));
 
 	}
 	
 	public boolean addItem(String attribute, String value) {
-		return addItem(new BaseDataItem(this,++sequence,attribute,value));
+		return addItem(new BaseDataItem(++sequence,attribute,value));
 
 	}
 	public boolean addItem(Map attributes){
 		
-		return addItem(new BaseDataItem(this,++sequence,attributes));
+		return addItem(new BaseDataItem(++sequence,attributes));
 	}
 
 	public String getName() {
@@ -168,5 +173,22 @@ public class BaseDataSeries implements DataSeries {
 	}
 
 
+	/**
+	 * 
+	 * @param attribute a String with the name of the attribute to retrieve from all DataItems
+	 * 
+	 * @return all the values of the given attribute
+	 */
+	public Vector getValues(String attribute){
+		Vector values = new Vector(dataItems.size());
+		
+		for(BaseDataItem item: dataItems){
+			values.add(item.getAttributes().get(attribute));
+		}
+		
+		values.trimToSize();
+		
+		return values;
+	}
 	
 }

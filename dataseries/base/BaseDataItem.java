@@ -16,8 +16,6 @@ public class BaseDataItem implements DataItem {
 
 	private Map<String,Object> attributes;
 	
-	DataSeries dataSeries;
-	
 	private int sequence;
 		
 	/**
@@ -28,7 +26,7 @@ public class BaseDataItem implements DataItem {
 	 * @param sequence
 	 * @param attributes
 	 */
-	BaseDataItem(DataSeries series, int sequence, Map<String,Object> attributes) {
+	public BaseDataItem(int sequence, Map<String,Object> attributes) {
 		super();
 		this.sequence = sequence;
 		this.attributes = new HashMap<String,Object>();
@@ -52,8 +50,7 @@ public class BaseDataItem implements DataItem {
 	 * @param attribute
 	 * @param value
 	 */
-	BaseDataItem(DataSeries series,int sequence, String attribute, String value){
-		this.dataSeries = series;
+	public BaseDataItem(int sequence, String attribute, String value){
 		this.sequence = sequence;
 		this.attributes = new HashMap<String,Object>();
 		this.attributes.put(attribute, value);
@@ -69,8 +66,8 @@ public class BaseDataItem implements DataItem {
 	 * @param attribute
 	 * @param value
 	 */
-	BaseDataItem(DataSeries series, int sequence, String attribute, Double value) {
-		this(series,sequence,attribute,value.toString());
+	public BaseDataItem(int sequence, String attribute, Double value) {
+		this(sequence,attribute,value.toString());
 	}
 	
 	/**
@@ -82,10 +79,13 @@ public class BaseDataItem implements DataItem {
 	 * @param attribute
 	 * @param value
 	 */
-	BaseDataItem(DataSeries series,int sequence, String attribute, Boolean value){
-		this(series,sequence,attribute,value.toString());
+	public BaseDataItem(int sequence, String attribute, Boolean value){
+		this(sequence,attribute,value.toString());
 		
 	}
+	
+
+
 	public Map getAttributes() {
 		return new HashMap<String,Object>(attributes);
 	}
