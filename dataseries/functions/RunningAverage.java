@@ -5,7 +5,7 @@ import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
 
 
-public class RunningAverage extends AbstractFunction {
+public class RunningAverage extends AbstractIncrementalFunction {
 
 	/**
 	 * Number of items to consider to calculate the average

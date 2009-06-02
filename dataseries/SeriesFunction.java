@@ -9,12 +9,26 @@ package edu.upc.cnds.collectivesim.dataseries;
  */
 public interface SeriesFunction {
 	
-/**
- *  Produces one or more DataItems to the result DataSeries
- * @param series
- * @param result
- */
-	public void apply(DataSeries series, DataSeries result);
+
+	/**
+	 * Resets the function's internal values, if any.
+	 */
+	public void reset();
 	
+	/**
+	 * Applies the function to the item
+	 *  
+	 * @param item a DataItem
+	 * @return true if the function will continue over remaining values.
+	 * 
+	 */
+	public boolean processItem(DataItem item);
 	
+	/**
+	 * Calculates the function's result and produces one or more
+	 * DataItems in the result DataSeries
+	 * 
+	 * @param result
+	 */
+	public void calculate(DataSeries result);
 }

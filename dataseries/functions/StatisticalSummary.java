@@ -43,7 +43,7 @@ import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
  * @author Pablo Chacin
  *
  */
-public class StatisticalSummary extends AbstractFunction {
+public class StatisticalSummary implements SeriesFunction {
 
 	/**
 	 * Sum of values
@@ -70,14 +70,15 @@ public class StatisticalSummary extends AbstractFunction {
 	 */
 	private Double max;
 	
+	protected String attribute;
 
 	
 	public StatisticalSummary(String attribute){
-		super(attribute);
+		this.attribute =attribute;
 	}
 	
 
-	protected boolean processItem(DataItem item){
+	public boolean processItem(DataItem item){
 		Double value = item.getDouble(attribute);
 		count++;		
 		sumX += value;
@@ -88,7 +89,7 @@ public class StatisticalSummary extends AbstractFunction {
 		return true;	
 	}
 	
-	protected void getResult(DataSeries result) {
+	public void calculate(DataSeries result) {
 
 		if(count == 0){
 			return;
@@ -116,7 +117,7 @@ public class StatisticalSummary extends AbstractFunction {
 	/**
 	 * Resets the function
 	 */
-	protected void reset() {
+	public void reset() {
 		sumX = 0.0;
 		sumX2 = 0.0;
 		min = Double.MAX_VALUE;

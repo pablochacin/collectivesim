@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
+import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.AgentSampler;
 import edu.upc.cnds.collectivesim.model.Model;
@@ -201,6 +202,24 @@ public abstract class AbstractModel implements Model{
 	
 		String[] attributes = {attribute};
 		addObserver(name,sampler, attributes,values,reset,frequency,delay);
+	}
+	
+	public final void addObserver(String name, AgentSampler sampler,String[] attributes,DataSeries values,SeriesFunction function,boolean reset,long frequency,long delay) {
+		//the sampler is optional, if none specified, use a dummy one, 
+		//to assure there is always one
+		if(sampler == null){
+			sampler = new DummySampler();
+		}
+		
+		ObserverVisitor visitor = new CalculatingObserverVisitor(this,name,sampler,attributes,values,function,reset,0,new FixedValueStream<Long>("",frequency),delay,0);
+		
+		observers.put(name,visitor);
+		actions.add(visitor);
+	}
+	
+	public final void addObserver(String name, AgentSampler sampler,String attribute,DataSeries values,SeriesFunction function, boolean reset,long frequency,long delay) {
+		String[] attributes = {attribute};
+		addObserver(name,sampler, attributes,values,function,reset,frequency,delay);
 	}
 	
 	/* (non-Javadoc)

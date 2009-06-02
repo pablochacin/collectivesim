@@ -29,7 +29,7 @@ public class ObserverVisitor extends AgentVisitor{
 	 */
 	String[] attributes;
 
-	private DataSeries values;
+	protected DataSeries values;
 
 	private boolean reset;
 	
@@ -77,10 +77,21 @@ public class ObserverVisitor extends AgentVisitor{
 			}
 		}
 		
-		values.addItem(agentAttributes);
+				
+		return processAttributes(agentAttributes);
 		
-		return true;
+		
 
 	}
 
+	/**
+	 * 
+	 * @param attributes
+	 */
+	protected boolean processAttributes(Map agentAttributes){
+
+		values.addItem(agentAttributes);
+
+		return true;
+	}
 }
