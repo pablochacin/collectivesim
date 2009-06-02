@@ -133,7 +133,7 @@ public class SeriesHistogram implements SeriesFunction {
 	@Override
 	public boolean processItem(DataItem item) {
 
-		count++;
+
 
 		Double value = item.getDouble(attribute);
 
@@ -144,6 +144,7 @@ public class SeriesHistogram implements SeriesFunction {
 			bins.add(new Bin(lower,higher,1.0));
 			min = lower;
 			max = higher;
+			count = 1.0;
 			offset = calculateOffet();
 			return true;
 		}
@@ -159,8 +160,8 @@ public class SeriesHistogram implements SeriesFunction {
 				while(bins.firstElement().lower > value){
 					Double higher = bins.firstElement().lower;
 					Double lower = higher - binWith;
-					bins.add(0, new Bin(lower,higher,count));        		
-					min = min - binWith;
+					bins.add(0, new Bin(lower,higher));        		
+					min = min - binWith;					
 
 				}
 
@@ -184,7 +185,7 @@ public class SeriesHistogram implements SeriesFunction {
 					while(bins.lastElement().higher < value){
 						Double lower = bins.lastElement().higher;
 						Double higher = lower + binWith;
-						bins.add(bins.size(), new Bin(lower,higher,count)); 
+						bins.add(bins.size(), new Bin(lower,higher)); 
 						max = max + binWith;
 					}
 					
@@ -203,7 +204,7 @@ public class SeriesHistogram implements SeriesFunction {
 		}
 
 		bins.get(bin).inc();
-
+		count++;
 		
 
 		return true;
@@ -217,13 +218,14 @@ public class SeriesHistogram implements SeriesFunction {
 	 * @return
 	 */
 	private int calculateOffet(){
-		return (int) (bins.size()-1-Math.floor(bins.lastElement().higher/binWith));
+		//return (int) (bins.size()-1-Math.floor(bins.lastElement().higher/binWith));
+		return (int)(-Math.floor(bins.firstElement().lower/binWith));
 	}
 	
 	@Override
 	public void calculate(DataSeries result) {
 
-
+				
 		for(Bin b: bins){		
 			Map binAttributes = new HashMap();
 			binAttributes.put("lower", b.lower);
@@ -233,6 +235,7 @@ public class SeriesHistogram implements SeriesFunction {
 			binAttributes.put("fraction",b.count/count);
 
 			result.addItem(binAttributes);
+			
 
 
 		}
@@ -260,7 +263,7 @@ public class SeriesHistogram implements SeriesFunction {
 
 		Table<Double> ditribution = new MemoryTable<Double>("distribution","0.025;0.05;0.1;0.15;0.35;0.15;0.1;0.05;0.025",";",Double.class);
 
-		Stream<Double> valueStream = new EmpiricalRandomStream("values",-1.0,0.0,ditribution);
+		Stream<Double> valueStream = new EmpiricalRandomStream("values",-1.0,1.0,ditribution);
 
 		//SeriesFunction histogramFunc = new SeriesHistogram("value",0.0,1.0,10,false);
 		SeriesFunction histogramFunc = new SeriesHistogram("value",0.1);
@@ -268,7 +271,8 @@ public class SeriesHistogram implements SeriesFunction {
 		histogramFunc.reset();
 
 		for(int i=0;i<1000;i++){
-			histogramFunc.processItem(new BaseDataItem(i,"value",valueStream.getValue()));
+			DataItem item = new BaseDataItem(i,"value",valueStream.getValue());
+			histogramFunc.processItem(item);
 		}
 
 		histogramFunc.calculate(histogramSeries);
@@ -280,7 +284,7 @@ public class SeriesHistogram implements SeriesFunction {
 		ViewPanel panel = new ViewPanel(histogramPlot);
 
 
-		histogramPlot.addSequence("", histogramSeries, "middle","count");
+		histogramPlot.addSequence("", histogramSeries, "lower","count");
 
 		histogramPlot.refresh();
 	}
