@@ -1,6 +1,7 @@
 package edu.upc.cnds.collectivesim.dataseries;
 
 import java.util.Map;
+import java.util.Vector;
 
 /**
  * Maintains a series of DataItems. 
@@ -123,6 +124,12 @@ public interface DataSeries {
 	 */
 	public void removeObserver(DataSeriesObserver observer);
 	
-	
+	/**
+	 * 
+	 * @param attribute name of the attribute
+	 * 
+	 * @return a Vector with the values of the attribute for all DataItems
+	 */
+	public Vector getValues(String attribute);
 	
 }
