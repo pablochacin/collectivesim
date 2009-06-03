@@ -3,6 +3,7 @@ package edu.upc.cnds.collectivesim.model;
 import java.util.List;
 
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
+import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.stream.Stream;
@@ -101,7 +102,21 @@ public interface Model {
 	 */
 	public abstract void addObserver(String name,AgentSampler sampler,
 			                      String attribute, DataSeries values,boolean reset,long delay,long frequency);
-	
+
+	/**
+	 * 
+	 * @param name
+	 * @param sampler
+	 * @param attribute
+	 * @param values
+	 * @param function
+	 * @param reset
+	 * @param delay
+	 * @param frequency
+	 */
+	public abstract void addObserver(String name,AgentSampler sampler,
+            String attribute, DataSeries values,SeriesFunction function,boolean reset,long delay,long frequency);
+
 	/**
 	 * 
 	 * @return a list of the agents in the model
