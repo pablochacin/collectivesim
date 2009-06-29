@@ -7,6 +7,7 @@
 package edu.upc.cnds.collectivesim.scheduler.repast;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -45,9 +46,12 @@ public class RepastScheduler implements Scheduler {
 				//check for cancelled actions
 				//must be done here to avoid concurrent modification of
 				//the scheduler's action queue
-				for(BasicAction a: cancelQueue){
-					schedule.removeAction(a);
+				Iterator<BasicAction> iter = cancelQueue.iterator();
+				while(iter.hasNext()){
+					schedule.removeAction(iter.next());
+					iter.remove();
 				}
+				
 				if((endTime != 0) && (getTime() >= endTime)){
 					paused = true;
 				}
@@ -151,15 +155,15 @@ public class RepastScheduler implements Scheduler {
 
 	public synchronized ScheduledAction scheduleRepetitiveAction(Runnable target,int iterations,Stream<Long> frequency, long delay, long endTime) {
 
-		RepetitiveAction action = new RepetitiveAction(this,target,frequency,iterations, new Double(endTime));
-
-	
+		
 		double initTime = delay;
 		if(initTime == 0){
 			initTime = (double)frequency.getValue();
 		}
 	
 		nextTime = Math.min(nextTime, initTime);
+
+		RepetitiveAction action = new RepetitiveAction(this,target,initTime,frequency,iterations, new Double(endTime));
 		
 		schedule.scheduleActionAtInterval(initTime, action);
 
@@ -244,10 +248,42 @@ public class RepastScheduler implements Scheduler {
 		cancelQueue.add(action);
 	}
 
+	@Override
+	public long getEndTime() {
+		return endTime;
+	}
+
+	@Override
+	public void setTerminationTask(Runnable task) {
+		schedule.scheduleActionAtEnd(new SingleAction(this,task,endTime));
+		
+	}
 
 
-
-
+	public static void main(String[] args){
+		
+		RepastScheduler sch = new RepastScheduler();
+		
+		sch.scheduleAction(new Runnable(){
+			public void run(){
+				System.out.println("TASK");
+			}
+		}, 10);
+		
+		sch.scheduleAction(new Runnable(){
+			public void run(){
+				System.out.println("TASK");
+			}
+		}, 20);
+		
+		sch.setTerminationTask(new Runnable(){
+			public void run(){
+				System.out.println("END TASK");
+			}
+		});
+		
+		sch.start();
+	}
 }
 
 

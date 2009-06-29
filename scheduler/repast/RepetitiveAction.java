@@ -34,7 +34,7 @@ public class RepetitiveAction extends AbstractScheduledAction {
      * @param maxIterations maximum number of executions of the task
      * @param endTime time limit for execution of the task
 	 */
-	public RepetitiveAction(RepastScheduler scheduler,Runnable target,Stream<Long> frequency,long maxIterations,Double endTime) {
+	public RepetitiveAction(RepastScheduler scheduler,Runnable target,Double startTime,Stream<Long> frequency,long maxIterations,Double endTime) {
 		super(scheduler,target);
 		this.target = target;
         this.frequency = frequency;
@@ -43,7 +43,7 @@ public class RepetitiveAction extends AbstractScheduledAction {
         this.endTime = endTime;
 	   
    	 //calculate the interval until next execution
-   	 interval = (double)frequency.getValue();
+   	 interval = (double)startTime;
    	 
    	 //set interval time
    	 super.setIntervalTime(interval);
@@ -55,10 +55,10 @@ public class RepetitiveAction extends AbstractScheduledAction {
 	 * Convenience constructor without either iterations or time limits
 	 * @param schedule
 	 * @param target
-	 * @param distribution
+	 * @param frequency
 	 */
-	public RepetitiveAction(RepastScheduler schedule,Runnable target,Stream<Long> distribution) {
-		this(schedule,target,distribution,0,0.0);
+	public RepetitiveAction(RepastScheduler schedule,Runnable target,Double startTime,Stream<Long> frequency) {
+		this(schedule,target,startTime,frequency,0,0.0);
 	}
 	               
      
@@ -73,20 +73,23 @@ public class RepetitiveAction extends AbstractScheduledAction {
     	 target.run();
     	 
 
-    	 //calculate the interval until next execution
-    	 interval = (double)frequency.getValue();
-
     	 //check if must continue executin
     	 iterations++;
     	 if((maxIterations != 0) && (iterations == maxIterations)) {
     		 scheduler.cancelAction(this);
+    		 return;
     	 }
 
+    	 //calculate the interval until next execution
+    	 Double nextExectution = (double)frequency.getValue();
+
     	 //check if next invocation would pass execution limit
-    	 if((endTime != 0) && ((scheduler.getTime()+interval) >= endTime)){
+    	 if((endTime != 0) && ((scheduler.getTime()+nextExectution) >= endTime)){
     		 scheduler.cancelAction(this);
-    		 
+    		 return;
     	 }
+    	 
+    	 interval = nextExectution;
     	 
     	 //set interval time
     	 super.setIntervalTime(interval);

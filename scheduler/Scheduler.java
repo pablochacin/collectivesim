@@ -12,8 +12,13 @@ import edu.upc.cnds.collectivesim.stream.Stream;
  */
 public interface Scheduler {
 
-
-
+	/**
+	 * gets the finalization time
+	 * 
+	 * @return
+	 */
+	public long getEndTime();
+	
 	/**
 	 * Returns the current simulation time
 	 * 
@@ -83,4 +88,10 @@ public interface Scheduler {
 	 * @param speed
 	 */
 	public void setSpeed(long speed);
+	
+	/**
+	 * Sets a tasks to be executed when the scheduler finalizes
+	 * @param task
+	 */
+	public void setTerminationTask(Runnable task);
 }
