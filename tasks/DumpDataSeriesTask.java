@@ -25,7 +25,7 @@ public class DumpDataSeriesTask implements Runnable {
 	/**
 	 * Name of the data series
 	 */
-	protected String dataseries;
+	protected DataSeries dataseries;
 
 	/**
 	 * List of attributes to print in the output
@@ -51,7 +51,7 @@ public class DumpDataSeriesTask implements Runnable {
 	 * @param experiment
 	 * @param separator
 	 */
-	public DumpDataSeriesTask(Experiment experiment,String dataseries, String[] attributes,String separator) {
+	public DumpDataSeriesTask(Experiment experiment,DataSeries dataseries, String[] attributes,String separator) {
 		super();
 		this.dataseries = dataseries;
 		this.attributes = attributes;
@@ -66,7 +66,7 @@ public class DumpDataSeriesTask implements Runnable {
 	 * @param attributes
 	 * @param experiment
 	 */
-	public DumpDataSeriesTask(Experiment experiment,String dataseries, String[] attributes) {
+	public DumpDataSeriesTask(Experiment experiment,DataSeries dataseries, String[] attributes) {
 		this(experiment,dataseries,attributes,DEFAULT_SEPARATOR);
 	}
 
@@ -76,16 +76,15 @@ public class DumpDataSeriesTask implements Runnable {
 	 * @param dataseries
 	 * @param attributes
 	 */
-	public DumpDataSeriesTask(Experiment experiment,String dataseries, String attributes) {
+	public DumpDataSeriesTask(Experiment experiment,DataSeries dataseries, String attributes) {
 		this(experiment,dataseries,attributes.split(","),DEFAULT_SEPARATOR);
 	}
 
 	@Override
 	public void run() {
 
-		DataSeries series = experiment.getDataSeries(dataseries);
 
-		File outfile = new File(experiment.getWorkingDirectory(),dataseries+".txt");
+		File outfile = new File(experiment.getRootDirectory(),dataseries.getName()+".txt");
 		try {
 			PrintStream out = new PrintStream(new FileOutputStream(outfile));
 
@@ -98,14 +97,15 @@ public class DumpDataSeriesTask implements Runnable {
 			
 			out.println(header);
 			
-			DataSequence items = series.getSequence();
+			DataSequence items = dataseries.getSequence();
 			while(items.hasItems()){
 				DataItem item = items.getItem();
 				StringBuffer itemLine = new StringBuffer();
-				itemLine.append(item.getSequence());
-				for(String attribute: attributes){
+
+				itemLine.append(item.getString(attributes[0]));
+				for(int i = 1;i<attributes.length;i++){
 					itemLine.append(separator);
-					itemLine.append(item.getString(attribute));
+					itemLine.append(item.getString(attributes[i]));
 				}
 				out.println(itemLine);
 			}

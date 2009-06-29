@@ -10,7 +10,7 @@ import edu.upc.cnds.collectivesim.visualization.Viewer.EXPORT_FORMAT;
  * @author Pablo Chacin
  */
 
-public class SnapshoTask implements Runnable {
+public class SnapshotTask implements Runnable {
 
 	private View[] views;
 	
@@ -20,7 +20,7 @@ public class SnapshoTask implements Runnable {
 	
 	
 	
-	public SnapshoTask(Viewer viewer,String[] views, EXPORT_FORMAT format) {
+	public SnapshotTask(Viewer viewer,String[] views, EXPORT_FORMAT format) {
 		this.format = format;
 		this.viewer = viewer;
 		
