@@ -15,6 +15,8 @@ public class Counter implements StateValue {
 	
 	private String name;
 	
+	Counter parent;
+	
 	/**
 	 * Constructor with full attributes
 	 * @param attributes
@@ -25,6 +27,12 @@ public class Counter implements StateValue {
 		this.value = 0.0;
 	}
 
+	
+	private Counter(String name,Counter parent){
+		this.name = name;
+		this.value = 0.0;
+		this.parent = parent;
+	}
 
 	public Double getValue() {
 		return new Double(value);
@@ -34,11 +42,16 @@ public class Counter implements StateValue {
 		return name;
 	}
 	public synchronized void  increment(Double increment){
-		value=+ increment;
+		value += increment;
+		if(parent!= null){
+			parent.increment(increment);
+		}
 	}
 	
 	public synchronized void increment(){
-		value++;
+		
+		increment(1.0);
+
 	}
 	
 	/**
@@ -46,6 +59,10 @@ public class Counter implements StateValue {
 	 */
 	public void reset(){
 		value = 0.0;
+	}
+	
+	public Counter getChild(){
+		return new Counter(name,this);
 	}
 
 }
