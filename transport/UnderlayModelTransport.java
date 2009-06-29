@@ -1,5 +1,9 @@
 package edu.upc.cnds.collectivesim.transport;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 
 import edu.upc.cnds.collectives.node.Node;
@@ -43,7 +47,7 @@ public class UnderlayModelTransport extends DynamicProxyTransport {
 	 * @param args
 	 */
 	public void handleMessage(UnderlayModelNode source,String protocolName,String methodName,Object[] args) throws Exception{
-		
+				
 		Protocol protocol = getProtocol(protocolName);
 		if(protocol == null){
 			throw new Exception("Protocol not registered: ["+protocol +"]");
@@ -67,9 +71,11 @@ public class UnderlayModelTransport extends DynamicProxyTransport {
 			notifyUndeliverable(node, targetNode, protocol.getName(), new Exception("Delivery failed")); 
 		 }
 		 else{
-			 Long delay = getDelay(node,targetNode);
-			 node.sendTransportMessage(targetNode,delay,protocol.getName(),method.getName(),args);
-			 //targetNode.handleTransportMessage(this.node, protocol.getName(), method.getName(), args);
+			Long delay = getDelay(node,targetNode);
+	
+					 
+			 //node.sendTransportMessage(targetNode,delay,protocol.getName(),method.getName(),args);
+			 targetNode.handleTransportMessage(this.node, protocol.getName(), method.getName(), args);
 
 		 }
 		 
