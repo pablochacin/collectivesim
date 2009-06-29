@@ -3,8 +3,10 @@ package edu.upc.cnds.collectivesim.experiment;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 
@@ -80,6 +82,11 @@ public class Experiment {
 	
 	private Map<String,DataSeries>series;
 	
+	/**
+	 * DataSeries that shouldn't be reset between runs
+	 */
+	private Set<String> persistentDS;
+	
 	private Map<String,Table>tables;
 	
 	private List<EventObserver>observers;
@@ -112,7 +119,7 @@ public class Experiment {
 	 */
 	private List<Runnable>endRunTasks;
 	
-	
+		
 	/**
 	 * Tasks to be scheduled for each experiment run.
 	 */
@@ -121,6 +128,11 @@ public class Experiment {
 	
 	/**
 	 * Directory on which result or working files should be created
+	 */
+	private File rootDir;
+	
+	/**
+	 * working dir for each run. Same as workingDir is only one run
 	 */
 	private File workingDir;
 	
@@ -142,18 +154,20 @@ public class Experiment {
 	 */
 	private long runTime;
 	
+	private long runLength;
+	
 	/**
 	 * Number of runs for the experiment
 	 */
 	private int runs;
 	
-	public Experiment(String description,Scheduler scheduler,String rootDir, int runs,long endTime,boolean exitOnEnd){
+	public Experiment(String description,Scheduler scheduler,String rootDir, int runs,long runLenght,boolean exitOnEnd){
 		
 		this.log = Logger.getLogger("colectivesim.experiment");
 				
 		this.beginTime = System.currentTimeMillis();
 		this.endTime = 0;
-		
+		this.runLength = runLenght;
 		this.runs = runs;
 		
 		this.description = description;
@@ -163,6 +177,7 @@ public class Experiment {
 		this.counters = new HashMap<String, Counter>();		
 		this.tables = new HashMap<String, Table>();
 		this.series = new HashMap<String, DataSeries>();
+		this.persistentDS = new HashSet<String>();
 		this.streams = new HashMap<String, Stream>();
 		this.parameters = new TypedMap();
 		this.observers = new ArrayList<EventObserver>();
@@ -172,7 +187,7 @@ public class Experiment {
 		this.endRunTasks = new ArrayList<Runnable>();
 		this.scheduledTasks = new ArrayList<ExperimentTask>();
 
-		this.workingDir = FileUtils.createWorkingDirectory(rootDir);
+		this.rootDir = FileUtils.createWorkingDirectory(rootDir);
 		this.exitOnEnd = exitOnEnd;
 		
 		//If the experiment has an end time, schedule its termination
@@ -203,8 +218,16 @@ public class Experiment {
 		return runTime;
 	}
 	
+	public long getRunLength(){
+		return runLength;
+	}
+	
 	public String getDescription(){
 		return description;
+	}
+	
+	public String getRootDirectory(){
+		return rootDir.getAbsolutePath();
 	}
 	
 	public String getWorkingDirectory(){
@@ -218,6 +241,7 @@ public class Experiment {
 	public Long getRealTime(){
 		return System.currentTimeMillis();
 	}
+	
 	/**
 	 * @param name of the stream
 	 * @return a Stream with the given name or null, if none exists
@@ -278,7 +302,11 @@ public class Experiment {
 	public void addCalculatedValue(String name,String[]arguments,ValueFunction function){
 		StateValue[] values = new StateValue[arguments.length];
 		for(int i=0;i < values.length;i++){
-			values[i] = stateValues.get(arguments[i]);
+			StateValue value = stateValues.get(arguments[i]);
+			if(value == null){
+				throw new IllegalArgumentException("State Value "+ arguments[i]+ " not defined");
+			}
+			values[i] = value;
 		}
 		stateValues.put(name,new CalculatedValue(name,values,function));
 	}
@@ -306,7 +334,7 @@ public class Experiment {
 	 * @param size maximum size. When this size is reached, new items displace older one.
 	 * @return the newly created DataSeries
 	 */
-	public DataSeries addDataSeries(String name,int size){
+	public DataSeries addDataSeries(String name,int size,boolean persistent){
 		
 		if(series.containsKey(name)){
 			throw new IllegalArgumentException("DataSeries " + name + " already exists");
@@ -315,9 +343,16 @@ public class Experiment {
 		DataSeries dataseries = new BaseDataSeries(name,size);
 		series.put(name, dataseries);
 		
+		if(persistent){
+			persistentDS.add(name);
+		}
+		
 		return dataseries;
 	}
 		
+	public DataSeries addDataSeries(String name,int size){
+		return addDataSeries(name,size,false);
+	}
 
 	/**
 	 * Convenience method, assumes non persistent dataseries
@@ -360,7 +395,7 @@ public class Experiment {
 
 		DataSeries resultSeries = getDataSeries(result);
 		
-		DataSeriesObserverTask observer = new DataSeriesObserverTask(targetSeries,function,resultSeries);
+		DataSeriesObserverTask observer = new DataSeriesObserverTask(targetSeries,function,resultSeries,false,false);
 		
 		scheduledTasks.add(new ExperimentTask(scheduler, observer,delay,frequency));
 	}
@@ -379,9 +414,8 @@ public class Experiment {
 
 		DataSeries resultSeries = getDataSeries(result);
 		
-		DataSeriesObserverTask observer = new DataSeriesObserverTask(targetSeries,function,resultSeries);
+		DataSeriesObserverTask observer = new DataSeriesObserverTask(targetSeries,function,resultSeries,true,false);
 	
-		targetSeries.addObserver(observer);
 	}	
 	
 	/**
@@ -445,7 +479,22 @@ public class Experiment {
 	 */
 	private void startRun() throws ExperimentException{
 		
-						
+		//schedule the end of run task
+		//If the experiment has an end time, schedule its termination
+		if(runLength != 0){
+			
+			Runnable endTask = new Runnable(){
+				public void run(){
+					endRun();
+				}
+			};
+
+			scheduledTasks.add(new ExperimentTask(scheduler,endTask,runLength,0));
+		}
+		
+		workingDir = new File(rootDir.getAbsolutePath(),String.valueOf(runs));
+		workingDir.mkdir();
+		
 		//execute initiation tasks
 		for(Runnable r: beginRunTasks){
 			r.run();
@@ -476,7 +525,9 @@ public class Experiment {
 		
 		//reset non persistent DataSeries 
 		for(DataSeries d: series.values()){
-			d.reset();
+			if(!persistentDS.contains(d)){
+				d.reset();
+			}
 		}
 		
 		//reset Streams
@@ -664,7 +715,12 @@ public class Experiment {
 
 	
 	public Model getModel(String name){
-		return models.get(name);
+		Model model = models.get(name);
+		if(model == null){
+			throw new IllegalArgumentException("Model "+ name +" not registered in the experiment");
+		}
+		
+		return model;
 	}
 	
 	/**

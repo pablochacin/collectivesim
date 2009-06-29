@@ -1,6 +1,7 @@
 package edu.upc.cnds.collectivesim.experiment.base;
 
 import edu.upc.cnds.collectivesim.dataseries.DataItem;
+import edu.upc.cnds.collectivesim.dataseries.DataSequence;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.dataseries.DataSeriesObserver;
 import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
@@ -15,29 +16,56 @@ import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
  */
 public class DataSeriesObserverTask implements Runnable, DataSeriesObserver {
 
-	DataSeries targetSeries;
+	protected DataSeries targetSeries;
 	
-	SeriesFunction function;
+	protected SeriesFunction function;
 	
-	DataSeries resultSeries;
+	protected DataSeries resultSeries;
 	
+	/**
+	 * indicates if the new values must be appended to the result DataSeries (true)
+	 * or they will replace existing values (false)
+	 */
+	protected boolean append;
+	
+		
 	public DataSeriesObserverTask(DataSeries targetSeries, SeriesFunction function,
-			DataSeries resultSeries) {
+			DataSeries resultSeries,boolean autoUpdate,boolean append) {
 		
 			this.targetSeries = targetSeries;
 			this.function = function;
 			this.resultSeries = resultSeries;
+			this.append = append;
+			
+			if(autoUpdate){
+				function.reset();
+				targetSeries.addObserver(this);
+			}
+			
 		
 	}
 
 	@Override
 	public void run() {
-		function.apply(targetSeries, resultSeries);
+		if(!append){
+			resultSeries.reset();
+		}
+		
+		function.reset();
+		
+		DataSequence items = targetSeries.getSequence();
+		while(items.hasItems()){
+			function.processItem(items.getItem());
+		}
+		
+		function.calculate(resultSeries);
 	}
 
 	@Override
 	public void update(DataItem item) {
-		run();
+		function.processItem(item);
+		resultSeries.reset();
+		function.calculate(resultSeries);
 	}
 
 }
