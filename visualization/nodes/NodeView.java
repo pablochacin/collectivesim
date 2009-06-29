@@ -1,5 +1,7 @@
 package edu.upc.cnds.collectivesim.visualization.nodes;
 
+import java.io.OutputStream;
+
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectivesim.visualization.View;
 
@@ -77,4 +79,10 @@ public interface NodeView extends View {
 	 * @param id
 	 */
 	public void tagNode(Node node,String tag) throws NodeRenderingException;
+	
+	/**
+	 * Exports the view as a GraphML file
+	 * @param out
+	 */
+	public void exportView(OutputStream out);
 }
