@@ -50,7 +50,8 @@ public class Viewer {
 			
 			String fileName = panel.getView().getName() + counter + "." + format.name().toLowerCase();
 			
-			File snapshotFile = new File(snapshotDir,fileName);
+
+			File snapshotFile = new File(experiment.getWorkingDirectory(),fileName);
 
 			active = panel.takeSnapshot(format, snapshotFile);
 		}
@@ -63,12 +64,10 @@ public class Viewer {
 	
 	protected Experiment experiment;
 
-	protected File snapshotDir;
 	
 	public Viewer(Experiment experiment){
 		this.experiment = experiment;
 		this.views = new HashMap<String, ViewPanel>();
-		this.snapshotDir = new File(experiment.getWorkingDirectory());
 
 	}
 
@@ -126,7 +125,7 @@ public class Viewer {
 			throw new IllegalArgumentException("View " + view + " is not registered");
 		}
 		
-		File file = new File(snapshotDir,panel.getView().getName()+"."+format.toString().toLowerCase());
+		File file = new File(experiment.getWorkingDirectory(),panel.getView().getName()+"."+format.toString().toLowerCase());
 		
 		panel.takeSnapshot(format, file );
 	}

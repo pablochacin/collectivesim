@@ -31,7 +31,7 @@ public class PtPlotBarPlot extends AbstractPtPlotChart {
 	 * Size of the displayed sequence. If a non zero N value is given, only the N latest
 	 * values added to the plot are kept
 	 */
- 	protected static Parameter<Double> BAR_WIDTH= new Parameter<Double>("plot.bar.width",false,new Double(1.0));
+ 	protected static Parameter<Double> BAR_WIDTH= new Parameter<Double>("plot.bar.barwidth",false,new Double(1.0));
 
  	protected static Parameter<Double> BAR_OFFSET= new Parameter<Double>("plot.bar.offset",false,new Double(0.0));
  
@@ -91,23 +91,23 @@ public class PtPlotBarPlot extends AbstractPtPlotChart {
 	 * @param autoResize
 	 * @throws UnsoportedChartProperty
 	 */
-	public PtPlotBarPlot(String title,Map properties,boolean autoupdate,boolean autoclean,boolean autoResize) throws UnsoportedChartProperty {
+	public PtPlotBarPlot(String name,String title,Map properties,boolean autoupdate,boolean autoclean,boolean autoResize) throws UnsoportedChartProperty {
 
-		super(title,properties,autoupdate,autoclean,autoResize);
+		super(name,title,properties,autoupdate,autoclean,autoResize);
 				
 	}
 
-	public PtPlotBarPlot(String title,boolean autoupdate,boolean autoclean,boolean autoResize) throws UnsoportedChartProperty {
-		super(title,autoupdate,autoclean,autoResize);
+	public PtPlotBarPlot(String name,String title,boolean autoupdate,boolean autoclean,boolean autoResize) throws UnsoportedChartProperty {
+		super(name,title,autoupdate,autoclean,autoResize);
 	}
 	
 		
 	public PtPlotBarPlot() throws UnsoportedChartProperty {
-		this("",new HashMap(),false,false,true);
+		this("","",new HashMap(),false,false,true);
 	}
 
 	public PtPlotBarPlot(boolean autoupdate) throws UnsoportedChartProperty{
-		this("",new HashMap(),autoupdate,false,true);
+		this("","",new HashMap(),autoupdate,false,true);
 	}
 	
 

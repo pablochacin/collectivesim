@@ -133,23 +133,23 @@ public class PtPlotLinePlot extends AbstractPtPlotChart {
 	 * @param autoResize
 	 * @throws UnsoportedChartProperty
 	 */
-	public PtPlotLinePlot(String title,Map properties,boolean autoupdate,boolean autoclean,boolean autoResize) throws UnsoportedChartProperty {
+	public PtPlotLinePlot(String name,String title,Map properties,boolean autoupdate,boolean autoclean,boolean autoResize) throws UnsoportedChartProperty {
 
-		super(title,properties,autoupdate,autoclean,autoResize);
+		super(name,title,properties,autoupdate,autoclean,autoResize);
 				
 	}
 
-	public PtPlotLinePlot(String title,boolean autoupdate,boolean autoclean,boolean autoResize) throws UnsoportedChartProperty {
-		super(title,autoupdate,autoclean,autoResize);
+	public PtPlotLinePlot(String name,String title,boolean autoupdate,boolean autoclean,boolean autoResize) throws UnsoportedChartProperty {
+		super(name,title,autoupdate,autoclean,autoResize);
 	}
 	
 		
 	public PtPlotLinePlot() throws UnsoportedChartProperty {
-		this("",new HashMap(),false,false,true);
+		this("","",new HashMap(),false,false,true);
 	}
 
 	public PtPlotLinePlot(boolean autoupdate) throws UnsoportedChartProperty{
-		this("",new HashMap(),autoupdate,false,true);
+		this("","",new HashMap(),autoupdate,false,true);
 	}
 	
 

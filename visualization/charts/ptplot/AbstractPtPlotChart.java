@@ -86,7 +86,7 @@ public abstract class AbstractPtPlotChart implements Chart {
 	 * @param size
 	 * @throws UnsoportedChartProperty 
 	 */
-	protected AbstractPtPlotChart(String name,Map properties,boolean autoupdate, boolean autoclean,boolean autoResize) throws UnsoportedChartProperty {
+	protected AbstractPtPlotChart(String name,String title,Map properties,boolean autoupdate, boolean autoclean,boolean autoResize) throws UnsoportedChartProperty {
 		
 		this.name = name;
 		this.autoupdate = autoupdate;
@@ -95,12 +95,13 @@ public abstract class AbstractPtPlotChart implements Chart {
 		sequences = new ArrayList<PtPlotSequence>();
 		
 		this.ptplotBox = createPtPlotBox();	
+		this.ptplotBox.setTitle(title);
 		setProperties(properties);
 		
 	}
 
-	protected AbstractPtPlotChart(String name,boolean autoupdate, boolean autoclean,boolean autoResize) throws UnsoportedChartProperty {
-		this(name,EMPTY_PROPERTIES_MAP,autoupdate,autoclean,autoResize);
+	protected AbstractPtPlotChart(String name,String title,boolean autoupdate, boolean autoclean,boolean autoResize) throws UnsoportedChartProperty {
+		this(name,title,EMPTY_PROPERTIES_MAP,autoupdate,autoclean,autoResize);
 	}
 
 	/**
@@ -118,7 +119,7 @@ public abstract class AbstractPtPlotChart implements Chart {
 	 * @throws UnsoportedChartProperty
 	 */
 	public AbstractPtPlotChart() throws UnsoportedChartProperty {
-		this("",new HashMap(),false,false,true);
+		this("","",new HashMap(),false,false,true);
 	}
 
 	/**
@@ -128,7 +129,7 @@ public abstract class AbstractPtPlotChart implements Chart {
 	 * @throws UnsoportedChartProperty
 	 */
 	public AbstractPtPlotChart(boolean autoupdate) throws UnsoportedChartProperty{
-		this("",new HashMap(),autoupdate,false,true);
+		this("","",new HashMap(),autoupdate,false,true);
 	}
 	
 	
