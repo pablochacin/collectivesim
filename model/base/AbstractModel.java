@@ -204,14 +204,14 @@ public abstract class AbstractModel implements Model{
 		addObserver(name,sampler, attributes,values,reset,frequency,delay);
 	}
 	
-	public final void addObserver(String name, AgentSampler sampler,String[] attributes,DataSeries values,SeriesFunction function,boolean append,long frequency,long delay) {
+	public final void addObserver(String name, AgentSampler sampler,String[] attributes,DataSeries values,SeriesFunction function,boolean reset,long frequency,long delay) {
 		//the sampler is optional, if none specified, use a dummy one, 
 		//to assure there is always one
 		if(sampler == null){
 			sampler = new DummySampler();
 		}
 		
-		ObserverVisitor visitor = new CalculatingObserverVisitor(this,name,sampler,attributes,values,function,append,0,new FixedValueStream<Long>("",frequency),delay,0);
+		ObserverVisitor visitor = new CalculatingObserverVisitor(this,name,sampler,attributes,values,function,reset,0,new FixedValueStream<Long>("",frequency),delay,0);
 		
 		observers.put(name,visitor);
 		actions.add(visitor);

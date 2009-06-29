@@ -31,25 +31,26 @@ public class ObserverVisitor extends AgentVisitor{
 
 	protected DataSeries values;
 
-	private boolean append;
+	private boolean reset;
 	
 	Double max = Double.MIN_VALUE;
 
 	/**
 	 * Default constructor
 	 */
-	public ObserverVisitor(Model model,String name,AgentSampler sampler,String[] attributes,DataSeries values,boolean append,int iterations,Stream<Long> frequency, long delay, long endTime){
+	public ObserverVisitor(Model model,String name,AgentSampler sampler,String[] attributes,DataSeries values,boolean reset,int iterations,Stream<Long> frequency, long delay, long endTime){
 		super(model,name,sampler,true,iterations,frequency,delay,endTime);
 		this.attributes = attributes;
 		this.values = values;
-		this.append= append;
+		this.reset= reset;
 	}
 
 
 	protected void startVisit(){
-		if(!append){
+		if(reset){
 			values.reset();
 		}
+		
 		
 		
 	}
