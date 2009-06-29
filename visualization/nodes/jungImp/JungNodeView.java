@@ -4,11 +4,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import edu.uci.ics.jung.graph.ArchetypeVertex;
@@ -17,31 +17,22 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.Vertex;
 import edu.uci.ics.jung.graph.decorators.ConstantEdgePaintFunction;
 import edu.uci.ics.jung.graph.decorators.ConstantVertexAspectRatioFunction;
-import edu.uci.ics.jung.graph.decorators.ConstantVertexColorFunction;
 import edu.uci.ics.jung.graph.decorators.ConstantVertexPaintFunction;
 import edu.uci.ics.jung.graph.decorators.ConstantVertexSizeFunction;
 import edu.uci.ics.jung.graph.decorators.EllipseVertexShapeFunction;
 import edu.uci.ics.jung.graph.decorators.ToolTipFunction;
-import edu.uci.ics.jung.graph.decorators.VertexColorFunction;
 import edu.uci.ics.jung.graph.decorators.VertexPaintFunction;
 import edu.uci.ics.jung.graph.decorators.VertexStringer;
 import edu.uci.ics.jung.graph.impl.DirectedSparseEdge;
 import edu.uci.ics.jung.graph.impl.DirectedSparseGraph;
-import edu.uci.ics.jung.graph.impl.SparseVertex;
-import edu.uci.ics.jung.utils.UserData;
-import edu.uci.ics.jung.visualization.FRLayout;
+import edu.uci.ics.jung.io.GraphMLFile;
 import edu.uci.ics.jung.visualization.Layout;
 import edu.uci.ics.jung.visualization.LayoutMutable;
 import edu.uci.ics.jung.visualization.PluggableRenderer;
 import edu.uci.ics.jung.visualization.VertexLocationFunction;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.upc.cnds.collectives.identifier.IdSpace;
 import edu.upc.cnds.collectives.identifier.Identifier;
-import edu.upc.cnds.collectives.identifier.Imp.CircularIdSpace;
-import edu.upc.cnds.collectives.identifier.Imp.DirectedCircularIdSpace;
 import edu.upc.cnds.collectives.node.Node;
-import edu.upc.cnds.collectives.node.base.BasicNode;
-import edu.upc.cnds.collectivesim.visualization.Viewer;
 import edu.upc.cnds.collectivesim.visualization.nodes.NodeDrawer;
 import edu.upc.cnds.collectivesim.visualization.nodes.NodeRenderingException;
 import edu.upc.cnds.collectivesim.visualization.nodes.NodeView;
@@ -345,6 +336,16 @@ public class JungNodeView implements NodeView {
 	public void print(Graphics g) {
 
 		viewer.paint(g);
+		
+	}
+
+	@Override
+	public void exportView(OutputStream out) {
+		
+		GraphMLFile graphXml = new GraphMLFile();
+		
+		graphXml.save(graph, new PrintStream(out));
+		
 	}
 
 }
