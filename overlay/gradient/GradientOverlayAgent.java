@@ -1,7 +1,10 @@
 package edu.upc.cnds.collectivesim.overlay.gradient;
 
+import java.util.List;
+
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.overlay.Overlay;
+import edu.upc.cnds.collectives.overlay.gradient.GradientOverlay;
 import edu.upc.cnds.collectives.routing.Routing;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
@@ -16,7 +19,7 @@ import edu.upc.cnds.collectivesim.overlay.OverlayModel;
  */
 public class GradientOverlayAgent extends OverlayAgent  {
 
-
+	
 	protected Double utility;
 	
 	public GradientOverlayAgent(OverlayModel model, Overlay overlay,
@@ -25,6 +28,7 @@ public class GradientOverlayAgent extends OverlayAgent  {
 			super(model, overlay);
 			
 			setUtility(utility);
+			
 	}
 	
 	
@@ -35,9 +39,12 @@ public class GradientOverlayAgent extends OverlayAgent  {
 	 * @param utility Double with the new utility value
 	 */
 	public void setUtility(Double utility){
+		
+		
 		this.utility = utility;
 		
 		overlay.getLocalNode().getAttributes().put("utility", utility);
+		overlay.getLocalNode().touch(model.getCurrentTime());
 
 	}
 	
@@ -71,17 +78,17 @@ public class GradientOverlayAgent extends OverlayAgent  {
 	}
 
 	
-
+	
 	/**
 	 * 
 	 * @return the average of the (absolute) difference between the node's utility 
 	 *         and its peer's utility
 	 */
-	public Double getGradient(){
+	public Double getGradient(List<Node>neighbors){
 
 		
 		Double gradient = 0.0;
-		for(Node n: overlay.getNodes()){
+		for(Node n: neighbors){
 			//get the actual utility of the node,not the local value 
 			GradientOverlayAgent neighbor = (GradientOverlayAgent)model.getAgent(n.getId().toString());
 			
@@ -89,17 +96,29 @@ public class GradientOverlayAgent extends OverlayAgent  {
 			gradient += difference;
 		}
 				
-		return gradient/(double)overlay.getSize();
+		return gradient/(double)neighbors.size();
 
 	}
 
+	public Double getGradient(){
+		return getGradient(overlay.getTopology().getNodes());
+	}
 
+	
+	public Double getRandomGradient(){
+		List<Node> randomNeighbors = ((GradientOverlay)overlay).getRandomTopology().getNodes();
+		return  getGradient(randomNeighbors);
+	}
+	
 	public Double getUtility(){
 		return utility;
 	}
 
+	
+
+
 
 	
 	
-
+	
 }

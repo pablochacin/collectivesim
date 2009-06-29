@@ -1,10 +1,18 @@
 package edu.upc.cnds.collectivesim.overlay;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.util.List;
+
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.topology.TopologyEvent;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
+import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.base.AbstractModel;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
@@ -51,8 +59,9 @@ public abstract class OverlayModel extends AbstractModel  {
 	 * 
 	 * @param topology the local representation of the topology for the agent
 	 * @return
+	 * @throws ModelException 
 	 */
-	protected abstract OverlayAgent createAgent(UnderlayNode node);
+	protected abstract OverlayAgent createAgent(UnderlayNode node) throws ModelException;
 	
 		
 	/**
@@ -65,6 +74,10 @@ public abstract class OverlayModel extends AbstractModel  {
         Event event = new TopologyEvent(localNode,TopologyEvent.TOPOLOGY_JOIN,
         		                        getCurrentTime(),node);
         experiment.reportEvent(event);
+        
+        OverlayAgent agent = (OverlayAgent)getAgent(node.getId().toString());
+        
+        agent.incIndegree();
 	}
 
 	/**
@@ -78,6 +91,9 @@ public abstract class OverlayModel extends AbstractModel  {
         								getCurrentTime(),node);
         experiment.reportEvent(event);
 		
+        OverlayAgent agent = (OverlayAgent)getAgent(node.getId().toString());
+        
+        agent.decIndegree();
 	}
 	
     
