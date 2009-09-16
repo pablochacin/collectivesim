@@ -9,14 +9,11 @@ package edu.upc.cnds.collectivesim.scheduler.repast;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 import edu.upc.cnds.collectivesim.scheduler.ScheduledAction;
-import edu.upc.cnds.collectivesim.scheduler.Scheduler;
+import edu.upc.cnds.collectivesim.scheduler.base.AbstractScheduler;
 import edu.upc.cnds.collectivesim.stream.Stream;
 
 
@@ -26,54 +23,8 @@ import edu.upc.cnds.collectivesim.stream.Stream;
  * 
  * @author Pablo Chacin <br>
  */
-public class RepastScheduler implements Scheduler {
+public class RepastScheduler extends AbstractScheduler {
 
-	/**	
-	 * Thread that controls the execution of the actions 
-	 */
-	private class SimulationThread implements Runnable {
-
-
-
-		@SuppressWarnings("static-access")
-		public void run() {
-			while(true) {
-				//execute the update. Use the updateLock to wait 
-				//if the thread is paused
-				updateLock.lock();
-				schedule.execute();
-				
-				//check for cancelled actions
-				//must be done here to avoid concurrent modification of
-				//the scheduler's action queue
-				Iterator<BasicAction> iter = cancelQueue.iterator();
-				while(iter.hasNext()){
-					schedule.removeAction(iter.next());
-					iter.remove();
-				}
-				
-				if((endTime != 0) && (getTime() >= endTime)){
-					paused = true;
-				}
-							
-				
-				try {
-				
-					if(paused){
-						pausedCondition.await();
-					}
-
-					updateLock.unlock();
-
-					long delay = Math.max((long)(getNextTime()-schedule.getCurrentTime()),1);					
-					Thread.currentThread().sleep(delay*speed);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-	}
 
 	/**
 	 * Repast's model Simulation schedule, used to schedule actions.
@@ -81,63 +32,26 @@ public class RepastScheduler implements Scheduler {
 	 */
 	private Schedule schedule;
 
-	/**
-	 * Speed of the simulation clock
-	 */
-	private long speed;
-
-	private static long DEFAULT_SPEED = 1;
 
 	private double nextTime = 0;
 
-	private boolean paused;
-	
-	private long endTime;
-
-	/**
-	 * Lock used to control the execution of the update thread
-	 */
-	private Lock updateLock;
-	
-	private Condition pausedCondition;
 	
 	/**
 	 * List of actions pending for cancellation 
 	 */
 	private List<BasicAction> cancelQueue;
 
-	public RepastScheduler() {
-		this(DEFAULT_SPEED,0);
-	}
-
+	
 	public RepastScheduler(long speed,long endTime){
 
-		this.speed = speed;
-		this.paused = true;
-		this.endTime = endTime;
-		this.nextTime = 0;
-		this.updateLock = new ReentrantLock();
-		this.pausedCondition = updateLock.newCondition();
+		super(speed,endTime);
+		
 		this.schedule = new Schedule(1);
 		this.cancelQueue = new ArrayList<BasicAction>();
 		
-		//Start the thread that will control the execution of actions
-		new Thread(new SimulationThread()).start();
 	}
 
-	/**
-	 * Start dispatching events
-	 */
-	public void start(){
-		
-		resume();
-
-	}
 	
-	public RepastScheduler(long speed) {
-		this(speed,0);
-	}
-
 	/**
 	 * @see simrealms.models.Schedule#scheduleAction(simrealms.models.Action)
 	 */
@@ -183,18 +97,7 @@ public class RepastScheduler implements Scheduler {
 		return new Double(schedule.getCurrentTime()).longValue();
 	}
 
-	public void pause() {
-		updateLock.lock();
-		paused= true;
-		updateLock.unlock();
-	}
 
-	public void resume() {
-		updateLock.lock();
-		paused = false;
-		pausedCondition.signal();
-		updateLock.unlock();
-	}
 
 	/**
 	 * TODO: there is no way to stop the Repast scheduler!
@@ -202,26 +105,13 @@ public class RepastScheduler implements Scheduler {
 	 *       are no more pending actions in the queue? 
 	 */
 	public void reset() {
-		
-		//stop the dispatch thread
-		pause();	
-		
+				
 		//clear the queue of pending cancelled tasks
 		cancelQueue.clear();
 		
 		//Reset repast scheduler
 		//TODO: as the repast scheduler don't allow to reset, create a new one
 		schedule = new Schedule(1);
-	}
-
-
-	public long getSpeed() {
-		return speed;
-	}
-
-	public void setSpeed(long speed) {
-		this.speed = speed;
-
 	}
 
 
@@ -233,7 +123,7 @@ public class RepastScheduler implements Scheduler {
 	 * scheduler. Therefore, if first action in the queue is removed, the next one will be scheduled at
 	 * an improper time (the time the first one should be scheduled)
 	 */
-	private double getNextTime() {
+	protected double getNextTime() {
 		return nextTime;
 	}
 
@@ -248,21 +138,31 @@ public class RepastScheduler implements Scheduler {
 		cancelQueue.add(action);
 	}
 
-	@Override
-	public long getEndTime() {
-		return endTime;
-	}
 
 	@Override
 	public void setTerminationTask(Runnable task) {
-		schedule.scheduleActionAtEnd(new SingleAction(this,task,endTime));
+		throw new UnsupportedOperationException();
 		
 	}
 
 
+	protected void executeTasks(){
+		
+		schedule.execute();
+		
+		//check for cancelled actions
+		//must be done here to avoid concurrent modification of
+		//the scheduler's action queue
+		Iterator<BasicAction> iter = cancelQueue.iterator();
+		while(iter.hasNext()){
+			schedule.removeAction(iter.next());
+			iter.remove();
+		}
+	}
+	
 	public static void main(String[] args){
 		
-		RepastScheduler sch = new RepastScheduler();
+		RepastScheduler sch = new RepastScheduler(0,0);
 		
 		sch.scheduleAction(new Runnable(){
 			public void run(){

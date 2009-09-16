@@ -1,5 +1,7 @@
 package edu.upc.cnds.collectivesim.scheduler;
 
+import java.util.Enumeration;
+
 import edu.upc.cnds.collectivesim.stream.Stream;
 
 
@@ -26,42 +28,45 @@ public interface Scheduler {
 	 */
 	public abstract long getTime();
 
-	/**
-	 * Schedules the execution of the target's run method at after a certain delay.
-	 *
-	 * @param target an Runnable object on which the action will be executed
-	 * @param delay time between executions
-	 *
-	 */
-	 public ScheduledAction scheduleAction(Runnable target, long delay);
 	 
-
 	/**
-	 * Schedules a repetitive task until the given time. The last execution is guaratee to be not greater
-	 * that the given time.
+	 * Schedules a repetitive task at a varying frequency until the given time. 
+	 * The last execution is guarantee to be not greater that the given time.	 * 
+	 * @param target a Runnable to execute
+	 * @param iterations maximum number of executions
+	 * @param frequency an Enumeration with the frequency (execution interval)
+	 * @param delay the earlier time this action can be executed 
+	 * @param endTime the maximum time this action can be executed
+	 * @return
+	 */
+	public abstract ScheduledAction scheduleAction(Runnable target, int iterations,Enumeration<Long> frequency,long delay, long endTime);
+	
+	 
+	/**
+	 * Schedules a repetitive task at fixed frequency until the given time. 
+	 * The last execution is guarantee to be not greater that the given time.
 	 * 
 	 * @param target a Runnable to execute
 	 * @param iterations maximum number of executions
-	 * @param frequency a Stream with the inter-execution times
+	 * @param frequency an Enumeration with the frequency (execution interval)
 	 * @param delay the earlier time this action can be executed 
-	 * @param endTime the maximun time this action can be executed
+	 * @param endTime the maximum time this action can be executed
 	 * @return
 	 */
-	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, int iterations,Stream<Long> frequency,long delay, long endTime);
+	public abstract ScheduledAction scheduleAction(Runnable target, int iterations,Long frequency,long delay, long endTime);
 	
-	 
-	/** 
-	 * Convenience method. Schedules an action to be executed immediately with a certain frequency and
-	 * neither an end time nor a limit of executions.  
-	 * @param target
-	 * @param frequency
-	 */
-	public abstract ScheduledAction scheduleRepetitiveAction(Runnable target, Stream<Long> frequency);
-	
+
 	/**
-	 * Starts the scheduling of tasks
+	 * Starts the scheduling of tasks with an undefined duration
 	 */
 	public void start();
+	
+	/**
+	 * start scheduling tasks with a given maximum duration
+	 * 
+	 * @param endTime
+	 */
+	public void start(long endTime);
 	
 	/**
 	 * Stops the scheduling of actions. Pending actions remains in the execution queue.
@@ -80,6 +85,10 @@ public interface Scheduler {
 	public void resume();
 	
 
+	/**
+	 * 
+	 * @return the relative execution speed with respect of real time execution
+	 */
 	public long getSpeed();
 	
 	/**
@@ -93,5 +102,5 @@ public interface Scheduler {
 	 * Sets a tasks to be executed when the scheduler finalizes
 	 * @param task
 	 */
-	public void setTerminationTask(Runnable task);
+	public void setTerminationHandler(Runnable task);
 }

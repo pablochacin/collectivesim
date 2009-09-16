@@ -12,6 +12,10 @@ package edu.upc.cnds.collectivesim.scheduler;
  */
 public interface ScheduledAction {
 
+	/**
+	 * Cancel this action
+	 */
 	public void cancel();
+	
 
 }
