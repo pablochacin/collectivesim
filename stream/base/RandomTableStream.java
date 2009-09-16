@@ -52,12 +52,17 @@ public class RandomTableStream<T> implements Stream<T> {
 
 
 	@Override
-	public T getValue() {
+	public T nextElement() {
 	 return values.getElement(rand.nextInt());
 	}
 
 
 
+	@Override
+	public boolean hasMoreElements(){
+		return true;
+	}
+	
 	@Override
 	public void reset() {
 		//do nothing

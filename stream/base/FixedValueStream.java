@@ -26,7 +26,7 @@ public class FixedValueStream<T> implements Stream<T> {
 		return name;
 	}
 
-	public T getValue() {
+	public T nextElement() {
 	
 		return value;
 	}
@@ -46,5 +46,10 @@ public class FixedValueStream<T> implements Stream<T> {
 	
 	public String toString(){
 		return "Fixed value " + value.toString();
+	}
+	
+	@Override
+	public boolean hasMoreElements(){
+		return true;
 	}
 }

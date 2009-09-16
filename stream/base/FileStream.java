@@ -22,6 +22,7 @@ public class FileStream<T> implements Stream<T> {
 	
 	private String file;
 	
+	
 	/**
 	 * Constructor from the path to a file
 	 * 
@@ -49,7 +50,7 @@ public class FileStream<T> implements Stream<T> {
 	}
 
 	@Override
-	public T getValue() {
+	public T nextElement() {
 
 		try {
 			String value = input.readLine(); 
@@ -76,4 +77,11 @@ public class FileStream<T> implements Stream<T> {
 		return "File " + file;
 	}
 
+	public boolean hasMoreElements(){
+		try {
+			return (input.getFilePointer() < input.length());
+		} catch (IOException e) {
+			return false;
+		}
+	}
 }

@@ -51,10 +51,11 @@ public class EmpiricalRandomStream implements Stream<Double> {
 	}
 
 	@Override
-	public Double getValue() {		
+	public Double nextElement() {		
 		return min + (max-min)*rand.nextDouble();
 
 	}
+	
 
 	@Override
 	public void open() throws StreamException {
@@ -69,6 +70,12 @@ public class EmpiricalRandomStream implements Stream<Double> {
 	
 	public String toString(){
 		return "Empirical distribution " + distribution.toString() ;
+	}
+
+	@Override
+	public boolean hasMoreElements() {
+		// TODO Auto-generated method stub
+		return true;
 	}
 	
 	

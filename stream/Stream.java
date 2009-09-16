@@ -1,5 +1,7 @@
 package edu.upc.cnds.collectivesim.stream;
 
+import java.util.Enumeration;
+
 /**
  * A stream of values that can feed the simulation.
  * The objects can be obtained from any external source
@@ -8,7 +10,7 @@ package edu.upc.cnds.collectivesim.stream;
  * @author Pablo Chacin
  *
  */
-public interface Stream<T> {
+public interface Stream<T> extends Enumeration<T> {
 
 	/**
 	 * 
@@ -28,8 +30,15 @@ public interface Stream<T> {
 	 * 
 	 * @return
 	 */
-	public T getValue();
+	public T nextElement();
 	
+	
+	/**
+	 * Indicates if the Stream has more elements to be retrieved with the {@link #nextElement()} method
+	 * 
+	 * @return true if there are more elements, false otherwise
+	 */
+	public boolean hasMoreElements();
 	/**
 	 * Resets the stream. This is convenient to re-position file bases streams
 	 * or change the seed for random value streams.

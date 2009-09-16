@@ -32,7 +32,7 @@ public class RandomStream implements Stream<Double>{
 	}
 
 	@Override
-	public Double getValue() {
+	public Double nextElement() {
 		return distribution.nextDouble();
 	}
 
@@ -51,6 +51,11 @@ public class RandomStream implements Stream<Double>{
 		return "Random distribution class " + this.distribution.getClass().getName(); 
 	}
 	
+	@Override
+	public boolean hasMoreElements(){
+		return true;
+	}
+	
 	public static void main(String[] args){
 		double mean = 0.3;
 		double stdev = 0.1;
@@ -61,8 +66,10 @@ public class RandomStream implements Stream<Double>{
 		
 		Double value = 0.0;
 		for(int i = 0;i < 1000;i++){
-			value = stream.getValue();
+			value = stream.nextElement();
 			System.out.println(value);
 		}
 	}
+	
+	
 }
