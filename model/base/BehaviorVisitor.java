@@ -63,7 +63,7 @@ public class BehaviorVisitor extends AgentVisitor{
    
     	Object[] arguments = new Object[streams.length];
     	for(int i=0;i<arguments.length;i++) {
-    		arguments[i] = streams[i].getValue();
+    		arguments[i] = streams[i].nextElement();
     	}
     	
     	try {

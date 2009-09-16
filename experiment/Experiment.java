@@ -154,6 +154,9 @@ public class Experiment {
 	 */
 	private long runTime;
 	
+	/**
+	 * length of each run
+	 */
 	private long runLength;
 	
 	/**
@@ -415,7 +418,8 @@ public class Experiment {
 		DataSeries resultSeries = getDataSeries(result);
 		
 		DataSeriesObserverTask observer = new DataSeriesObserverTask(targetSeries,function,resultSeries,true,false);
-	
+
+		targetSeries.addObserver(observer);
 	}	
 	
 	/**
@@ -489,7 +493,8 @@ public class Experiment {
 				}
 			};
 
-			scheduledTasks.add(new ExperimentTask(scheduler,endTask,runLength,0));
+			//scheduledTasks.add(new ExperimentTask(scheduler,endTask,runLength,0));
+			scheduler.setTerminationHandler(endTask);
 		}
 		
 		workingDir = new File(rootDir.getAbsolutePath(),String.valueOf(runs));
@@ -506,7 +511,7 @@ public class Experiment {
 		}
 		
 		//initiate scheduling of tasks
-		scheduler.start();		
+		scheduler.start(runLength);		
 	}
 	
 

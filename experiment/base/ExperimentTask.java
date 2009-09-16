@@ -67,11 +67,6 @@ public class ExperimentTask {
 	 * Schedule the task in the associated scheduler.
 	 */
 	public void schedule(){
-		if(frequency == 0){
-			scheduler.scheduleAction(task, delay);
-		}
-		else{
-			scheduler.scheduleRepetitiveAction(task, 0, new FixedValueStream<Long>("",frequency), delay, 0);
-		}
+			scheduler.scheduleAction(task, 0, frequency, delay, 0);
 	}
 }

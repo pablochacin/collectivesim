@@ -119,7 +119,7 @@ public abstract class AbstractModel implements Model{
 	protected Map getAttributes(){
 		Map attributes = new HashMap();
 		for(Stream s: attributeStreams){
-			attributes.put(s.getName(),s.getValue());
+			attributes.put(s.getName(),s.nextElement());
 		}
 		
 		return attributes;
@@ -278,11 +278,11 @@ public abstract class AbstractModel implements Model{
 		 //       Behaviors will not start. Consider to add an abstract method to be
 		 //       extended by subclasses and call it from the abstract model's start method.
 		 for(BehaviorVisitor b: behaviors.values()){
-			 scheduler.scheduleRepetitiveAction((Runnable)b, b.getIterations(), b.getFrequency(), b.getDelay(), b.getEndTime());
+			 scheduler.scheduleAction((Runnable)b, b.getIterations(), b.getFrequency(), b.getDelay(), b.getEndTime());
 		 }
 		 
 		 for(ObserverVisitor o: observers.values()){
-			 scheduler.scheduleRepetitiveAction((Runnable)o, o.getIterations(), o.getFrequency(), o.getDelay(), o.getEndTime());
+			 scheduler.scheduleAction((Runnable)o, o.getIterations(), o.getFrequency(), o.getDelay(), o.getEndTime());
 		 }
 	 }
 
@@ -339,7 +339,7 @@ public abstract class AbstractModel implements Model{
 	 * 
 	 */
 	public final void scheduleEvent(ModelAgent agent,long delay,String method,Object ... args){
-		scheduler.scheduleAction(new ModelEvent(agent,method,args), delay);
+		scheduler.scheduleAction(new ModelEvent(agent,method,args), 0,(long)0,delay,(long)0);
 	}
 
 	public final void scheduleEvent(String name,long delay, String method,Object...args){
