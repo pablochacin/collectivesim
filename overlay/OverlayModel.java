@@ -1,11 +1,5 @@
 package edu.upc.cnds.collectivesim.overlay;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.util.List;
 
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.node.Node;

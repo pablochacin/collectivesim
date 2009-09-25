@@ -11,7 +11,9 @@ import java.util.logging.Logger;
 
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.node.Node;
+import edu.upc.cnds.collectives.node.base.NodeAttributeComparator;
 import edu.upc.cnds.collectives.overlay.Overlay;
+import edu.upc.cnds.collectives.overlay.epidemic.EpidemicOverlay;
 import edu.upc.cnds.collectives.routing.Destination;
 import edu.upc.cnds.collectives.routing.RouteObserver;
 import edu.upc.cnds.collectives.routing.Routing;
@@ -20,6 +22,7 @@ import edu.upc.cnds.collectives.routing.base.Route;
 import edu.upc.cnds.collectives.topology.ViewObserver;
 import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
+import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.base.CompositeReflexionModelAgent;
 import edu.upc.cnds.collectivesim.state.Counter;
 
@@ -31,7 +34,7 @@ import edu.upc.cnds.collectivesim.state.Counter;
  */
 public class OverlayAgent extends CompositeReflexionModelAgent implements ViewObserver, RouteObserver {
 	
-	protected static Logger log = Logger.getLogger("colectivesim.topology");
+	protected static Logger log = Logger.getLogger("colectivesim.overlay");
 		
 	protected OverlayModel model;
 	
@@ -91,15 +94,16 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements ViewOb
 	
 
 	@Override
-	public void forwarded(Routing router, Destination destination, Route route, Serializable... args) {
+	public void forwarded(Routing router, Destination destination, Route route, Serializable message) {
 		
 		forwarded.increment();
 		
+		//TODO: why this is done?
 		route.getLastHop().touch(model.getCurrentTime());
 	}
 
 	@Override
-	public void routed(Routing router, Destination destination,Route route, Serializable... args) {
+	public void routed(Routing router, Destination destination,Route route, Serializable message) {
 		
 		routed.increment();
 		
@@ -110,7 +114,7 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements ViewOb
 	
 
 	@Override
-	public void dropped(Routing router, Destination destination,Route route,Exception cause, Serializable... args) {
+	public void dropped(Routing router, Destination destination,Route route,Exception cause, Serializable message) {
 		
 		dropped.increment();
 				
@@ -120,7 +124,7 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements ViewOb
 
 
 	@Override
-	public void received(Routing router, Destination destination,Route route, Serializable... args) {
+	public void received(Routing router, Destination destination,Route route, Serializable message) {
 		
 		received.increment();
 		
@@ -128,14 +132,14 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements ViewOb
 
 
 	@Override
-	public void undeliverable(Routing router, Destination destination, Route route, Exception cause, Serializable... args) {
+	public void undeliverable(Routing router, Destination destination, Route route, Exception cause, Serializable message) {
 		
 		undeliverable.increment();
 	}
 
 
 	@Override
-	public void unreachable(Routing router, Destination destination, Route route,Serializable... args) {
+	public void unreachable(Routing router, Destination destination, Route route,Serializable message) {
 		unreachable.increment();
 	}
 
@@ -173,7 +177,7 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements ViewOb
 	
 	/**
 	 * 
-	 * @return the age of the elder node in the topology.
+	 * @return the age of the elder node in the node's local overlay view.
 	 */
 	public Double getAge(){
 	
@@ -194,20 +198,34 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements ViewOb
         double upper = ages.get(intPos);
         Double age = lower + dif* (upper - lower);
         
-        return age/10.0;
+        return age;
 	}
 
 
 	@Override
-	public void delivered(Routing router, Destination destination,Route route, Serializable... args) {
+	public boolean delivered(Routing router, Destination destination,Route route, Serializable message) {
 		
+		Double destUtil = (Double)destination.getAttributes().get("utility");
+		Double nodeUtil = (Double)overlay.getLocalNode().getAttributes().get("utility");
+		Double fitness = nodeUtil-destUtil;
+
 		
 		delivered.increment();
 		
 		Map attributes = new HashMap();
-		attributes.put("source", route.getSource().getId().toString());
-		attributes.put("target",route.getLastHop().getId().toString());
-		attributes.put("hops",route.getNumHops());
+
+		for(Map.Entry<String,Object> e: route.getSource().getAttributes().entrySet()){
+			attributes.put("source."+e.getKey().toString(), 
+					     e.getValue().toString());
+		}
+
+		for(Map.Entry<String,Object> e: route.getLastHop().getAttributes().entrySet()){
+			attributes.put("target."+e.getKey().toString(), 
+					     e.getValue().toString());
+		}
+
+		attributes.put("route.hops",route.getNumHops());
+		
 		for(Map.Entry< String, Object> e: destination.getAttributes().entrySet()){
 			attributes.put("destination."+e.getKey().toString(), 
 					     e.getValue().toString());
@@ -219,7 +237,7 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements ViewOb
 		model.getExperiment().reportEvent(event);
 
 
-		
+		return true;
 	}
 	
 	/**
@@ -301,6 +319,19 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements ViewOb
 	}
 	
 	
+	public void update() throws ModelException{
+		
+		//update the node's (last) touch time to the current model's time
+		//TODO: this is a hack. It is needed because the node can't access
+		//      the model's time. Look for a way to solve this!
+		overlay.getLocalNode().touch(model.getCurrentTime());
+		
+		((EpidemicOverlay)overlay).update();		
+		
+		
+	}
+
+		
 	void incIndegree(){
 		indegree++;
 	}
