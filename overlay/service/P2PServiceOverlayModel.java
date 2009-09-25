@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.overlay.gradient;
+package edu.upc.cnds.collectivesim.overlay.service;
 
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.routing.Routing;
@@ -6,17 +6,17 @@ import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
-import edu.upc.cnds.collectivesim.stream.Stream;
+import edu.upc.cnds.collectivesim.overlay.utility.UtilityOverlayModel;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 
 /**
  * 
- * Factory for GradientTopologyAgents that maintains a gradient topology.
- * 
+ * Factory of agents that are peers in a service overlay (can make and process requests) 
+ *  
  * @author Pablo Chacin
  *
  */
-public class GradientServiceRoutingModel extends GradientOverlayModel{
+public class P2PServiceOverlayModel extends UtilityOverlayModel{
 			
 	
 	protected Integer ttl;
@@ -33,7 +33,7 @@ public class GradientServiceRoutingModel extends GradientOverlayModel{
 	 * @param gradientTopologySize maximum size of the gradient Topology
 	 * @param randomTopologySize maximum size of the random topology
 	 */
-	public GradientServiceRoutingModel(String name,Experiment experiment,UnderlayModel underlay, 
+	public P2PServiceOverlayModel(String name,Experiment experiment,UnderlayModel underlay, 
 			                    Integer viewSize,Integer exchangeSet,long cycleLength,Double alpha,
 			                    Integer randomViewSize,Integer randomExchangeSet,Double tolerance,Integer ttl) {
 		
@@ -54,23 +54,12 @@ public class GradientServiceRoutingModel extends GradientOverlayModel{
 	 * @throws ModelException 
 	 */
 	protected OverlayAgent createAgent(Overlay overlay,Routing router,Topology randomTopology,Double utility) throws ModelException{
+				
 		
-		String role = (String)overlay.getLocalNode().getAttributes().get("role");
-		
-		
-		if(overlay.getLocalNode().getId().toString().equals("0000000000000000")){
-			role = "consumer";
-			overlay.getLocalNode().getAttributes().put("role","consumer");
-		}
-		
-		if(role.equals("provider"))
-			return new GradientOverlayServiceAgent(this,overlay, router, randomTopology, utility, role);
-		
-		if(role.equals("consumer"))
-		   return new GradientOverlayConsumerAgent(this,overlay,router,randomTopology,utility,role,tolerance,ttl);
-		
-		throw new ModelException("Unknown role " + role);
-		
+		 Double preference = (Double)overlay.getLocalNode().getAttributes().get("preference");
+			
+		 return new ServiceConsumerAgent(this,overlay,router,randomTopology,utility,"peer",tolerance,ttl,tolerance);
+				
 	}
 
 

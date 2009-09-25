@@ -1,11 +1,14 @@
-package edu.upc.cnds.collectivesim.overlay.gradient;
+package edu.upc.cnds.collectivesim.overlay.service;
 
+import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.routing.Routing;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
+import edu.upc.cnds.collectivesim.overlay.service.ServiceOverlayAgent;
+import edu.upc.cnds.collectivesim.overlay.utility.UtilityOverlayModel;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 
 /**
@@ -15,14 +18,13 @@ import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
  * @author Pablo Chacin
  *
  */
-public class GradientServiceOverlayModel extends GradientOverlayModel{
+public class ServiceOverlayModel extends UtilityOverlayModel{
 			
 	
 	protected Integer ttl;
 	
 	protected Double tolerance;
 	
-	protected UtilityFunction function;
 
 	
 	/**
@@ -33,15 +35,13 @@ public class GradientServiceOverlayModel extends GradientOverlayModel{
 	 * @param gradientTopologySize maximum size of the gradient Topology
 	 * @param randomTopologySize maximum size of the random topology
 	 */
-	public GradientServiceOverlayModel(String name,Experiment experiment,UnderlayModel underlay, 
+	public ServiceOverlayModel(String name,Experiment experiment,UnderlayModel underlay, 
 			                    Integer viewSize,Integer exchangeSet,long cycleLength,Double alpha,
-			                    Integer randomViewSize,Integer randomExchangeSet,Double tolerance,Integer ttl,
-			                    UtilityFunction function) {
+			                    Integer randomViewSize,Integer randomExchangeSet,Double tolerance,Integer ttl) {
 		
 		super(name,experiment,underlay,viewSize,exchangeSet,cycleLength,alpha,randomViewSize,randomExchangeSet);
 		this.tolerance = tolerance;
 		this.ttl = ttl;
-		this.function= function;
 	}
 
 
@@ -57,19 +57,19 @@ public class GradientServiceOverlayModel extends GradientOverlayModel{
 	 */
 	protected OverlayAgent createAgent(Overlay overlay,Routing router,Topology randomTopology,Double utility) throws ModelException{
 		
-		String role = (String)overlay.getLocalNode().getAttributes().get("role");
+		Node localNode = overlay.getLocalNode();
 		
+		String role = (String)localNode.getAttributes().get("role");
 		
-		if(overlay.getLocalNode().getId().toString().equals("0000000000000000")){
-			role = "consumer";
-			overlay.getLocalNode().getAttributes().put("role","consumer");
+			
+		if(role.equals("provider")){
+			return new ServiceOverlayAgent(this,overlay, router, randomTopology, utility, role);
 		}
-		
-		if(role.equals("provider"))
-			return new GradientOverlayProviderAgent(this,overlay, router, randomTopology,utility,role,function);
-		
-		if(role.equals("consumer"))
-		   return new GradientOverlayConsumerAgent(this,overlay,router,randomTopology,utility,role,tolerance,ttl);
+
+		if(role.equals("consumer")){
+			Double preference = (Double)localNode.getAttributes().get("preference");
+		   return new ServiceConsumerAgent(this,overlay,router,randomTopology,utility,role,tolerance,ttl,preference);
+		}
 		
 		throw new ModelException("Unknown role " + role);
 		
