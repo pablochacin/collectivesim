@@ -271,7 +271,7 @@ public class SeriesHistogram implements SeriesFunction {
 		histogramFunc.reset();
 
 		for(int i=0;i<1000;i++){
-			DataItem item = new BaseDataItem(i,"value",valueStream.getValue());
+			DataItem item = new BaseDataItem(i,"value",valueStream.nextElement());
 			histogramFunc.processItem(item);
 		}
 
