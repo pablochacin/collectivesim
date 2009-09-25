@@ -57,7 +57,7 @@ public abstract class UnderlayModel extends AbstractModel implements Underlay {
 			List<UnderlayModelNode> nodeList = new ArrayList<UnderlayModelNode>(numNodes);
 
 			for(int i=0;i<numNodes;i++){
-				Identifier id = idStream.getValue();
+				Identifier id = idStream.nextElement();
 				nodeList.add(buildNode(id,getAttributes()));			
 			}
 
