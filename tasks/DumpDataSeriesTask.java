@@ -71,7 +71,7 @@ public class DumpDataSeriesTask implements Runnable {
 	}
 
 	/**
-	 * Convenienve constructor. Attributes are listed in a String separated by ","
+	 * Convenience constructor. Attributes are listed in a String separated by ","
 	 * @param experiment
 	 * @param dataseries
 	 * @param attributes
@@ -84,7 +84,7 @@ public class DumpDataSeriesTask implements Runnable {
 	public void run() {
 
 
-		File outfile = new File(experiment.getRootDirectory(),dataseries.getName()+".txt");
+		File outfile = new File(experiment.getWorkingDirectory(),dataseries.getName()+".txt");
 		try {
 			PrintStream out = new PrintStream(new FileOutputStream(outfile));
 
