@@ -97,10 +97,7 @@ public abstract class AbstractScheduler implements Scheduler {
 		this.endTime = endTime;
 		this.updateLock = new ReentrantLock();
 		this.pausedCondition = updateLock.newCondition();
-		
-		//Start the thread that will control the execution of actions
-		schedulerThread = new Thread(new SimulationThread());
-		
+				
 		//initialize with dummy handler
 		terminationHandler = new Runnable(){
 			public void run(){};
@@ -121,6 +118,8 @@ public abstract class AbstractScheduler implements Scheduler {
 		
 		resume();
 
+		//Start the thread that will control the execution of actions
+		schedulerThread = new Thread(new SimulationThread());
 		schedulerThread.start();
 	}
 	

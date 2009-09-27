@@ -10,11 +10,16 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 
+import edu.upc.cnds.collectives.Collectives;
+import edu.upc.cnds.collectives.configuration.Configuration;
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.events.EventFilter;
 import edu.upc.cnds.collectives.events.EventObserver;
 import edu.upc.cnds.collectives.events.EventTypeFilter;
 import edu.upc.cnds.collectives.events.FilteringEventObserver;
+import edu.upc.cnds.collectives.execution.ExecutionService;
+import edu.upc.cnds.collectives.execution.Task;
+import edu.upc.cnds.collectives.platform.Platform;
 import edu.upc.cnds.collectives.util.FileUtils;
 import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectives.util.TypedMap;
@@ -68,7 +73,7 @@ import edu.upc.cnds.collectivesim.table.TableException;
  * @author Pablo Chacin
  *
  */
-public class Experiment {
+public class Experiment implements Platform, ExecutionService {
 
 	private Logger log;
 	
@@ -158,6 +163,7 @@ public class Experiment {
 	 * length of each run
 	 */
 	private long runLength;
+		
 	
 	/**
 	 * Number of runs for the experiment
@@ -167,7 +173,7 @@ public class Experiment {
 	public Experiment(String description,Scheduler scheduler,String rootDir, int runs,long runLenght,boolean exitOnEnd){
 		
 		this.log = Logger.getLogger("colectivesim.experiment");
-				
+						
 		this.beginTime = System.currentTimeMillis();
 		this.endTime = 0;
 		this.runLength = runLenght;
@@ -448,7 +454,9 @@ public class Experiment {
 	 */
 	public void start() throws ExperimentException{
 		
-	
+		Collectives.setPlaform(this);
+
+		
 		//execute initialization tasks
 		for(Runnable r: initializationTasks){
 			r.run();
@@ -800,5 +808,57 @@ public class Experiment {
 		return new HashMap(tables);
 	}
 
+
+
+	@Override
+	public Configuration getConfiguration() {
+		throw new UnsupportedOperationException();
+	}
+
+
+
+	@Override
+	public ExecutionService getExecutionService() {
+		return this;
+	}
+
+
+
+	@Override
+	public void doWait(long time) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public Task execute(Runnable task) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	@Override
+	public long getCurrentTime() {
+		return scheduler.getTime();
+	}
+
+
+
+	@Override
+	public Task scheduleRepetitiveTask(Runnable task, long delay, long period) {
+		throw new UnsupportedOperationException();	
+	}
+
+
+
+	@Override
+	public Task scheduleTask(Runnable task, long delay) {
+		throw new UnsupportedOperationException();
+	}
+
+	
 	
 }
