@@ -9,6 +9,7 @@ import edu.upc.cnds.collectives.transport.Transport;
 import edu.upc.cnds.collectives.transport.TransportObserver;
 import edu.upc.cnds.collectives.underlay.Underlay;
 import edu.upc.cnds.collectives.underlay.UnderlayAddress;
+import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectives.underlay.base.AbstractUnderlayNode;
 import edu.upc.cnds.collectivesim.transport.UnderlayModelTransport;
 
@@ -130,6 +131,15 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 
 	public Double getUndelivered(){
 		return undelivered;
+	}
+	
+	
+	public boolean ping(Node node){
+		UnderlayNode target = underlay.getNode(node.getId());
+		node.setAttributes(target.getAttributes());
+		
+		return true;
+		
 	}
 
 }

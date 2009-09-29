@@ -35,17 +35,9 @@ public abstract class UnderlayModel extends AbstractModel implements Underlay {
 
 	protected int numNodes;
 
-	/**
-	 * IdSpace used to generate the ids for the nodes
-	 */
-	protected Stream<Identifier> idStream;
 
-
-
-
-	public UnderlayModel(String name,Experiment experiment, Stream<Identifier> idStream,int numNodes,Stream...attributeStreams) {
+	public UnderlayModel(String name,Experiment experiment, int numNodes,Stream...attributeStreams) {
 		super(name,experiment,attributeStreams);
-		this.idStream = idStream;
 		this.numNodes = numNodes;
 		this.nodes = new HashMap<Identifier,UnderlayModelNode>(); 
 
@@ -57,8 +49,8 @@ public abstract class UnderlayModel extends AbstractModel implements Underlay {
 			List<UnderlayModelNode> nodeList = new ArrayList<UnderlayModelNode>(numNodes);
 
 			for(int i=0;i<numNodes;i++){
-				Identifier id = idStream.nextElement();
-				nodeList.add(buildNode(id,getAttributes()));			
+				UnderlayModelNode n = buildNode(getAttributes());
+				nodeList.add(n);			
 			}
 
 			generateNetworkTopology(nodeList);
@@ -109,10 +101,11 @@ public abstract class UnderlayModel extends AbstractModel implements Underlay {
 	}
 
 	@Override
-	public UnderlayNode createNode(Identifier id) throws UnderlayException {
+	public UnderlayNode createNode(Identifier id,Map attributes) throws UnderlayException {
 		UnderlayModelNode node;
 		try {
-			node = buildNode(id,getAttributes());
+			attributes.put("id", id);
+			node = buildNode(attributes);
 		} catch (UnderlayModelException e) {
 
 			throw new UnderlayException(e);
@@ -127,11 +120,12 @@ public abstract class UnderlayModel extends AbstractModel implements Underlay {
 	 * @param id
 	 * @throws UnderlayModelException 
 	 */
-	protected UnderlayModelNode buildNode(Identifier id,Map attributes) throws UnderlayModelException{
+	protected UnderlayModelNode buildNode(Map attributes) throws UnderlayModelException{
 
+		Identifier id = (Identifier)attributes.get("id");
 
 		UnderlayModelTransport transport = new UnderlayModelTransport(this);
-
+		
 		UnderlayModelNode node = new UnderlayModelNode(this,id,new UnderlayModelNodeAddress(""),transport,attributes);
 
 		return node;
