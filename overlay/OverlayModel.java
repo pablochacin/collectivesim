@@ -1,14 +1,18 @@
 package edu.upc.cnds.collectivesim.overlay;
 
 
+import java.util.Map;
+
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.node.Node;
+import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.topology.TopologyEvent;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.base.AbstractModel;
+import edu.upc.cnds.collectivesim.stream.Stream;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 
 /**
@@ -23,11 +27,14 @@ public abstract class OverlayModel extends AbstractModel  {
 	
 
 	protected UnderlayModel underlay;
+	
+	protected OverlayFactory factory;
 
 		
-	public OverlayModel(String name,Experiment experiment,UnderlayModel underlay) {
-		super(name,experiment);
-		this.underlay =  underlay;			
+	public OverlayModel(String name,Experiment experiment,UnderlayModel underlay,OverlayFactory factory,Stream ... attributes) {
+		super(name,experiment,attributes);
+		this.underlay =  underlay;	
+		this.factory = factory;
 	}
 
 	
@@ -40,22 +47,28 @@ public abstract class OverlayModel extends AbstractModel  {
 		//create the topology agent to maintain each topology
 		for(UnderlayNode n: underlay.getNodes()){
 			
-			OverlayAgent agent =  createAgent(n);
-					
+			Overlay overlay =  factory.getOverlay(n);
+			Map attributes = getAttributes();
+			OverlayAgent agent = createOverlayAgent(overlay,attributes);
 			super.addAgent(agent);
+		}
+		
+		
+		//make every agent to join the overlay
+		for(ModelAgent a: getAgents()){
+			((OverlayAgent)a).join();
 		}
 
 	}
 	
-	
 	/**
-	 * Creates a TopologyAgent responsible for the given local view of the topology.
 	 * 
-	 * @param topology the local representation of the topology for the agent
+	 * @param overlay
+	 * @param attributes
 	 * @return
 	 * @throws ModelException 
 	 */
-	protected abstract OverlayAgent createAgent(UnderlayNode node) throws ModelException;
+	protected abstract OverlayAgent createOverlayAgent(Overlay overlay,Map attributes) throws ModelException;
 	
 		
 	/**

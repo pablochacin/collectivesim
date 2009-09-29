@@ -11,7 +11,6 @@ import java.util.logging.Logger;
 
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.node.Node;
-import edu.upc.cnds.collectives.node.base.NodeAttributeComparator;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.overlay.epidemic.EpidemicOverlay;
 import edu.upc.cnds.collectives.routing.Destination;
@@ -19,9 +18,7 @@ import edu.upc.cnds.collectives.routing.RouteObserver;
 import edu.upc.cnds.collectives.routing.Routing;
 import edu.upc.cnds.collectives.routing.RoutingEvent;
 import edu.upc.cnds.collectives.routing.base.Route;
-import edu.upc.cnds.collectives.topology.ViewObserver;
-import edu.upc.cnds.collectives.util.FormattingUtils;
-import edu.upc.cnds.collectivesim.model.ModelAgent;
+import edu.upc.cnds.collectives.topology.TopologyObserver;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.base.CompositeReflexionModelAgent;
 import edu.upc.cnds.collectivesim.state.Counter;
@@ -32,7 +29,7 @@ import edu.upc.cnds.collectivesim.state.Counter;
  * @author Pablo Chacin
  *
  */
-public class OverlayAgent extends CompositeReflexionModelAgent implements ViewObserver, RouteObserver {
+public class OverlayAgent extends CompositeReflexionModelAgent implements TopologyObserver, RouteObserver {
 	
 	protected static Logger log = Logger.getLogger("colectivesim.overlay");
 		
@@ -53,14 +50,14 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements ViewOb
 	protected Counter received;
 	
 	protected Counter undeliverable;
-	
-	
+		
+
 	/**
 	 * 
 	 * @param model
 	 * @param overlay
 	 */
-	public OverlayAgent(OverlayModel model,Overlay overlay){
+	public OverlayAgent(OverlayModel model,Overlay overlay,Map attributes){
 		
 		super(overlay.getLocalNode().getId().toString(),overlay);
 		
@@ -79,15 +76,22 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements ViewOb
 
 	}
 	
-		
+	
+	/**
+	 * Makes this agent join the overlay
+	 */
+	public void join(){
+		overlay.join();
+	}
+	
 	@Override
-	public void join(Node node) {
+	public void nodeAdded(Node node) {
 		model.nodeJoin(overlay.getLocalNode(),node);
 		
 	}
 
 	@Override
-	public void leave(Node node) {
+	public void nodeRemoved(Node node) {
 		model.nodeLeave(overlay.getLocalNode(),node);; 
 		
 	}
@@ -110,7 +114,7 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements ViewOb
 		
 	}
 
-	
+
 	
 
 	@Override
@@ -184,6 +188,11 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements ViewOb
 		Vector<Long> ages = new Vector<Long>();
 		for(Node n: overlay.getNodes()){
 			ages.add(model.getCurrentTime()-n.getKnowSince());
+		}
+		
+		
+		if(ages.isEmpty()){
+			return Double.NaN;
 		}
 		
 		Collections.sort(ages);
@@ -319,17 +328,7 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements ViewOb
 	}
 	
 	
-	public void update() throws ModelException{
-		
-		//update the node's (last) touch time to the current model's time
-		//TODO: this is a hack. It is needed because the node can't access
-		//      the model's time. Look for a way to solve this!
-		overlay.getLocalNode().touch(model.getCurrentTime());
-		
-		((EpidemicOverlay)overlay).update();		
-		
-		
-	}
+
 
 		
 	void incIndegree(){
