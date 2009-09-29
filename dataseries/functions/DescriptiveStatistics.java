@@ -49,6 +49,10 @@ public class DescriptiveStatistics implements SeriesFunction {
 	@Override
 	public void calculate(DataSeries result) {
 				
+		if(values.isEmpty()){
+			return;
+
+		}
 		
 		Collections.sort(values);
 		
