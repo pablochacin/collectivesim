@@ -5,7 +5,7 @@ import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
 
 
-public class RunningAverage extends AbstractIncrementalFunction {
+public class RunningAverage implements SeriesFunction {
 
 	/**
 	 * Number of items to consider to calculate the average
@@ -14,11 +14,15 @@ public class RunningAverage extends AbstractIncrementalFunction {
 
 	private Double sum;
 
-	protected Double visited;
+	private Double visited;
+	
+	private String attribute;
 	
 	public RunningAverage(String attribute, int period) {
-		super(attribute);
+
+		this.attribute = attribute;
 		this.period = period;
+
 	}
 	
 	
@@ -29,20 +33,8 @@ public class RunningAverage extends AbstractIncrementalFunction {
 	}
 
 
-
 	@Override
-	protected void getResult(DataSeries result) {
-		Double average = Double.NaN;
-		
-		if(visited > 0) 
-			average = sum/visited;
-	
-		result.addItem("average", average);
-	}
-
-
-	@Override
-	protected boolean processItem(DataItem item) {
+	public boolean processItem(DataItem item) {
 		sum = sum + item.getDouble(attribute);
 		visited++;
 		if(visited == period) {
@@ -50,6 +42,18 @@ public class RunningAverage extends AbstractIncrementalFunction {
 		}
 		
 		return true;
+	}
+
+
+	@Override
+	public void calculate(DataSeries result) {
+
+		Double average = Double.NaN;
+		
+		if(visited > 0) 
+			average = sum/visited;
+	
+		result.addItem("average", average);
 	}
 
 }
