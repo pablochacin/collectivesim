@@ -3,6 +3,7 @@ package edu.upc.cnds.collectivesim.overlay.service;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Vector;
 
 import edu.upc.cnds.collectives.node.Node;
@@ -10,7 +11,6 @@ import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.routing.Destination;
 import edu.upc.cnds.collectives.routing.Routing;
 import edu.upc.cnds.collectives.routing.RoutingHandler;
-import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectivesim.overlay.OverlayModel;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityFunction;
 
@@ -80,10 +80,9 @@ public class ServiceProviderOverlayAgent extends ServiceOverlayAgent  implements
 	
 	
 	public ServiceProviderOverlayAgent(OverlayModel model, Overlay overlay,
-			Routing router, Topology randomTopology, Double utility,String role,
-			UtilityFunction function) {
+			UtilityFunction function,Map attributes) {
 			
-			super(model, overlay, router, randomTopology, utility,role);
+			super(model, overlay,attributes);
 	
 			this.tasks = new Vector<ServiceTask>();
 			
@@ -93,8 +92,6 @@ public class ServiceProviderOverlayAgent extends ServiceOverlayAgent  implements
 			
 			this.function = function;
 			
-			overlay.getLocalNode().getAttributes().put("load",new Double(0.0));
-			overlay.getLocalNode().getAttributes().put("capacity",new Double(utility));
 	}
 	
 		

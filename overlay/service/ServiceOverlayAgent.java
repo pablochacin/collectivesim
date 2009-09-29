@@ -5,47 +5,50 @@ import java.util.Map;
 
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.routing.Destination;
-import edu.upc.cnds.collectives.routing.Routing;
 import edu.upc.cnds.collectives.routing.RoutingException;
-import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectivesim.overlay.OverlayModel;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityOverlayAgent;
 import edu.upc.cnds.collectivesim.state.Counter;
 
 public class ServiceOverlayAgent extends UtilityOverlayAgent {
-
+	
 	/**
-	 * default request ttl
+	 * Role of the agent
 	 */
-	protected Integer ttl;
-
+	protected String role;
 	
 	/**
 	 * Counts the number of requests received by this agent
 	 */
 	protected Counter requests; 
 	
-	public ServiceOverlayAgent(OverlayModel model, Overlay overlay,
-			Routing router, int ttl,Topology randomTopology,Double utility,String role) {
+	/**
+	 * 
+	 * @param model
+	 * @param overlay
+	 * @param attributes
+	 */
+	public ServiceOverlayAgent(OverlayModel model, Overlay overlay,Map attributes) {
 		
-		super(model, overlay, router, randomTopology,utility);
+		super(model, overlay,attributes);
+				
+		this.role = (String)attributes.get("role");
 		
-		this.ttl = ttl;
+		overlay.getLocalNode().getAttributes().put("role",role);
 		
 		requests = model.getExperiment().getCounter("service.requests");
 	}
 
+
 	public String getRole(){
 		return (String)overlay.getLocalNode().getAttributes().get("role");
 	}
-	
 	
 	/**
 	 * Makes a request for service with a minimum utility. 
 	 * 
 	 * @param utility required utility
 	 * @param tolerance tolerance (above)
-	 * @param ttl maximum ttl before dropping the request
 	 * @param duration duration of the request execution
 	 */
 	public void makeRequest(Double utility,Double tolerance,Long duration) {
@@ -57,7 +60,7 @@ public class ServiceOverlayAgent extends UtilityOverlayAgent {
 		ServiceRequest request = new ServiceRequest(utility,duration);
 		
 		try {
-			overlay.route(destination, ttl,request);
+			overlay.route(destination, request);
 		} catch (RoutingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -67,7 +70,7 @@ public class ServiceOverlayAgent extends UtilityOverlayAgent {
 	
 	
 	/**
-	 * Processes a servcie request
+	 * Processes a service request
 	 * 
 	 * Default implementation does nothing
 	 * 

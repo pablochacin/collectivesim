@@ -1,12 +1,11 @@
 package edu.upc.cnds.collectivesim.overlay.utility;
 
 import java.util.List;
+import java.util.Map;
 
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.overlay.gradient.GradientOverlay;
-import edu.upc.cnds.collectives.routing.Routing;
-import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
 import edu.upc.cnds.collectivesim.overlay.OverlayModel;
 
@@ -22,11 +21,16 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 	
 	protected Double utility;
 	
-	public UtilityOverlayAgent(OverlayModel model, Overlay overlay,
-			Routing router,Topology randomTopology,Double utility) {
+	public UtilityOverlayAgent(OverlayModel model, Overlay overlay,Map attributes) {
 			
-			super(model, overlay);
+			super(model, overlay,attributes);
 			
+			Double utility = (Double)attributes.get("utility");
+			
+			if(utility == null){
+				throw new IllegalArgumentException("Utility attribute not specified");
+			}
+					
 			setUtility(utility);
 			
 	}
@@ -44,7 +48,7 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 		this.utility = utility;
 		
 		overlay.getLocalNode().getAttributes().put("utility", utility);
-		overlay.getLocalNode().touch(model.getCurrentTime());
+		//overlay.getLocalNode().touch(model.getCurrentTime());
 
 	}
 	
