@@ -136,8 +136,8 @@ public class RandomUnderlayModel extends UnderlayModel {
 	 */
 	protected Map<Identifier,graph.Node> nodeMap;
 	
-	public RandomUnderlayModel(String name,Experiment experiment,Stream<Identifier> idStream,int numNodes,Stream...attributes) {
-		super(name,experiment,idStream,numNodes,attributes);
+	public RandomUnderlayModel(String name,Experiment experiment,int numNodes,Stream...attributes) {
+		super(name,experiment,numNodes,attributes);
 		
     	 model = new RouterWaxman(numNodes,HS,LS,nodePlacement,outDegree,alpha,beta,
     			 growth,bandwithDistribution,minBandwidth,maxBandwidth);
