@@ -25,8 +25,9 @@ public abstract class AbstractScheduler implements Scheduler {
 	private class SimulationThread implements Runnable {
 
 
-
-		@SuppressWarnings("static-access")
+		/**
+		 * Dispatches the task for the current simulation interval
+		 */
 		public void run() {
 			while(true) {
 				boolean terminated = false;
@@ -47,6 +48,7 @@ public abstract class AbstractScheduler implements Scheduler {
 				
 				if(terminated){
 					terminated();
+					return;
 				}
 				
 				try {
@@ -74,7 +76,7 @@ public abstract class AbstractScheduler implements Scheduler {
 
 	private static long DEFAULT_SPEED = 1;
 
-	private boolean paused;
+	protected boolean paused;
 		
 	
 	private long endTime;
@@ -125,7 +127,15 @@ public abstract class AbstractScheduler implements Scheduler {
 	
 
 
+	public void reset(){
+		if(!paused){
+			throw new IllegalStateException("Scheduler must be paused");
+		}
+		
+		clearActions();
+	}
 
+	
 	public void pause() {
 		updateLock.lock();
 		paused= true;
@@ -186,7 +196,12 @@ public abstract class AbstractScheduler implements Scheduler {
 	 * @param action
 	 */
 	 abstract void cancelAction(AbstractScheduledAction action);
+
 	 
+	 /**
+	  * Clear all actions and reset clock
+	  */
+	 abstract void clearActions();
 
 	 /**
 	  * Notifies there are no pending actions 

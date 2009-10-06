@@ -7,6 +7,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 
@@ -76,109 +79,115 @@ import edu.upc.cnds.collectivesim.table.TableException;
 public class Experiment implements Platform, ExecutionService {
 
 	private Logger log;
-	
+
 	private Map<String, Model> models;
-	
+
 	private Map<String,Stream> streams;
-	
+
 	private Map<String,StateValue>stateValues;
-	
+
 	private Map<String,Counter>counters;
-	
+
 	private Map<String,DataSeries>series;
-	
+
 	/**
 	 * DataSeries that shouldn't be reset between runs
 	 */
 	private Set<String> persistentDS;
-	
-	private Map<String,Table>tables;
-	
-	private List<EventObserver>observers;
-	
-	private TypedMap parameters;
-	
-	private Scheduler scheduler;
-		
-	private String description;
-	
 
-	
+	private Map<String,Table>tables;
+
+	private List<EventObserver>observers;
+
+	private TypedMap parameters;
+
+	private Scheduler scheduler;
+
+	private String description;
+
+	/*
+	 * Indicates the end of a run
+	 */
+	private Condition endRunCondition;
+
+	private Lock executionLock;
+
+
 	/**
 	 * Taskt to execute at the begining of the experiment
 	 */
 	private List<Runnable> initializationTasks;
-	
+
 	/**
 	 * Tasks to execute at the end of the experiment
 	 */
 	private List<Runnable>terminationTasks;
-	
+
 	/**
 	 * Tasks to execute at the begin of each run
 	 */
 	private List<Runnable>beginRunTasks;
-	
+
 	/**
 	 * Tasks to execute at the end of each run
 	 */
 	private List<Runnable>endRunTasks;
-	
-		
+
+
 	/**
 	 * Tasks to be scheduled for each experiment run.
 	 */
 	private List<ExperimentTask>scheduledTasks;
 
-	
+
 	/**
 	 * Directory on which result or working files should be created
 	 */
 	private File rootDir;
-	
+
 	/**
 	 * working dir for each run. Same as workingDir is only one run
 	 */
 	private File workingDir;
-	
+
 	/**
 	 * start time of the experiment in real time
 	 */
 	private long beginTime;
-	
+
 	/**
 	 * End time of the experiment in real time
 	 */
 	private long endTime;
-		
-	
+
+
 	private boolean exitOnEnd;
-	
+
 	/**
 	 * Duration of the experiment in simulated time
 	 */
 	private long runTime;
-	
+
 	/**
 	 * length of each run
 	 */
 	private long runLength;
-		
-	
+
+
 	/**
 	 * Number of runs for the experiment
 	 */
 	private int runs;
-	
+
 	public Experiment(String description,Scheduler scheduler,String rootDir, int runs,long runLenght,boolean exitOnEnd){
-		
+
 		this.log = Logger.getLogger("colectivesim.experiment");
-						
+
 		this.beginTime = System.currentTimeMillis();
 		this.endTime = 0;
 		this.runLength = runLenght;
 		this.runs = runs;
-		
+
 		this.description = description;
 		this.scheduler = scheduler;
 		this.models = new HashMap<String,Model>();
@@ -195,13 +204,15 @@ public class Experiment implements Platform, ExecutionService {
 		this.beginRunTasks = new ArrayList<Runnable>();
 		this.endRunTasks = new ArrayList<Runnable>();
 		this.scheduledTasks = new ArrayList<ExperimentTask>();
+		this.executionLock = new ReentrantLock();
+		this.endRunCondition = executionLock.newCondition();
 
 		this.rootDir = FileUtils.createWorkingDirectory(rootDir);
 		this.exitOnEnd = exitOnEnd;
-		
+
 		//If the experiment has an end time, schedule its termination
 		if(endTime != 0){
-			
+
 			Runnable endTask = new Runnable(){
 				public void run(){
 					endRun();
@@ -210,39 +221,39 @@ public class Experiment implements Platform, ExecutionService {
 
 			scheduledTasks.add(new ExperimentTask(scheduler,endTask,endTime,0));
 		}
-		
+
 	}
-	
-	
+
+
 
 	public long beginTime(){
 		return beginTime;
 	}
-	
+
 	public long endTime(){
 		return endTime;
 	}
-	
+
 	public long getRunTime(){
 		return runTime;
 	}
-	
+
 	public long getRunLength(){
 		return runLength;
 	}
-	
+
 	public String getDescription(){
 		return description;
 	}
-	
+
 	public String getRootDirectory(){
 		return rootDir.getAbsolutePath();
 	}
-	
+
 	public String getWorkingDirectory(){
 		return workingDir.getAbsolutePath();
 	}
-	
+
 	/**
 	 * 
 	 * @return the current real time
@@ -250,7 +261,7 @@ public class Experiment implements Platform, ExecutionService {
 	public Long getRealTime(){
 		return System.currentTimeMillis();
 	}
-	
+
 	/**
 	 * @param name of the stream
 	 * @return a Stream with the given name or null, if none exists
@@ -259,7 +270,7 @@ public class Experiment implements Platform, ExecutionService {
 		Stream stream = streams.get(name);
 		if(stream == null)
 			throw new IllegalArgumentException("Stream not found " + name);
-		
+
 		return  stream;
 	}
 
@@ -271,36 +282,36 @@ public class Experiment implements Platform, ExecutionService {
 	public void addStream(Stream stream){
 		streams.put(stream.getName(), stream);
 	}
-	
-	
+
+
 	public Counter addCounter(String name){
-	
+
 		Counter counter = new Counter(name);
 		stateValues.put(name, counter);
 		counters.put(name,counter);
 		return counter;
 	}
 
-	
+
 	public Double getStateValue(String name){
 		StateValue value = stateValues.get(name); 
 		if(value == null){
 			throw new IllegalArgumentException("Value not found: "+name);
 		}
-		
+
 		return value.getValue();
 	}
-	
+
 	public Counter getCounter(String name){
 		Counter counter = counters.get(name); 
 		if(counter == null){
 			throw new IllegalArgumentException("Counter not found: "+name);
 		}
-		
+
 		return counter;
 	}
-	
-	
+
+
 	/**
 	 * Adds a new calculated value, whose value is obtained by applying
 	 * a function to a list of state values (counters or other calculated values)
@@ -319,24 +330,24 @@ public class Experiment implements Platform, ExecutionService {
 		}
 		stateValues.put(name,new CalculatedValue(name,values,function));
 	}
-	
+
 	/**
 	 * Adds a table of values to the experiment
 	 * @param name
 	 * @param values
 	 * @throws ExperimentException 
 	 */
-	
+
 	public void addTable(Table table) throws ExperimentException{
-	
+
 		tables.put(table.getName(),table);
 	}
-	
+
 	public Table getTable(String name){
 		return tables.get(name);
 	}
-	
-	
+
+
 	/**
 	 * Created a  DataSeries 
 	 * @param name of the DataSeries
@@ -344,21 +355,21 @@ public class Experiment implements Platform, ExecutionService {
 	 * @return the newly created DataSeries
 	 */
 	public DataSeries addDataSeries(String name,int size,boolean persistent){
-		
+
 		if(series.containsKey(name)){
 			throw new IllegalArgumentException("DataSeries " + name + " already exists");
 		}
-		
+
 		DataSeries dataseries = new BaseDataSeries(name,size);
 		series.put(name, dataseries);
-		
+
 		if(persistent){
 			persistentDS.add(name);
 		}
-		
+
 		return dataseries;
 	}
-		
+
 	public DataSeries addDataSeries(String name,int size){
 		return addDataSeries(name,size,false);
 	}
@@ -371,7 +382,7 @@ public class Experiment implements Platform, ExecutionService {
 	public DataSeries addDataSeries(String name){
 		return addDataSeries(name,0);
 	}
-	
+
 	/**
 	 * 
 	 * @param name
@@ -379,16 +390,16 @@ public class Experiment implements Platform, ExecutionService {
 	 * @return the DataSeries registered under the given name or null if none exists
 	 */
 	public DataSeries getDataSeries(String name) {
-		
+
 		DataSeries dataseries = series.get(name);
-		
+
 		if(dataseries == null){
 			throw new IllegalArgumentException("DataSeries " + name +" is not valid");
 		}
-		
+
 		return dataseries;
 	}
-	
+
 	/**
 	 * Creates an observer that periodically applies a SeriesFunction to a DataSeries and puts the
 	 * result in another DataSeries.
@@ -399,16 +410,16 @@ public class Experiment implements Platform, ExecutionService {
 	 * @param frequency
 	 */
 	public void addDataSeriesObserver(String target, SeriesFunction function, String result,long frequency,long delay){
-		
+
 		DataSeries targetSeries = getDataSeries(target);
 
 		DataSeries resultSeries = getDataSeries(result);
-		
+
 		DataSeriesObserverTask observer = new DataSeriesObserverTask(targetSeries,function,resultSeries,false,false);
-		
+
 		scheduledTasks.add(new ExperimentTask(scheduler, observer,delay,frequency));
 	}
-	
+
 	/**
 	 * Adds an observer that applies a SeriesFunction to a target DataSeries each time it is 
 	 * updated and produces a result DataSeries.
@@ -422,12 +433,12 @@ public class Experiment implements Platform, ExecutionService {
 		DataSeries targetSeries = getDataSeries(target);
 
 		DataSeries resultSeries = getDataSeries(result);
-		
+
 		DataSeriesObserverTask observer = new DataSeriesObserverTask(targetSeries,function,resultSeries,true,false);
 
 		targetSeries.addObserver(observer);
 	}	
-	
+
 	/**
 	 * Generates a DataSeries by observing a StateValue periodically.
 	 * 
@@ -436,13 +447,13 @@ public class Experiment implements Platform, ExecutionService {
 	 * @param frequency
 	 */
 	public void addStateObserver(String name,String dataSeries,long frequency,long delay){
-	
+
 		StateValue value = stateValues.get(name);
 		if(value == null){
 			throw new IllegalArgumentException("Value [" + name + "] not found");
 		}
 		StateValueObserver observer = new StateValueObserver(value,getDataSeries(dataSeries));
-		
+
 		scheduledTasks.add(new ExperimentTask(scheduler, observer,delay,frequency));
 	}
 
@@ -453,15 +464,15 @@ public class Experiment implements Platform, ExecutionService {
 	 * @throws ExperimentException
 	 */
 	public void start() throws ExperimentException{
-		
+
 		Collectives.setPlaform(this);
 
-		
+
 		//execute initialization tasks
 		for(Runnable r: initializationTasks){
 			r.run();
 		}
-		
+
 		//load tables
 		for(Table t: tables.values()){
 			try {
@@ -470,7 +481,7 @@ public class Experiment implements Platform, ExecutionService {
 				throw new ExperimentException("Exception loading table "+t.getName(),e);
 			}
 		}
-		
+
 		for(Stream s: streams.values()){
 			try {
 				s.open();
@@ -478,76 +489,119 @@ public class Experiment implements Platform, ExecutionService {
 				throw new ExperimentException("Exception initialization stream "+s.getName(),e);
 			}
 		}
-		
+
 		//execute first run
 		startRun();
-		
+
 	}
-	
-	
+
+
 	/**
 	 * Start each of the runs of the experiment
 	 * @throws ExperimentException
 	 */
 	private void startRun() throws ExperimentException{
-		
-		//schedule the end of run task
-		//If the experiment has an end time, schedule its termination
-		if(runLength != 0){
-			
-			Runnable endTask = new Runnable(){
-				public void run(){
-					endRun();
-				}
-			};
 
-			//scheduledTasks.add(new ExperimentTask(scheduler,endTask,runLength,0));
-			scheduler.setTerminationHandler(endTask);
-		}
-		
-		workingDir = new File(rootDir.getAbsolutePath(),String.valueOf(runs));
-		workingDir.mkdir();
-		
-		//execute initiation tasks
-		for(Runnable r: beginRunTasks){
+		do{
+			//schedule the end of run task
+			//If the experiment has an end time, schedule its termination
+			if(runLength != 0){
+
+				Runnable endTask = new Runnable(){
+					public void run(){
+						endRun();
+					}
+				};
+
+				//scheduledTasks.add(new ExperimentTask(scheduler,endTask,runLength,0));
+				scheduler.setTerminationHandler(endTask);
+			}
+
+			workingDir = new File(rootDir.getAbsolutePath(),String.valueOf(runs));
+			workingDir.mkdir();
+
+			//execute initiation tasks
+			for(Runnable r: beginRunTasks){
+				r.run();
+			}
+
+			//schedule the experiment's tasks (e.g. observers)
+			for(ExperimentTask t: scheduledTasks){
+				t.schedule();
+			}
+
+			//initiate scheduling of tasks
+			scheduler.start(runLength);	
+
+			executionLock.lock();
+			try{
+				endRunCondition.await();
+
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}finally{
+				executionLock.unlock();
+			}
+
+
+			//prevent the scheduler to further dispatch actions
+			scheduler.pause();
+
+			this.runTime = scheduler.getTime();
+			this.endTime = System.currentTimeMillis();
+
+			//execute termination tasks
+			for(Runnable r: endRunTasks){
+				r.run();
+			}
+			
+			runs--;
+			if(runs > 0){
+				//prepare for a new run, clean up simulation
+				reset();
+			}
+
+		}while(runs > 0);
+
+		//execute tasks at the end of the experiment
+		for(Runnable r: terminationTasks){
 			r.run();
 		}
-		
-		//schedule the experiment's tasks (e.g. observers)
-		for(ExperimentTask t: scheduledTasks){
-			t.schedule();
+
+		if(exitOnEnd){
+			System.exit(0);
 		}
-		
-		//initiate scheduling of tasks
-		scheduler.start(runLength);		
+
 	}
-	
+
 
 	/**
 	 * Prepares for a new run
 	 */
 	private void reset(){
-		
+
 		//remove any pending task
+		scheduler.pause();
 		scheduler.reset();
-		
+
 		//reset values
 		for(Counter c: counters.values()){
 			c.reset();
 		}
-		
+
 		//reset non persistent DataSeries 
 		for(DataSeries d: series.values()){
 			if(!persistentDS.contains(d)){
 				d.reset();
 			}
 		}
-		
+
 		//reset Streams
 		for(Stream s: streams.values()){
 			s.reset();
 		}
-		
+
 		//reset models 
 		for(Model m: models.values()){
 			m.reset();
@@ -560,54 +614,30 @@ public class Experiment implements Platform, ExecutionService {
 	public void pause(){
 		throw new UnsupportedOperationException();	
 	}
-	
+
 	/**
 	 * Resumes the execution of the experiment
 	 */
 	public void resume(){
 		throw new UnsupportedOperationException();
 	}
-	
+
 	/**
-	 * Ends the execution of the experiment
+	 * Ends the execution of the run. 
+	 * This method is executed under the scheduler's thread.
 	 */
-	public void endRun(){
+	public void endRun(){	
 		
-		//prevent the scheduler to further dispatch actions
-		scheduler.pause();
-		
-		this.runTime = scheduler.getTime();
-		this.endTime = System.currentTimeMillis();
-		
-		//execute termination tasks
-		for(Runnable r: endRunTasks){
-			r.run();
+		executionLock.lock();
+		try{
+			endRunCondition.signal();
 		}
-		
-		//check for additional runs
-		runs--;
-		if(runs > 0){
-		  try {
-			
-			reset(); 
-			
-			startRun();
-		} catch (ExperimentException e) {
-			log.severe("Exception staring experiment run "+ FormattingUtils.getStackTrace(e));
-		}
-		}
-		
-		//execute tasks at the end of the experiment
-		for(Runnable r: terminationTasks){
-			r.run();
-		}
-		
-		if(exitOnEnd){
-			System.exit(0);
+		finally{
+			executionLock.unlock();
 		}
 
 	}
-	
+
 	/**
 	 * Sets the time at which the experiment will be paused
 	 * 
@@ -616,7 +646,7 @@ public class Experiment implements Platform, ExecutionService {
 	public void setEndTime(long time){
 		throw new UnsupportedOperationException();
 	}
-	
+
 	/**
 	 * Adds a task whose run() method will be invoked before the experiment runs are started.
 	 * Can be used to setup the environment, creating data files, etc.
@@ -629,7 +659,7 @@ public class Experiment implements Platform, ExecutionService {
 	public void addInitilizationTask(Runnable task){
 		initializationTasks.add(task);
 	}
-	
+
 	/**
 	 * Adds a task whose run() method will be invoked after all experiment runs 
 	 * are executed and before the experiment ends.
@@ -642,7 +672,7 @@ public class Experiment implements Platform, ExecutionService {
 	public void addFinalizationTask(Runnable task){
 		terminationTasks.add(task);
 	}
-	
+
 	/**
 	 * Adds a task whose run() method will be invoked before each experiment run 
 	 * is executed.
@@ -652,12 +682,12 @@ public class Experiment implements Platform, ExecutionService {
 	 *  
 	 * @param task
 	 */
-	
+
 	public void addBeginRunTask(Runnable task){
 		beginRunTasks.add(task);
 	}
 
-	
+
 	/**
 	 * Adds a task whose run() method will be invoked after each experiment run 
 	 * is executed.
@@ -667,27 +697,27 @@ public class Experiment implements Platform, ExecutionService {
 	 *  
 	 * @param task
 	 */
-	
+
 	public void addEndRunTask(Runnable task){
 		endRunTasks.add(task);
 	}
 
-	
+
 	/**
 	 * Adds a task whose run() method will be invoked at the given frequency 
 	 * 
 	 * @param task
 	 */
 	public void addPeriodicTask(Runnable task,long delay, long frequency){
-		
+
 		scheduledTasks.add(new ExperimentTask(scheduler,task,delay,frequency));
 	}
-	
+
 	public TypedMap getParameters(){
 		return parameters;
 	}
-	
-	
+
+
 	/**
 	 * 
 	 * @return the Scheduler that controls the experiment's execution
@@ -695,7 +725,7 @@ public class Experiment implements Platform, ExecutionService {
 	public Scheduler getScheduler(){
 		return scheduler;
 	}
-	
+
 	/**
 	 * Adds a model to the experiment
 	 * @param model
@@ -703,20 +733,20 @@ public class Experiment implements Platform, ExecutionService {
 	 */
 	public void addModel(final Model model,long delay){
 		models.put(model.getName(),model);
-		
+
 		//create an anonymous Runnable to execute the start of the model
 		Runnable target = new Runnable(){
-			    public void run(){
-			    	try {
-			    		model.start();
-			    	} catch (ModelException e) {
-			    		log.severe("Exception starting mode "+model.getName()+FormattingUtils.getStackTrace(e));
-			    	}}};
-		
-		scheduledTasks.add(new ExperimentTask(scheduler,target, delay,0));
-		
+			public void run(){
+				try {
+					model.start();
+				} catch (ModelException e) {
+					log.severe("Exception starting mode "+model.getName()+FormattingUtils.getStackTrace(e));
+				}}};
+
+				scheduledTasks.add(new ExperimentTask(scheduler,target, delay,0));
+
 	}
-	
+
 
 	/**
 	 * Adds a model to the experiment to be started at time 0
@@ -726,16 +756,16 @@ public class Experiment implements Platform, ExecutionService {
 		addModel(model,0);
 	}
 
-	
+
 	public Model getModel(String name){
 		Model model = models.get(name);
 		if(model == null){
 			throw new IllegalArgumentException("Model "+ name +" not registered in the experiment");
 		}
-		
+
 		return model;
 	}
-	
+
 	/**
 	 * Adds an observer for any type of event
 	 * 
@@ -744,7 +774,7 @@ public class Experiment implements Platform, ExecutionService {
 	public void registerEventObserver(EventObserver observer){
 		observers.add(observer);
 	}
-	
+
 	/**
 	 * Adds an observer for an specific type of events
 	 * 
@@ -772,7 +802,7 @@ public class Experiment implements Platform, ExecutionService {
 		for(EventObserver o: observers){
 			o.notify(event);
 		}
-		
+
 	}
 
 
@@ -784,10 +814,10 @@ public class Experiment implements Platform, ExecutionService {
 	public Map<String,Double> getState() {
 
 		Map<String,Double> values = new HashMap<String,Double>();
-			for(StateValue v: stateValues.values()){
-				values.put(v.getName(), v.getValue());
+		for(StateValue v: stateValues.values()){
+			values.put(v.getName(), v.getValue());
 		}
-			
+
 		return values;
 	}
 
@@ -827,7 +857,7 @@ public class Experiment implements Platform, ExecutionService {
 	@Override
 	public void doWait(long time) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
@@ -859,6 +889,6 @@ public class Experiment implements Platform, ExecutionService {
 		throw new UnsupportedOperationException();
 	}
 
-	
-	
+
+
 }

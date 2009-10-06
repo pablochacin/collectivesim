@@ -94,7 +94,7 @@ public class BasicScheduler extends AbstractScheduler {
 
 	
 	@Override
-	public void reset() {
+	public void clearActions() {		
 		clock = 0;
 		actions.clear();
 		
