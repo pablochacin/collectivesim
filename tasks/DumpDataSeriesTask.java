@@ -48,10 +48,6 @@ public class DumpDataSeriesTask implements Runnable {
 	 */
 	protected boolean append;
 	
-	/**
-	 * Indicates if the ouput should be put into the experiment's path (true) or the run's path (false) 
-	 */
-	protected boolean useExperimentPath;
 	
 	/**
 	 * Constructor
@@ -60,14 +56,13 @@ public class DumpDataSeriesTask implements Runnable {
 	 * @param experiment
 	 * @param separator
 	 */
-	public DumpDataSeriesTask(Experiment experiment,String dataseries, String[] attributes,String separator,boolean append,boolean useExperimentPath) {
+	public DumpDataSeriesTask(Experiment experiment,String dataseries, String[] attributes,String separator,boolean append) {
 		super();		
 		this.dataseries = experiment.getDataSeries(dataseries);
 		this.attributes = attributes;
 		this.experiment = experiment;
 		this.separator = separator;
 		this.append = append;
-		this.useExperimentPath = useExperimentPath;
 	
 	}
 
@@ -79,7 +74,7 @@ public class DumpDataSeriesTask implements Runnable {
 	 * @param experiment
 	 */
 	public DumpDataSeriesTask(Experiment experiment,String dataseries, String[] attributes) {
-		this(experiment,dataseries,attributes,DEFAULT_SEPARATOR,false,false);
+		this(experiment,dataseries,attributes,DEFAULT_SEPARATOR,false);
 	}
 
 	/**
@@ -98,15 +93,8 @@ public class DumpDataSeriesTask implements Runnable {
 
 		String directory;
 		
-		//select the target directory. Can't be established in the constructor 
-		//because working directory has not yet been created 
-		
-		if(useExperimentPath)
-			directory = experiment.getRootDirectory();
-		else
-			directory = experiment.getWorkingDirectory();
-		
-		File outfile = new File(directory,dataseries.getName()+".txt");
+				
+		File outfile = new File(experiment.getWorkingDirectory(),dataseries.getName()+".txt");
 		
 		boolean newFile = !outfile.exists();
 		
