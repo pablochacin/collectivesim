@@ -6,8 +6,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Vector;
 import java.util.logging.Logger;
+
+import com.sun.org.apache.bcel.internal.generic.GOTO;
 
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.node.Node;
@@ -19,6 +22,7 @@ import edu.upc.cnds.collectives.routing.Routing;
 import edu.upc.cnds.collectives.routing.RoutingEvent;
 import edu.upc.cnds.collectives.routing.base.Route;
 import edu.upc.cnds.collectives.topology.TopologyObserver;
+import edu.upc.cnds.collectives.util.UniqueArrayList;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.base.CompositeReflexionModelAgent;
 import edu.upc.cnds.collectivesim.state.Counter;
@@ -76,6 +80,10 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 
 	}
 	
+	
+	public void init() {
+		join();
+	}
 	
 	/**
 	 * Makes this agent join the overlay
@@ -185,29 +193,34 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	 */
 	public Double getAge(){
 	
-		Vector<Long> ages = new Vector<Long>();
-		for(Node n: overlay.getNodes()){
-			ages.add(model.getCurrentTime()-n.getKnowSince());
-		}
+		try{
+			Vector<Long> ages = new Vector<Long>();
+			for	(Node n: overlay.getNodes()){
+				ages.add(model.getCurrentTime()-n.getKnowSince());
+			}
 		
 		
-		if(ages.isEmpty()){
-			return Double.NaN;
-		}
+			if(ages.isEmpty()){
+				return Double.NaN;
+			}
 		
-		Collections.sort(ages);
+			Collections.sort(ages);
 	
 		
-        double pos = 0.5 * (ages.size() + 1);
-        double fpos = Math.floor(pos);
-        int intPos = (int) fpos;
-        double dif = pos - fpos;
+        	double pos = 0.5 * (ages.size() + 1);
+        	double fpos = Math.floor(pos);
+        	int intPos = (int) fpos;
+        	double dif = pos - fpos;
         
-        double lower = ages.get(intPos - 1);
-        double upper = ages.get(intPos);
-        Double age = lower + dif* (upper - lower);
+        	double lower = ages.get(intPos - 1);
+        	double upper = ages.get(intPos);
+        	Double age = lower + dif* (upper - lower);
         
-        return age;
+        	return age;
+		}catch (Exception e){
+        	System.out.println();
+        	return Double.NaN;
+        }
 	}
 
 
@@ -342,4 +355,70 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	public Overlay getOverlay(){
 		return overlay;
 	}
+	
+	
+	List<Node> acquiances = new UniqueArrayList<Node>();
+	
+	public void update(){
+		((EpidemicOverlay)overlay).update();
+		acquiances.addAll(overlay.getNodes());
+	}
+	
+	public Double getLocallity(){
+
+		return (double)overlay.getTopology().getMaxSize()/(double)acquiances.size();
+	}
+	
+	
+	Double intervalCenter = new Random().nextDouble();
+	Double intervalSize = 0.03125;
+	
+	public Double getNetworkSize(){
+		Double count = 0.0;
+		
+		for(Node n: acquiances){
+			Double id = n.getId().toDouble();
+			if( (Math.abs(id -intervalCenter) <= intervalSize/2.0) ){
+				count++;
+			}
+		}
+
+		return count/intervalSize;
+	}
+	
+	Vector<Double> pastNetworkSizeStimates = new Vector<Double>();
+	Vector<Double> pastIntervalCenters = new Vector<Double>();
+	
+	public void updateNetworkSizeStimate(){
+		pastNetworkSizeStimates.add(getNetworkSize());
+		if(pastNetworkSizeStimates.size() > 8){
+			pastNetworkSizeStimates.remove(0);
+		}
+		
+		pastIntervalCenters.add(intervalCenter);
+		if(pastIntervalCenters.size() > 8){
+			pastIntervalCenters.remove(0);
+		}
+		
+		Double avgSize = 0.0;
+		for(Double s: pastNetworkSizeStimates){
+			avgSize += s;
+		}
+		avgSize = avgSize/pastNetworkSizeStimates.size();
+		
+		Double minError = Double.MAX_VALUE;
+		int minErrorCenter = 0;
+		
+		for(int i=0; i < pastNetworkSizeStimates.size();i++){
+			if(Math.abs(pastNetworkSizeStimates.get(i)-avgSize) < minError){
+				minErrorCenter = i;
+			}
+		}
+		Double sign = new Random().nextGaussian()< 0.0?-1.0:1.0;
+		
+		intervalCenter = pastIntervalCenters.get(minErrorCenter) + sign*1.0/Math.pow(2, 64);
+	}
+	
 }
+
+

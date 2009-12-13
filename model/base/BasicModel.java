@@ -9,13 +9,11 @@ import java.util.logging.Logger;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
+import edu.upc.cnds.collectivesim.model.AgentFactory;
 import edu.upc.cnds.collectivesim.model.AgentSampler;
 import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
-import edu.upc.cnds.collectivesim.model.base.BehaviorVisitor;
-import edu.upc.cnds.collectivesim.model.base.DummySampler;
-import edu.upc.cnds.collectivesim.model.base.ObserverVisitor;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 import edu.upc.cnds.collectivesim.stream.Stream;
 import edu.upc.cnds.collectivesim.stream.base.FixedValueStream;
@@ -37,23 +35,27 @@ import edu.upc.cnds.collectivesim.stream.base.FixedValueStream;
  *  behavior)
  * 
  * @author Pablo Chacin
+ * @param <T>
  *
  */
 
-public abstract class AbstractModel implements Model{
+public class BasicModel<T extends ModelAgent> implements Model<T> {
 
 	
 	private static Logger log = Logger.getLogger("collectivesim.model");
 
+	
+	public enum Status {STARTED,PAUSED,STOPED};
+	
 	/**
 	 * List of active agents
 	 */
-	private List<ModelAgent> agents;
+	private List<T> agents;
 
 	/**
 	 * Map of agents by name
 	 */
-	private Map<String,ModelAgent>agentMap;
+	private Map<String,T>agentMap;
 	
 	/**
 	 * behaviors currently registered in the model
@@ -80,10 +82,7 @@ public abstract class AbstractModel implements Model{
 	 */
 	private Map<String,ObserverVisitor> observers;
 
-	/**
-	 * Actions to be scheduled by this model (observers and behaviors)
-	 */
-	private List<ModelAction>actions;
+
 	
 	/**
 	 * Stream of attributes used to initialize agents
@@ -91,39 +90,57 @@ public abstract class AbstractModel implements Model{
 	protected Stream[] attributeStreams;
 	
 	/**
+	 * Initial number of agents
+	 */
+	protected int numAgents;
+	
+	
+	protected AgentFactory factory;
+
+	/**
+	 * Map of {@link AgentStreamAction} used to drive the agent arrival process
+	 */
+	protected  Map<String, AgentStream> agentStreams;
+	
+	protected Status status;
+	
+	/**
 	 * Constructor
 	 * @param name 
 	 */
-	public AbstractModel(String name, Experiment experiment,Stream...attributeStreams){
+	public BasicModel(String name, Experiment experiment,AgentFactory factory,int numAgents,Stream...attributeStreams){
 		this.experiment = experiment;
 		this.name = name;
+		this.status = Status.STOPED;
+		this.factory = factory;
+		this.numAgents = numAgents;
 		this.attributeStreams = attributeStreams;
 		this.scheduler = experiment.getScheduler();
-		this.agents = new ArrayList<ModelAgent>();
-		this.agentMap = new HashMap<String,ModelAgent>();
-		this.actions = new ArrayList<ModelAction>();
+		this.agents = new ArrayList<T>();
+		this.agentMap = new HashMap<String,T>();
 		this.behaviors = new HashMap<String,BehaviorVisitor>();
 		this.observers = new HashMap<String, ObserverVisitor>();
+		this.agentStreams = new HashMap<String,AgentStream>();
 	}
 
+	
+	/**
+	 * Convenience constructor for models that will not make an initial population of agents.
+	 * 
+	 * @param name
+	 * @param experiment
+	 */
+	public BasicModel(String name, Experiment experiment){
+		this(name,experiment,null,0);
+	}
+	
 	@Override
 	public Experiment getExperiment(){
 		return  experiment;
 	}
 
 	
-	/**
-	 * Builds a Map of attributes that can be passed to agent constructors
-	 * @return
-	 */
-	protected Map getAttributes(){
-		Map attributes = new HashMap();
-		for(Stream s: attributeStreams){
-			attributes.put(s.getName(),s.nextElement());
-		}
-		
-		return attributes;
-	}
+
 	
 	@Override
 	public String getName(){
@@ -145,7 +162,6 @@ public abstract class AbstractModel implements Model{
 		
 		BehaviorVisitor behavior = new BehaviorVisitor(this,name,sampler,method, active,iterations,frequency,delay,endTime,args);
 		behaviors.put(name,behavior);
-		actions.add(behavior);
 		
 	}
 	
@@ -193,7 +209,6 @@ public abstract class AbstractModel implements Model{
 		ObserverVisitor visitor = new ObserverVisitor(this,name,sampler,attributes,values,reset,0,new FixedValueStream<Long>("",frequency),delay,0);
 		
 		observers.put(name,visitor);
-		actions.add(visitor);
 		
 	}
 
@@ -214,7 +229,6 @@ public abstract class AbstractModel implements Model{
 		ObserverVisitor visitor = new CalculatingObserverVisitor(this,name,sampler,attributes,values,function,reset,0,new FixedValueStream<Long>("",frequency),delay,0);
 		
 		observers.put(name,visitor);
-		actions.add(visitor);
 	}
 	
 	public final void addObserver(String name, AgentSampler sampler,String attribute,DataSeries values,SeriesFunction function, boolean append,long frequency,long delay) {
@@ -225,39 +239,30 @@ public abstract class AbstractModel implements Model{
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#getAgents()
 	 */
-	public final List<ModelAgent> getAgents() {
+	public final List<T> getAgents() {
 		
 		//return a new List to avoid concurrency problems
-		return new ArrayList<ModelAgent>(agents);
+		return new ArrayList<T>(agents);
 	}
 
 	@Override
-	public final void reset(){
+	public void reset(){
 		
 		//be sure that all agents are eliminated from the model
 		agents.clear();
+		status = Status.STOPED;
 		
-		//call subclass to clean up its resources
-		terminate();
 	}
 
 	@Override
 	 public final void pause() {
-
-		 //pause behaviors and observers
-		 for(ModelAction a: actions){
-			 a.pause();
-		 }
+		status = Status.PAUSED;
 		 
-
 	 }
 
 	 @Override
 	 public final void resume(){
-		 //resume behaviors and observers
-		 for(ModelAction a: actions){
-			 a.resume();
-		 }
+		 status = Status.STARTED;
 	 }
 
 	 
@@ -269,14 +274,12 @@ public abstract class AbstractModel implements Model{
 		 
 		 //add agents to model
 		 populate();
+		 
 		 if(agents.size() == 0){
-			 log.warning("Model" + name + " has no agents");
+			 log.warning("Model " + name + " has no agents");
 		 }
 		 
-		 //start behaviors
-		 //TODO: this is rather dangerous because if a subclass doesn't call super().start()
-		 //       Behaviors will not start. Consider to add an abstract method to be
-		 //       extended by subclasses and call it from the abstract model's start method.
+
 		 for(BehaviorVisitor b: behaviors.values()){
 			 scheduler.scheduleAction((Runnable)b, b.getIterations(), b.getFrequency(), b.getDelay(), b.getEndTime());
 		 }
@@ -284,6 +287,12 @@ public abstract class AbstractModel implements Model{
 		 for(ObserverVisitor o: observers.values()){
 			 scheduler.scheduleAction((Runnable)o, o.getIterations(), o.getFrequency(), o.getDelay(), o.getEndTime());
 		 }
+		 
+		 for(AgentStream a: agentStreams.values()){
+			 scheduler.scheduleAction((Runnable)a, a.getIterations(), a.getFrequency(), a.getDelay(), a.getEndTime());
+		 }
+		 
+		 status = Status.STARTED;
 	 }
 
 	 /**
@@ -291,24 +300,71 @@ public abstract class AbstractModel implements Model{
 	  * they created to the model. Subclasses can also offer methods to insert externally created
 	  * agents to the model. 
 	  * 
+	  * When the model is in stated state, agents are immediately initialized. 
+	  * 
 	  * @param agent
 	  */
-	 protected final void addAgent(ModelAgent agent) {
+	 protected final void addAgent(T agent) {
 		 	agents.add(agent);
 		 	agentMap.put(agent.getName(), agent);
+		 	if(status == Status.STARTED)
+		 		agent.init();
+		 	
+		 	
 	 }
 
 	 
+	 /**
+	  * Removes the agent from the model given its name. The agent will no longer be available for any behavior or
+	  * observer and will no longer be part of the list returned  by {@link #getAgents()} method
+	  * 
+	  * @param name an String with the name of the Agent
+	  */
+	 protected final void removeAgent(String name){
+
+		 ModelAgent agent = agentMap.remove(name);
+		 agents.remove(agent);
+	 }
 	 
+	 
+	 /**
+	  * Convenience method to remove an agent from the model. See {@link #removeAgent(String)}.
+	  * 
+	  * @param agent a ModelAgent to be removed from the model
+	  */
+	 protected final void removeAgent(ModelAgent agent){
+		 removeAgent(agent.getName());
+	 }
+	 
+	 
+	 /**
+	  * Adds a new Agent to the model that exposes the public methods of the given Object. 
+	  * The name of the agent will be automatically generated based on the object's class name.
+	  *  
+	  * @param target an Object to be exposed as a {@link ModelAgent}
+	  */
 	 protected final void addAgent(Object target){
-		 addAgent(new ReflexionModelAgent(target));
+		 addAgent((T)(new ReflexionModelAgent(target)));
 	 }
 
+	 /**
+	  *  Adds a new Agent to the model that exposes the public methods of a given Object.
+	  *  
+	  * @param name a String with the name of the agent
+	  * @param target an Object to be exposed as a {@link ModelAgent}
+	  */
 	 protected final void addAgent(String name,Object target){
 		 addAgent(new ReflexionModelAgent(name,target));
 	 }
 	 
-	 public ModelAgent getAgent(String name){
+	 
+	 /**
+	  * Returns the agent registered under the given name, if nay.
+	  * 
+	  * @return a {@link ModelAgent} or null, if no agent is registered under that name
+	  * 
+	  */
+	 public T getAgent(String name){
 		 return agentMap.get(name);
 	 }
 	 
@@ -352,15 +408,83 @@ public abstract class AbstractModel implements Model{
 	 * of any of its variants.
 	 * 
 	 */
-	protected abstract void populate() throws ModelException;
+	public void populate() throws ModelException{
+
+		for(int i = 0; i < numAgents;i++){
+			createAgent(factory,attributeStreams);
+		}
+		
+		//Initialize every Agent
+		for(ModelAgent a: getAgents()){
+				a.init();
+		}
+	}
+		
+
+	/**
+	 * Creates an agent from a factory. 
+	 */
+	protected ModelAgent createAgent(AgentFactory factory,Stream ...argStreams) throws ModelException{
+		
+	
+		Map agentArgs = getAgentArguments(argStreams);
+		
+		ModelAgent agent;
+	
+		agent = factory.createAgent(this,agentArgs);
+
+		addAgent((ModelAgent)agent);
+		
+		return agent;
+
+
+	}
+	
+	
+	protected Map<String,Object> getAgentArguments(Stream ... argStreams){
+		
+		Map args = new HashMap<String,Object>();
+		
+		for(Stream s: argStreams){
+			args.put(s.getName(), s.nextElement());
+		}
+		
+		return args;
+	}
 	
 	/**
-	 * Terminates the model, cleaning up any resource. Prepares it for 
-	 * a new run. This method is executed after the model is executed.
-	 * It is not called before the first execution.
-	 * @throws ModelException
+	 * 
+	 * @param delay
+	 * @param endTime
+	 * @param frequency
+	 * @param rate
+	 * @param factory
+	 * @param args
 	 */
-	protected void terminate(){
-		return;
+	public void addAgentStream(long delay,long endTime,Stream<Long>frequency,Stream<Integer> rate,AgentFactory factory,Stream ... args){
+		
+		AgentStream action = new AgentStream(this,factory,rate,args,true,frequency,delay,endTime);
+		
+	}
+	
+	
+	/**
+	 * Informs that an agent has been added to the model. Can be used by subclasses to handle
+	 * this event.
+	 * 
+	 * @param agent
+	 */
+	protected void agentAdded(T agent){
+		
+	}
+	
+	/**
+	 * Informs that an agent has been removed from the model. Can be used by subclasses to 
+	 * handle this event.
+	 * 
+	 * @param agent
+	 */
+	protected void agentRemoved(T agent){
+		
 	}
 }

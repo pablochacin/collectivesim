@@ -108,6 +108,29 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 		return getGradient(overlay.getTopology().getNodes());
 	}
 
+
+	
+	/**
+	 * 
+	 * @return the average of the (absolute) difference between the node's utility 
+	 *         and its peer's utility
+	 */
+	public Double getGradientError(){
+
+		
+		Double error = 0.0;
+		for(Node n: overlay.getNodes()){
+			//get the actual utility of the node,not the local value 
+			UtilityOverlayAgent neighbor = (UtilityOverlayAgent)model.getAgent(n.getId().toString());
+			Double neighborUtility = (Double)n.getAttributes().get("utility");
+			Double difference = + Math.abs(neighborUtility-neighbor.getUtility());
+			error+= difference;
+		}
+				
+		return error/(double)overlay.getTopology().getSize();
+
+	}
+
 	
 	public Double getRandomGradient(){
 		List<Node> randomNeighbors = ((GradientOverlay)overlay).getRandomTopology().getNodes();

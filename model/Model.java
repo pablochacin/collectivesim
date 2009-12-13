@@ -8,7 +8,7 @@ import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.stream.Stream;
 
-public interface Model {
+public interface Model <T extends ModelAgent> {
 
 	/**
 	 * Adds a behavior to agents in the collective, defined as the execution of a method. 
@@ -121,7 +121,7 @@ public interface Model {
 	 * 
 	 * @return a list of the agents in the model
 	 */
-	public abstract List<ModelAgent> getAgents();
+	public abstract List<T> getAgents();
 
 	/**
 	 * pause the execution of the model
@@ -167,7 +167,7 @@ public interface Model {
 	 * @param name
 	 * @return
 	 */
-	public ModelAgent getAgent(String name);
+	public T getAgent(String name);
 
 	/**
 	 * Resume execution of Model (behaviors and observers)

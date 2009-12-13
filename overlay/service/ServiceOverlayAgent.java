@@ -57,6 +57,7 @@ public class ServiceOverlayAgent extends UtilityOverlayAgent {
 		attributes.put("utility", utility);
 		Destination destination = new Destination(attributes,tolerance);
 		
+		
 		ServiceRequest request = new ServiceRequest(utility,duration);
 		
 		try {

@@ -3,9 +3,12 @@ package edu.upc.cnds.collectivesim.overlay.utility;
 import java.util.Map;
 
 import edu.upc.cnds.collectives.overlay.Overlay;
+import edu.upc.cnds.collectives.underlay.Underlay;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
+import edu.upc.cnds.collectivesim.model.AgentFactory;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
+import edu.upc.cnds.collectivesim.overlay.OverlayAgentFactory;
 import edu.upc.cnds.collectivesim.overlay.OverlayFactory;
 import edu.upc.cnds.collectivesim.overlay.OverlayModel;
 import edu.upc.cnds.collectivesim.stream.Stream;
@@ -18,24 +21,13 @@ import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
  * @author Pablo Chacin
  *
  */
-public class UtilityOverlayModel extends OverlayModel{
+public class UtilityAgentFactory extends OverlayAgentFactory {
 
-			
-
-	/**
-	 * Constructor
-	 * @param name name of the model
-	 * @param experiment Experiment on which this model resides
-	 * @param underlay UnderlayModel that gives access to underlay nodes
-	 * @param factory OverlayFactory used to create overlay nodes 
-	 */
-	public UtilityOverlayModel(String name,Experiment experiment,UnderlayModel underlay, 
-			                    OverlayFactory factory,Stream ... attributes) {
 		
-		super(name,experiment,underlay,factory,attributes);
+	public UtilityAgentFactory(OverlayFactory factory, Underlay underlay) {
+		super(factory, underlay);
 	}
 
-	
 	/**
 	 * Creates an OverlayAgent from the overlay components
 	 * 
@@ -46,10 +38,9 @@ public class UtilityOverlayModel extends OverlayModel{
 	 * @throws ModelException 
 	 */
 	@Override
-	protected OverlayAgent createOverlayAgent(Overlay overlay,Map attributes) throws ModelException{
+	protected OverlayAgent createOverlayAgent(OverlayModel model,Overlay overlay,Map attributes) {	
 		
-		
-		return new UtilityOverlayAgent(this,overlay,attributes);
+		return new UtilityOverlayAgent(model,overlay,attributes);
 
 	}
 	

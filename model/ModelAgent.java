@@ -46,4 +46,18 @@ public interface ModelAgent {
 	public void execute(String action) throws ModelException;
 	
 	
+	/**
+	 * Initializes the Agent. Called before when the model is ready to start and before
+	 * any behavior is executed. 
+	 * 
+	 */
+	public void init();
+	
+	
+	/**
+	 * Finalize the Agent. Called after the Model has been stoped. 
+	 */
+	public void finish();
+	
+	
 }

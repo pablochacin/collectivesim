@@ -128,4 +128,16 @@ public class ReflexionModelAgent implements ModelAgent {
 		return name;
 	}
 
+
+	@Override
+	public void finish() {
+		
+	}
+
+
+	@Override
+	public void init() {
+		
+	}
+
 }
