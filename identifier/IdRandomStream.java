@@ -29,10 +29,7 @@ public class IdRandomStream implements Stream<Identifier> {
 		return name;
 	}
 
-	@Override
-	public Identifier getValue() {
-		return space.getRandomIdentifier();
-	}
+
 
 	@Override
 	public void reset() {
@@ -43,6 +40,16 @@ public class IdRandomStream implements Stream<Identifier> {
 	public void open() {
 		// Do nothing.
 		
+	}
+
+	@Override
+	public boolean hasMoreElements() {
+		return true;
+	}
+
+	@Override
+	public Identifier nextElement() {
+		return space.getRandomIdentifier();
 	}
 
 }
