@@ -37,7 +37,7 @@ public interface DataSet {
 	 * @param set a DataSet 
 	 * 
 	 */
-	public void mergeDataSet(DataSet set) throws InvalidDataItemException;
+	public void mergeDataSet(DataSet set) ;
 	
 
 	/**
