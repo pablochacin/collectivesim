@@ -93,7 +93,7 @@ public class Experiment implements Platform, ExecutionService {
 	/**
 	 * DataSeries that shouldn't be reset between runs
 	 */
-	private Set<String> persistentDS;
+	private Set<DataSeries> persistentDS;
 
 	private Map<String,Table>tables;
 
@@ -148,8 +148,14 @@ public class Experiment implements Platform, ExecutionService {
 	/**
 	 * working dir for each run. Same as workingDir is only one run
 	 */
+	private File runDir;
+	
+	/**
+	 * Working directiry
+	 */
 	private File workingDir;
 
+	
 	/**
 	 * start time of the experiment in real time
 	 */
@@ -195,7 +201,7 @@ public class Experiment implements Platform, ExecutionService {
 		this.counters = new HashMap<String, Counter>();		
 		this.tables = new HashMap<String, Table>();
 		this.series = new HashMap<String, DataSeries>();
-		this.persistentDS = new HashSet<String>();
+		this.persistentDS = new HashSet<DataSeries>();
 		this.streams = new HashMap<String, Stream>();
 		this.parameters = new TypedMap();
 		this.observers = new ArrayList<EventObserver>();
@@ -208,6 +214,8 @@ public class Experiment implements Platform, ExecutionService {
 		this.endRunCondition = executionLock.newCondition();
 
 		this.rootDir = FileUtils.createWorkingDirectory(rootDir);
+		this.workingDir = this.rootDir;
+		
 		this.exitOnEnd = exitOnEnd;
 
 		//If the experiment has an end time, schedule its termination
@@ -250,6 +258,13 @@ public class Experiment implements Platform, ExecutionService {
 		return rootDir.getAbsolutePath();
 	}
 
+	/**
+	 * Returns the working directory at the moment of the invocation.
+	 * While in an experiment run, the working directory is the run's directory
+	 * For initialization and termination tasks, the working directory is the experiment's root directory.
+	 * 
+	 * @return the path to the current working directory 
+	 */
 	public String getWorkingDirectory(){
 		return workingDir.getAbsolutePath();
 	}
@@ -364,7 +379,7 @@ public class Experiment implements Platform, ExecutionService {
 		series.put(name, dataseries);
 
 		if(persistent){
-			persistentDS.add(name);
+			persistentDS.add(dataseries);
 		}
 
 		return dataseries;
@@ -436,7 +451,7 @@ public class Experiment implements Platform, ExecutionService {
 
 		DataSeriesObserverTask observer = new DataSeriesObserverTask(targetSeries,function,resultSeries,true,false);
 
-		targetSeries.addObserver(observer);
+		//targetSeries.addObserver(observer);
 	}	
 
 	/**
@@ -491,7 +506,7 @@ public class Experiment implements Platform, ExecutionService {
 		}
 
 		//execute first run
-		startRun();
+		executeRuns();
 
 	}
 
@@ -500,7 +515,7 @@ public class Experiment implements Platform, ExecutionService {
 	 * Start each of the runs of the experiment
 	 * @throws ExperimentException
 	 */
-	private void startRun() throws ExperimentException{
+	private void executeRuns() throws ExperimentException{
 
 		do{
 			//schedule the end of run task
@@ -517,8 +532,10 @@ public class Experiment implements Platform, ExecutionService {
 				scheduler.setTerminationHandler(endTask);
 			}
 
-			workingDir = new File(rootDir.getAbsolutePath(),String.valueOf(runs));
-			workingDir.mkdir();
+			runDir = new File(rootDir.getAbsolutePath(),String.valueOf(runs));
+			runDir.mkdir();
+			workingDir = runDir;
+			
 
 			//execute initiation tasks
 			for(Runnable r: beginRunTasks){
@@ -563,6 +580,8 @@ public class Experiment implements Platform, ExecutionService {
 			}
 
 		}while(runs > 0);
+		
+		workingDir = rootDir;
 
 		//execute tasks at the end of the experiment
 		for(Runnable r: terminationTasks){
