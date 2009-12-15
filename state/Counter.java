@@ -54,6 +54,10 @@ public class Counter implements StateValue {
 
 	}
 	
+	public synchronized void decrement(){
+		increment(-1.0);
+	}
+	
 	/**
 	 * sets the counter to its initialization value
 	 */
