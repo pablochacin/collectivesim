@@ -1,87 +1,128 @@
 package edu.upc.cnds.collectivesim.dataseries.functions;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
 
 import edu.upc.cnds.collectivesim.dataseries.DataItem;
+import edu.upc.cnds.collectivesim.dataseries.DataSequence;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
 
+/**
+ * Calculates the series's basic statistical parameters: 
+ * <ul>
+ * <li>count: number of elements
+ * <li>avg the average of the elements
+ * <li>stdev: deviation: standard deviation
+ * <li>stderr: standard error = stdev/sqrt(n)
+ * <li>errorlow: standard error lower limit = avg-1.96*stderr
+ * <li>errorhigh: standard error upper  limit = avg+1.96*stderr
+ * <li>min: minimum value
+ * <li>max: maximum value
+ * </ul>
+ * 
+ * The standard deviation is calculated by using the formula
+ * 
+ * stdev = SQRT([SUM((xi-avg)^2]/N) ,   where avg = SUM(xi)/N
+ * 
+ * Notice that dev depends on the avg. 
+ * 
+ * This can be simplified by expanding the sum of the errors (xi-avg) as follows
+ * 
+ * SUM((xi-avg)^2 = SUM(xi^2 -2*xi*avg + avg^2)
+ *                = SUM(xi^2) -2*avg*SUM(xi) + N*avg^2 
+ *                = SUM(xi^2) -2*avg*N*SUM(xi)/N + N*avg^2
+ *                = SUM(xi^2) -2*N*avg^2 + N*avg^2
+ *                = SUM(xi^2) -N*avg^2
+ *                
+ *  Substituting in the original formula we have    
+ *  dev = SQRT([SUM(xi^2) -N*avg^2]/N)
+ *      = SQRT(SUM(xi^2)/N - avg^2)
+ *      
+ *             
+ * @author Pablo Chacin
+ *
+ */
 public class DescriptiveStatistics implements SeriesFunction {
 
-	private static Double[] DEFAULT_PERCENTILES = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0};
+	/**
+	 * Sum of values
+	 */
+	private Double sumX;
 	
-	protected Double[] percentiles;
+	/**
+	 * Sum of square of values, used to calculate the stdev
+	 */
+	private Double sumX2;
 	
-	protected Double[] pctValues;
-
-	protected Vector<Double>values;
-
-	String attribute;
+	/**
+	 * Number of items processed
+	 */
+	private Double count;
 	
-	public DescriptiveStatistics(String attribute,Double[] percentiles) {
-		this.attribute = attribute;
-		this.percentiles = percentiles;
-		this.pctValues = new Double[percentiles.length];
-		this.values = new Vector<Double>();
-		
+	/**
+	 * Minimum value encountered
+	 */
+	private Double min;
+	
+	/**
+	 * Maximum value encountered
+	 */
+	private Double max;
+	
+	protected String attribute;
+
+	
+	public DescriptiveStatistics(String attribute){
+		this.attribute =attribute;
 	}
+	
 
-	public DescriptiveStatistics(String attribute) {
-		this(attribute,DEFAULT_PERCENTILES);
-	}
-
-
-	@Override
-	public void reset(){
-		values.clear();
-	}
-
-	@Override
 	public boolean processItem(DataItem item){
-		values.add((Double)item.getDouble(attribute));
-
-		return true;
+		Double value = item.getDouble(attribute);
+		count++;		
+		sumX += value;
+		sumX2 += value*value;
+		min = Math.min(min, value);
+		max = Math.max(max, value);
+		
+		return true;	
 	}
 	
-	@Override
 	public void calculate(DataSeries result) {
-				
-		if(values.isEmpty()){
-			return;
 
+		if(count == 0){
+			return;
 		}
 		
-		Collections.sort(values);
-		
-		for(int p =0; p < percentiles.length;p++){
-	        double pos = percentiles[p] * (values.size() + 1);
-	        double fpos = Math.floor(pos);
-	        int intPos = (int) fpos;
-	        double dif = pos - fpos;
-	        
-	        double lower = values.get(intPos - 1);
-	        double upper = values.get(intPos);
-	        pctValues[p] = lower + dif* (upper - lower);
-	        
-	       	        
-		}
-		
+		Double avg = sumX/count;
+		Double stdev = Math.sqrt((sumX2/count)-(avg*avg));
+		Double stderr = stdev/Math.sqrt(count);
 		
 		Map<String,Object>attributes = new HashMap<String,Object>();
-		attributes.put("count", new Double(values.size()));
-		attributes.put("min", values.firstElement());
-		attributes.put("max", values.lastElement());
-		for(int p=0;p < percentiles.length;p++){
-			attributes.put("pct"+percentiles[p], pctValues[p]);
-		}
+		attributes.put("count", new Double(count));
+		attributes.put("avg", avg);
+		attributes.put("stdev", stdev);
+		attributes.put("min", min);
+		attributes.put("max", max);
+		attributes.put("errorlow", Math.max(min, avg-stdev));
+		attributes.put("errorhigh", Math.min(max, avg+stdev));
+		attributes.put("stderr", stderr);
+
 		
 		
 		result.addItem(attributes);
-		
-		
+	}
+
+	/**
+	 * Resets the function
+	 */
+	public void reset() {
+		sumX = 0.0;
+		sumX2 = 0.0;
+		min = Double.MAX_VALUE;
+		max = Double.MIN_VALUE;
+		count = 0.0;
 	}
 
 }
