@@ -32,6 +32,10 @@ public class RandomAgentSampler implements AgentSampler {
 	} 
 	
 	public RandomAgentSampler(double fraction){
+		
+		if((fraction<0.0) || (fraction > 1.0))
+			throw new IllegalArgumentException("Fractions must be in the [0.0,1.0] range");
+			
 		this.maxSampleSize = 0;
 		this.fraction = fraction;
 	}
