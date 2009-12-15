@@ -15,6 +15,7 @@ import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
+import edu.upc.cnds.collectivesim.state.Counter;
 import edu.upc.cnds.collectivesim.stream.Stream;
 import edu.upc.cnds.collectivesim.stream.base.FixedValueStream;
 
@@ -92,9 +93,11 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	/**
 	 * Initial number of agents
 	 */
-	protected int numAgents;
+	protected int initialAgents;
 	
-	
+	/**
+	 * Agent factory for initial population
+	 */
 	protected AgentFactory factory;
 
 	/**
@@ -102,7 +105,13 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	 */
 	protected  Map<String, AgentStream> agentStreams;
 	
+	/**
+	 * Execution status
+	 */
 	protected Status status;
+	
+	
+	protected Counter agentCounter;
 	
 	/**
 	 * Constructor
@@ -113,7 +122,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 		this.name = name;
 		this.status = Status.STOPED;
 		this.factory = factory;
-		this.numAgents = numAgents;
+		this.initialAgents = numAgents;
 		this.attributeStreams = attributeStreams;
 		this.scheduler = experiment.getScheduler();
 		this.agents = new ArrayList<T>();
@@ -121,6 +130,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 		this.behaviors = new HashMap<String,BehaviorVisitor>();
 		this.observers = new HashMap<String, ObserverVisitor>();
 		this.agentStreams = new HashMap<String,AgentStream>();
+		this.agentCounter = experiment.addCounter(name+".agents");
 	}
 
 	
@@ -304,12 +314,14 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	  * 
 	  * @param agent
 	  */
-	 protected final void addAgent(T agent) {
-		 	agents.add(agent);
-		 	agentMap.put(agent.getName(), agent);
+	 protected final void addAgent(ModelAgent agent) {
+		 	agents.add((T) agent);
+		 	agentCounter.increment();
+		 	agentMap.put(agent.getName(), (T) agent);
 		 	if(status == Status.STARTED)
 		 		agent.init();
 		 	
+		 
 		 	
 	 }
 
@@ -322,8 +334,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	  */
 	 protected final void removeAgent(String name){
 
-		 ModelAgent agent = agentMap.remove(name);
-		 agents.remove(agent);
+		 removeAgent(getAgent(name));
 	 }
 	 
 	 
@@ -333,7 +344,12 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	  * @param agent a ModelAgent to be removed from the model
 	  */
 	 protected final void removeAgent(ModelAgent agent){
-		 removeAgent(agent.getName());
+		 
+		 agents.remove(agent);
+		 agentMap.remove(agent.getName());
+		 agentCounter.decrement();
+		 
+		 
 	 }
 	 
 	 
@@ -410,7 +426,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	 */
 	public void populate() throws ModelException{
 
-		for(int i = 0; i < numAgents;i++){
+		for(int i = 0; i < initialAgents;i++){
 			createAgent(factory,attributeStreams);
 		}
 		
@@ -424,7 +440,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	/**
 	 * Creates an agent from a factory. 
 	 */
-	protected ModelAgent createAgent(AgentFactory factory,Stream ...argStreams) throws ModelException{
+	public ModelAgent createAgent(AgentFactory factory,Stream ...argStreams) throws ModelException{
 		
 	
 		Map agentArgs = getAgentArguments(argStreams);
@@ -461,10 +477,11 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	 * @param factory
 	 * @param args
 	 */
-	public void addAgentStream(long delay,long endTime,Stream<Long>frequency,Stream<Integer> rate,AgentFactory factory,Stream ... args){
+	public void addAgentStream(String name,long delay,long endTime,Stream<Long>frequency,Stream<Integer> rate,AgentFactory factory,Stream ... args){
 		
 		AgentStream action = new AgentStream(this,factory,rate,args,true,frequency,delay,endTime);
 		
+		agentStreams.put(name,action);
 	}
 	
 	
