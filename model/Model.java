@@ -117,6 +117,31 @@ public interface Model <T extends ModelAgent> {
 	public abstract void addObserver(String name,AgentSampler sampler,
             String attribute, DataSeries values,SeriesFunction function,boolean reset,long delay,long frequency);
 
+	
+	
+	/**
+	 * Creates an agent from a factory. 
+	 */
+	public ModelAgent createAgent(AgentFactory factory,Stream ...argStreams) throws ModelException;
+
+	
+
+	/**
+	 * 
+	 * Creates a stream of new agents that are created in the model periodically, 
+	 * 
+	 * @param delay
+	 * @param endTime
+	 * @param frequency
+	 * @param rate
+	 * @param factory
+	 * @param args
+	 */
+	public void addAgentStream(String name,long delay,long endTime,Stream<Long>frequency,Stream<Integer> rate,AgentFactory factory,Stream ... args);
+
+
+	
+	
 	/**
 	 * 
 	 * @return a list of the agents in the model
