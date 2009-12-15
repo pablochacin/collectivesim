@@ -32,15 +32,16 @@ public class OverlayModel extends BasicModel<OverlayAgent>  {
 	 * @param localNode
 	 * @param node
 	 */
-	public void nodeJoin(Node localNode, Node node) {
+	public void nodeLink(Node localNode, Node node) {
         //Report that the node is part of the topology
-        Event event = new TopologyEvent(localNode,TopologyEvent.TOPOLOGY_JOIN,
+        Event event = new TopologyEvent(localNode,TopologyEvent.TOPOLOGY_LINK,
         		                        getCurrentTime(),node);
         experiment.reportEvent(event);
         
         OverlayAgent agent = (OverlayAgent)getAgent(node.getId().toString());
         
-        agent.incIndegree();
+        if(agent != null)
+        	agent.incIndegree();
 	}
 
 	/**
@@ -48,16 +49,39 @@ public class OverlayModel extends BasicModel<OverlayAgent>  {
 	 * @param localNode
 	 * @param node
 	 */
-	public void nodeLeave(Node localNode, Node node) {
+	public void nodeUnlink(Node localNode, Node node) {
         //Report that the node is part of the topology
-        Event event = new TopologyEvent(localNode,TopologyEvent.TOPOLOGY_LEAVE,
+        Event event = new TopologyEvent(localNode,TopologyEvent.TOPOLOGY_UNLINK,
         								getCurrentTime(),node);
         experiment.reportEvent(event);
 		
         OverlayAgent agent = (OverlayAgent)getAgent(node.getId().toString());
         
-        agent.decIndegree();
+        if(agent != null)
+        	agent.decIndegree();
 	}
 	
     
+	void nodeLeave(OverlayAgent agent){		
+		
+		Event event = new TopologyEvent(agent.getOverlay().getLocalNode(),
+				                         TopologyEvent.TOPOLOGY_LEAVE,
+				                         getCurrentTime());
+		experiment.reportEvent(event);
+
+		for(Node n: agent.getOverlay().getNodes()){
+			nodeUnlink(agent.getOverlay().getLocalNode(),n);
+		}
+		
+		super.removeAgent(agent);
+	}
+	
+	
+	void nodeJoin(OverlayAgent agent){
+		 Event event = new TopologyEvent(agent.getOverlay().getLocalNode(),
+                 TopologyEvent.TOPOLOGY_JOIN,
+                 getCurrentTime());
+		 
+		 experiment.reportEvent(event);
+	}
 }

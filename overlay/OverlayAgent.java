@@ -10,7 +10,6 @@ import java.util.Random;
 import java.util.Vector;
 import java.util.logging.Logger;
 
-import com.sun.org.apache.bcel.internal.generic.GOTO;
 
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.node.Node;
@@ -23,7 +22,6 @@ import edu.upc.cnds.collectives.routing.RoutingEvent;
 import edu.upc.cnds.collectives.routing.base.Route;
 import edu.upc.cnds.collectives.topology.TopologyObserver;
 import edu.upc.cnds.collectives.util.UniqueArrayList;
-import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.base.CompositeReflexionModelAgent;
 import edu.upc.cnds.collectivesim.state.Counter;
 
@@ -90,19 +88,34 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	 */
 	public void join(){
 		overlay.join();
+		model.nodeJoin(this);
+	}
+	
+	
+	/**
+	 * Simulates the failure of the node
+	 */
+	public void leave(){
+		
+		System.out.println("Removing node: "+ getName());
+		
+		overlay.getLocalNode().leave();
+		model.nodeLeave(this);
 	}
 	
 	@Override
 	public void nodeAdded(Node node) {
-		model.nodeJoin(overlay.getLocalNode(),node);
+		model.nodeLink(overlay.getLocalNode(),node);
 		
 	}
 
 	@Override
 	public void nodeRemoved(Node node) {
-		model.nodeLeave(overlay.getLocalNode(),node);; 
+		model.nodeUnlink(overlay.getLocalNode(),node);; 
 		
 	}
+	
+	
 	
 
 	@Override
@@ -218,7 +231,6 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
         
         	return age;
 		}catch (Exception e){
-        	System.out.println();
         	return Double.NaN;
         }
 	}
@@ -314,14 +326,12 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	
 		Double numInterLinks = 0.0;
 		
-		List<Node> neighbors = overlay.getNodes();
+		List<OverlayAgent> neighbors = getActiveNeighbors();
 		
-		for(Node n: neighbors){
-			
-			OverlayAgent neighbor = (OverlayAgent)model.getAgent(n.getId().toString());
-			
-			List<Node> interLinks = neighbor.getOverlay().getNodes();
-			interLinks.retainAll(neighbors);
+		for(OverlayAgent n: neighbors){
+						
+			List<Node> interLinks = n.getOverlay().getNodes();
+			interLinks.retainAll(overlay.getNodes());
 			
 			numInterLinks += (double)interLinks.size();
 			
@@ -419,6 +429,27 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 		intervalCenter = pastIntervalCenters.get(minErrorCenter) + sign*1.0/Math.pow(2, 64);
 	}
 	
+	
+	/**
+	 * Returns the list of active neighbors, excluding from the overlay those that are not
+	 * active.
+	 * 
+	 * @return a List of active OverlayNodes in the neighborhood
+	 */
+	protected List<OverlayAgent> getActiveNeighbors(){
+		
+		List<OverlayAgent>activeNeighbors = new ArrayList<OverlayAgent>();
+		
+		for(Node n: overlay.getNodes()){
+			OverlayAgent agent = model.getAgent(n.getId().toString()); 
+			if(agent != null){
+				activeNeighbors.add(agent);
+			}
+			
+		}
+		
+		return activeNeighbors;
+	}
 }
 
 
