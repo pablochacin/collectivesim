@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import edu.upc.cnds.collectives.util.FormattingUtils;
+import edu.upc.cnds.collectives.util.Histogram;
 import edu.upc.cnds.collectives.util.MapFromString;
 import edu.upc.cnds.collectivesim.dataseries.DataItem;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
@@ -32,81 +33,16 @@ import edu.upc.cnds.collectivesim.visualization.charts.ptplot.PtPlotLinePlot;
  */
 public class SeriesHistogram implements SeriesFunction {
 
-	private class Bin{
-		public Double count;
-		public Double lower;
-		public Double higher;
-
-		Bin(){
-			this.count = 0.0;
-			this.lower = 0.0;
-			this.higher = 0.0;
-		}
-
-		Bin(Double lower,Double higher,Double count){
-			this.lower = lower;
-			this.higher = higher;
-			this.count = count;
-		}
-
-		Bin(Double lower,Double higher){
-			this.lower = lower;
-			this.higher = higher;
-			this.count = 0.0;
-		}
-
-		public void inc(){
-			count++;
-		}
-	}
-
-	protected Double binWith;
 
 	protected String attribute;
 
-	protected Vector<Bin> bins;
-
-	//offset of bin's vector position with respect of its number (due to the vector's index starting at 0)
-	protected int offset;
-
-
-	//min value in the histogram
-	protected Double min;
-
-	//max value in the histogram
-	protected Double max;
-
-	//number of elements
-	protected Double count;
-
-	/**
-	 * Indicates if values out of range should be ignored (true) or added to the count of the
-	 * respective range limit
-	 */
-	protected boolean truncate;
-
-	/**
-	 * indicates if the histogram must be resized to accommodate values outside current boundaries
-	 */
-	protected boolean resize;
-
-	/**
-	 * Initial number of bins
-	 */
-	protected int initBins;
+	protected Histogram histogram;
 	
 	public SeriesHistogram(String attribute,Double min, Double max,int numBins,boolean truncate){
 
 		this.attribute = attribute;
-		this.min = min;
-		this.max = max;
-		this.truncate = truncate;
-		this.resize = false;
-		this.initBins = numBins;
-
-		binWith = (max-min)/(double)(numBins);
-		offset = (int)(numBins*binWith-max);
-
+		this.histogram = new Histogram(min,max,numBins,truncate);
+	
 
 	}
 
@@ -119,120 +55,33 @@ public class SeriesHistogram implements SeriesFunction {
 	public SeriesHistogram(String attribute,Double binWidth){
 
 		this.attribute = attribute;
-		this.min = Double.MAX_VALUE;
-		this.max = Double.MIN_VALUE;
-		this.binWith = binWidth;
-		this.offset = 0;
-		this.resize = true;
-		this.truncate = false;
-		this.initBins = 0;
-
+		this.histogram = new Histogram(binWidth);
 
 	}	
 
 	@Override
 	public boolean processItem(DataItem item) {
 
-
-
 		Double value = item.getDouble(attribute);
-
-		//first insertion is a very complex case, treat separatelly
-		if(bins.isEmpty()){
-			Double lower = Math.floor(value/binWith)*binWith;
-			Double higher = lower+binWith;
-			bins.add(new Bin(lower,higher,1.0));
-			min = lower;
-			max = higher;
-			count = 1.0;
-			offset = calculateOffet();
-			return true;
-		}
 		
-		//each bin covers the range [lower,higher) (includes lower, excludes higher)
-		int bin = (int) Math.floor(value/binWith+offset);
-
-
-		if(bin < 0){
-
-			if(resize){
-				//add missing bins
-				while(bins.firstElement().lower > value){
-					Double higher = bins.firstElement().lower;
-					Double lower = higher - binWith;
-					bins.add(0, new Bin(lower,higher));        		
-					min = min - binWith;					
-
-				}
-
-				//the first one is the corresponding to the value
-				bin = 0;
-				offset = calculateOffet();
-
-			}
-			else{
-				if(truncate)
-					//just ignore
-					return true;
-				else
-					bin = 0;
-			}
-		}
-		else{
-			if(bin >= bins.size()){ 
-				if(resize){
-					//add missing bins
-					while(bins.lastElement().higher < value){
-						Double lower = bins.lastElement().higher;
-						Double higher = lower + binWith;
-						bins.add(bins.size(), new Bin(lower,higher)); 
-						max = max + binWith;
-					}
-					
-					//the last one is the corresponding to the value
-					bin = bins.size()-1;
-					offset = calculateOffet();
-				}
-				else{
-					if(truncate)
-						return true;
-					else
-						bin = bins.size()-1;
-				}
-			}
-
-		}
-
-		bins.get(bin).inc();
-		count++;
+		histogram.addValue(value);
 		
-
 		return true;
 
 	}
-
 	
-	/**
-	 * Calculates the offset needed to access Bins in the bins Vector
-	 * 
-	 * @return
-	 */
-	private int calculateOffet(){
-		//return (int) (bins.size()-1-Math.floor(bins.lastElement().higher/binWith));
-		return (int)(-Math.floor(bins.firstElement().lower/binWith));
-	}
 	
 	@Override
 	public void calculate(DataSeries result) {
 
 				
-		for(Bin b: bins){		
+		for(Histogram.Bin b: histogram.getBins()){		
 			Map binAttributes = new HashMap();
 			binAttributes.put("lower", b.lower);
 			binAttributes.put("higher",b.higher);
 			binAttributes.put("middle",(b.lower+b.higher)/2.0);
 			binAttributes.put("count",b.count);
-			binAttributes.put("fraction",b.count/count);
+			binAttributes.put("fraction",b.count/histogram.getCount());
 
 			result.addItem(binAttributes);
 			
@@ -245,14 +94,7 @@ public class SeriesHistogram implements SeriesFunction {
 	@Override
 	public void reset() {
 
-		bins = new Vector<Bin>(initBins);
-
-		for(int i=0;i<initBins;i++){
-			Double lower = min+(binWith*i);
-			bins.add(new Bin(lower,lower+binWith,0.0));
-		}
-
-		count = 0.0;
+		histogram.reset();
 	}
 
 
