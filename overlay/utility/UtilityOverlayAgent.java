@@ -88,15 +88,13 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 	 * @return the average of the (absolute) difference between the node's utility 
 	 *         and its peer's utility
 	 */
-	public Double getGradient(List<Node>neighbors){
+	public Double getGradient(List<OverlayAgent>neighbors){
 
 		
 		Double gradient = 0.0;
-		for(Node n: neighbors){
-			//get the actual utility of the node,not the local value 
-			UtilityOverlayAgent neighbor = (UtilityOverlayAgent)model.getAgent(n.getId().toString());
+		for(OverlayAgent n: neighbors){
 			
-			Double difference = + Math.abs(getUtility()-neighbor.getUtility());
+			Double difference = + Math.abs(getUtility()-((UtilityOverlayAgent)n).getUtility());
 			gradient += difference;
 		}
 				
@@ -105,7 +103,7 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 	}
 
 	public Double getGradient(){
-		return getGradient(overlay.getTopology().getNodes());
+		return getGradient(getActiveNeighbors());
 	}
 
 
@@ -120,11 +118,14 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 		
 		Double error = 0.0;
 		for(Node n: overlay.getNodes()){
+
 			//get the actual utility of the node,not the local value 
 			UtilityOverlayAgent neighbor = (UtilityOverlayAgent)model.getAgent(n.getId().toString());
-			Double neighborUtility = (Double)n.getAttributes().get("utility");
-			Double difference = + Math.abs(neighborUtility-neighbor.getUtility());
-			error+= difference;
+			if(neighbor != null){
+				Double neighborUtility = (Double)n.getAttributes().get("utility");
+				Double difference = + Math.abs(neighborUtility-neighbor.getUtility());
+				error+= difference;
+			}
 		}
 				
 		return error/(double)overlay.getTopology().getSize();
@@ -132,10 +133,7 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 	}
 
 	
-	public Double getRandomGradient(){
-		List<Node> randomNeighbors = ((GradientOverlay)overlay).getRandomTopology().getNodes();
-		return  getGradient(randomNeighbors);
-	}
+
 	
 	public Double getUtility(){
 		return utility;
