@@ -81,7 +81,7 @@ public class NodeVisualizer implements EventObserver {
 			return;
 		}
 
-		if(event.getType().equals(TopologyEvent.TOPOLOGY_JOIN)){
+		if(event.getType().equals(TopologyEvent.TOPOLOGY_LINK)){
 			try {
 				Node target = (Node)(event.getData()[0]);
 
@@ -96,7 +96,7 @@ public class NodeVisualizer implements EventObserver {
 			return;
 		}
 
-		if(event.getType().equals(TopologyEvent.TOPOLOGY_LEAVE)) {
+		if(event.getType().equals(TopologyEvent.TOPOLOGY_UNLINK)) {
 			try {
 				Node target = (Node)(event.getData()[0]);
 
