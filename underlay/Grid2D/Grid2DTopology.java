@@ -2,6 +2,7 @@ package edu.upc.cnds.collectivesim.underlay.Grid2D;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import edu.upc.cnds.collectives.underlay.UnderlayException;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.stream.Stream;
+import edu.upc.cnds.collectivesim.underlay.NetworkTopology;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 
 
@@ -26,7 +28,7 @@ import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
  * @author Pablo Chacin
  *
  */
-public class Grid2DModel extends UnderlayModel{
+public class Grid2DTopology implements NetworkTopology{
 
 
        
@@ -68,8 +70,7 @@ public class Grid2DModel extends UnderlayModel{
  * @param scope diameter of a location's neighborhood 
  * @param strategy LocationStrategy used to place nodes
  */
-    public Grid2DModel(String name,Experiment experiment,Stream<Identifier>ids, int numNodes,int sizeX, int sizeY,int scope,LocationStrategy strategy,Stream ...attributes){
-    	super(name,experiment,ids,numNodes,attributes);
+    public Grid2DTopology(int sizeX, int sizeY,int scope,LocationStrategy strategy){
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.scope = scope;
@@ -92,8 +93,8 @@ public class Grid2DModel extends UnderlayModel{
      * @param strategy
      * @param attributes
      */
-    public Grid2DModel(String name,Experiment experiment,Stream<Identifier>ids, int numNodes,int scope,LocationStrategy strategy,Stream ...attributes){
-    	 this(name,experiment,ids,numNodes,(int)Math.ceil(Math.sqrt(numNodes)),(int)Math.ceil(Math.sqrt(numNodes)),scope,strategy,attributes);
+    public Grid2DTopology(int numNodes,int scope,LocationStrategy strategy){
+    	 this((int)Math.ceil(Math.sqrt(numNodes)),(int)Math.ceil(Math.sqrt(numNodes)),scope,strategy);
     } 	
     public boolean isFree(int x, int y) {
 
@@ -110,56 +111,61 @@ public class Grid2DModel extends UnderlayModel{
         return grid.getSizeY();
     }
    
+    public  int getNumLocations(){
+    	return locations.size();
+    }
 
 	@Override
-	public List<Node> getKnownNodes(UnderlayNode node) {
+	public List<UnderlayNode> getKnownNodes(UnderlayNode node) {
+		
 		
 		Grid2DLocation location = locations.get(node);
 		
-    	Vector nodes = grid.getMooreNeighbors(location.getCoordX(),location.getCoordY(),false);
+		try{
+    	Vector<UnderlayNode> nodes = grid.getMooreNeighbors(location.getCoordX(),location.getCoordY(),false);
    	 
-    	return (new ArrayList<Node>(nodes));
-	}
-
-
+    	return (new ArrayList<UnderlayNode>(nodes));
+		}catch(NullPointerException e){
+			throw e;
+		}
+}
 
 
 
 	@Override
-	public List<Node> resolve(InetAddress host) throws UnderlayException {
-		throw new UnsupportedOperationException();
-	}
-
-
-	@Override
-	public String[] getSupportedMetrics() {
-		throw new UnsupportedOperationException();
-	}
-
-
-	@Override
-	protected void generateNetworkTopology(List<? extends UnderlayNode> nodes)
+	public void generateTopology(List<? extends UnderlayNode> nodes)
 			throws UnderlayModelException {
 		
 		for(UnderlayNode n: nodes){
-			Grid2DLocation location = locationStrategy.getLocation(this);
-			
-			double positionX = (double)location.getCoordX()/(double)sizeX;
-			double positionY = (double)location.getCoordY()/(double)sizeY;
-		
-			n.getAttributes().put("positionX", positionX);
-			n.getAttributes().put("positionY", positionY);
-		
-			grid.putObjectAt(location.getCoordX(),location.getCoordY(), n);
-			locations.put(n,location);
-	    		   		
+			addNode(n);
 		}
 	}
 
-
 	@Override
-	protected void terminate() {
-		grid = new Object2DGrid(sizeX,sizeY);
+	public void addNode(UnderlayNode node) throws UnderlayModelException {
+		Grid2DLocation location;
+		
+			location = locationStrategy.getLocation(this);
+
+		
+			double positionX = (double)location.getCoordX()/(double)sizeX;
+			double positionY = (double)location.getCoordY()/(double)sizeY;
+		
+			node.getAttributes().put("positionX", positionX);
+			node.getAttributes().put("positionY", positionY);
+		
+			grid.putObjectAt(location.getCoordX(),location.getCoordY(), node);
+			locations.put(node,location);
+	
 		
 	}
+
+	@Override
+	public void removeNode(UnderlayNode node) {
+		
+		Grid2DLocation location = locations.remove(node);
+		
+		grid.putObjectAt(location.getCoordX(), location.getCoordY(), null);
+	}
+
 }

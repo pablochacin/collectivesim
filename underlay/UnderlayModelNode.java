@@ -6,12 +6,13 @@ import java.util.Map;
 import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.transport.Transport;
+import edu.upc.cnds.collectives.transport.TransportException;
 import edu.upc.cnds.collectives.transport.TransportObserver;
 import edu.upc.cnds.collectives.underlay.Underlay;
 import edu.upc.cnds.collectives.underlay.UnderlayAddress;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectives.underlay.base.AbstractUnderlayNode;
-import edu.upc.cnds.collectivesim.transport.UnderlayModelTransport;
+import edu.upc.cnds.collectivesim.transport.UnderlayModelTransportDynamicProxy;
 
 /**
  * Simulates an UnderlayNode at network location. Offers mechanisms to send messages to another 
@@ -36,7 +37,7 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 	
 	protected UnderlayModel underlay;
 	
-	protected UnderlayModelTransport transport;
+	protected UnderlayModelTransportDynamicProxy transport;
 	
 	protected Double delivered;
 	
@@ -44,7 +45,7 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 	
 	protected Double undelivered;
 	
-	public UnderlayModelNode(UnderlayModel underlay,Identifier id, UnderlayAddress address,UnderlayModelTransport transport,Map attributes) {
+	public UnderlayModelNode(UnderlayModel underlay,Identifier id, UnderlayAddress address,UnderlayModelTransportDynamicProxy transport,Map attributes) {
 		super(id,address,attributes);
 		this.underlay= underlay;
 		this.transport = transport;
@@ -58,7 +59,7 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 	
 
 
-	public List<Node> getKnownNodes() {
+	public List<UnderlayNode> getKnownNodes() {
 		return underlay.getKnownNodes(this);
 	}
 	
@@ -74,7 +75,7 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 	 * @param args
 	 * @throws Exception
 	 */
-	public void handleTransportMessage(UnderlayModelNode source,String protocolName,String methodName,Object[] args) throws Exception{
+	public void handleTransportMessage(UnderlayModelNode source,String protocolName,String methodName,Object[] args) throws TransportException{
 		transport.handleMessage(source,protocolName,methodName,args);
 
 	}
@@ -141,5 +142,17 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 		return true;
 		
 	}
+
+
+
+	@Override
+	public void leave() {
+		
+		underlay.removeNode(this);
+		
+	}
+
+
+
 
 }

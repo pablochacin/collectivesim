@@ -1,6 +1,8 @@
 package edu.upc.cnds.collectivesim.underlay;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,72 +16,65 @@ import edu.upc.cnds.collectives.underlay.UnderlayException;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
+import edu.upc.cnds.collectivesim.model.AgentFactory;
+import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
-import edu.upc.cnds.collectivesim.model.base.AbstractModel;
+import edu.upc.cnds.collectivesim.model.base.BasicModel;
 import edu.upc.cnds.collectivesim.stream.Stream;
-import edu.upc.cnds.collectivesim.transport.UnderlayModelTransport;
+import edu.upc.cnds.collectivesim.transport.UnderlayModelTransportDynamicProxy;
 import edu.upc.cnds.collectivesim.underlay.Grid2D.UnderlayModelException;
 
 /**
- * Implements a simulated Underlay.
+ * Implements a simulated Underlay. Nodes of the underlay are modeled as {@link ModelAgent}s to allow 
+ * the implementation of behaviors and observers.
  * 
  * @author Pablo Chacin
  *
  */
-public abstract class UnderlayModel extends AbstractModel implements Underlay {
+public class UnderlayModel extends BasicModel implements Underlay {
 
+	
 	/**
-	 * Keeps a mapping of nodes to identifiers
+	 * Maintains a mapping of agent names to UndelayModelNodes.
 	 */
-	protected Map<Identifier,UnderlayModelNode> nodes; 
+	protected Map<String,UnderlayModelNode> nodes;
+	
+	protected NetworkTopology topology;
 
-	protected int numNodes;
-
-
-	public UnderlayModel(String name,Experiment experiment, int numNodes,Stream...attributeStreams) {
-		super(name,experiment,attributeStreams);
-		this.numNodes = numNodes;
-		this.nodes = new HashMap<Identifier,UnderlayModelNode>(); 
+	public UnderlayModel(String name,Experiment experiment, NetworkTopology topology,AgentFactory factory,int numNodes,Stream...attributeStreams) {
+		super(name,experiment,factory, numNodes,attributeStreams);
+		this.nodes = new HashMap<String,UnderlayModelNode>();
+		this.topology = topology;
 
 	}
 
+	/**
+	 * Convenience constructor without factory
+	 * 
+	 * @param name
+	 * @param experiment
+	 * @param attributeStreams
+	 */
+	public UnderlayModel(String name,Experiment experiment, NetworkTopology topology,Stream...attributeStreams) {
+		this(name,experiment,topology,null,0,attributeStreams);
+
+	}
+	
+	
 	@Override
 	public void populate() throws ModelException{
 		try {
-			List<UnderlayModelNode> nodeList = new ArrayList<UnderlayModelNode>(numNodes);
+		
+			super.populate();
 
-			for(int i=0;i<numNodes;i++){
-				UnderlayModelNode n = buildNode(getAttributes());
-				nodeList.add(n);			
-			}
-
-			generateNetworkTopology(nodeList);
-
-			for(UnderlayModelNode n: nodeList){
-				addNode(n);
-			}
+			List<UnderlayNode> nodeList = new ArrayList<UnderlayNode>(nodes.values());
+			
+			topology.generateTopology(nodeList);
 
 
 		} catch (UnderlayModelException e) {
 			throw new ModelException("Exception generating underlay",e);
 		}
-	}
-
-	/**
-	 * 
-	 * @return a List of the nodes in the model
-	 */
-	/**
-	 * Returns all the nodes in the topology
-	 */
-	public List<UnderlayNode> getNodes() {
-		List<UnderlayNode> nodeList = new ArrayList<UnderlayNode>();
-
-		for(UnderlayNode n : nodes.values()) {
-			nodeList.add(n);
-		}
-
-		return nodeList;
 	}
 
 
@@ -90,56 +85,59 @@ public abstract class UnderlayModel extends AbstractModel implements Underlay {
 	 */
 	public void removeNode(UnderlayModelNode node)  {
 
-		if(!nodes.containsValue(node)){
-			return;
-		}
-
+		
 		//Inform all neighbors of the lost node
 		for(Node n : getKnownNodes(node)) {
 			((UnderlayModelNode)n).notifyNodeLost(node);
 		}
+	
+	
+		topology.removeNode(node);
+		
+		super.removeAgent(node.getId().toString());
+
 	}
 
+	
+	@Override
+	public UnderlayNode createNode(Identifier id) throws UnderlayException {
+		return createNode(id,Collections.EMPTY_MAP);
+	}
+	
+	
 	@Override
 	public UnderlayNode createNode(Identifier id,Map attributes) throws UnderlayException {
-		UnderlayModelNode node;
-		try {
-			attributes.put("id", id);
-			node = buildNode(attributes);
-		} catch (UnderlayModelException e) {
-
-			throw new UnderlayException(e);
-		}
-		addNode(node);
-
-		return node;
-	}
-
-	/**
-	 * Builds a new instance of UnderlayNode for this underlay model.
-	 * @param id
-	 * @throws UnderlayModelException 
-	 */
-	protected UnderlayModelNode buildNode(Map attributes) throws UnderlayModelException{
-
-		Identifier id = (Identifier)attributes.get("id");
-
-		UnderlayModelTransport transport = new UnderlayModelTransport(this);
+		
+		UnderlayModelTransportDynamicProxy transport = new UnderlayModelTransportDynamicProxy(this);
 		
 		UnderlayModelNode node = new UnderlayModelNode(this,id,new UnderlayModelNodeAddress(""),transport,attributes);
 
-		return node;
+		node.getAttributes().put("id", id);
+		
+		addAgent(id.toString(),node);
+		
+		try {
+			 System.out.println("Adding node: " + id.toString());
+			topology.addNode(node);
+			
+			nodes.put(id.toString(), node);
 
+			return node;
+		} catch (UnderlayModelException e) {
+			throw new UnderlayException("Exception creating node",e);
+		}
+		
+	
 	}
 
-	protected void addNode(UnderlayModelNode node){
 
-		nodes.put(node.getId(),node);
+	@Override
+	protected void agentAdded(ModelAgent agent){
 
-		super.addAgent(node.getId().toString(),node);
+		UnderlayModelNode node = nodes.get(agent.getName());
 
 		//Inform all neighbors of the new node
-		for(Node n : getKnownNodes(node)) {
+		for(Node n : topology.getKnownNodes(node)) {
 			((UnderlayModelNode)n).notifyNodeDiscovered(node);
 		}
 
@@ -161,26 +159,25 @@ public abstract class UnderlayModel extends AbstractModel implements Underlay {
 	public String[] getSupportedMetrics() {
 		return new String[0];
 	}
+	
+	
 	/**
 	 * Returns the know nodes for a given node
 	 * @param topology
 	 * @return
 	 */
-	public abstract List<Node> getKnownNodes(UnderlayNode node);
-
-
-
-
-	/**
-	 * Generates a topology for the given list of nodes
-	 * 
-	 * @param nodes (unordered) list of nodes of the Underlay
-	 * @throws UnderlayModelException 
-	 */
-	protected abstract void generateNetworkTopology(List<? extends UnderlayNode>nodes) throws UnderlayModelException;
-
-	public UnderlayModelNode getNode(Identifier id) {
-
-		return nodes.get(id);
+	public List<UnderlayNode> getKnownNodes(UnderlayNode node){
+		return topology.getKnownNodes(node);
 	}
+
+	@Override
+	public List<Node> resolve(InetAddress host) throws UnderlayException {
+		throw new UnsupportedOperationException();
+	}
+
+	
+	public UnderlayNode getNode(Identifier id){
+		return nodes.get(id.toString());
+	}
+
 }

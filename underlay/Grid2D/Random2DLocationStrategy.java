@@ -20,8 +20,6 @@ public class Random2DLocationStrategy implements LocationStrategy{
      * positions
      */
     private Random rand;
-
-    private List<Grid2DLocation>locations;
     
     private int sizeX,sizeY;
     
@@ -32,12 +30,7 @@ public class Random2DLocationStrategy implements LocationStrategy{
     	this.sizeX = sizeX;
     	this.sizeY = sizeY;
         rand = new Random();        
-        locations = new ArrayList<Grid2DLocation>(sizeX*sizeY);
-        for(int x = 0;x<sizeX;x++){
-        	for(int y =0;y<sizeY;y++){
-        		locations.add(new Grid2DLocation(x,y));
-        	}
-        }
+  
     }
     
     /**
@@ -49,13 +42,23 @@ public class Random2DLocationStrategy implements LocationStrategy{
     	this((int)Math.ceil(Math.sqrt(numNodes)),(int)Math.ceil(Math.sqrt(numNodes)));
     }
 
-	public Grid2DLocation getLocation(Grid2DModel grid) throws UnderlayModelException{
+	public Grid2DLocation getLocation(Grid2DTopology grid) throws UnderlayModelException{
 		
-		if(locations.isEmpty()){
+		if(grid.getNumLocations() == sizeX*sizeY)
 			throw new UnderlayModelException("Not available cell found");
-		}
 		
-		Grid2DLocation location = locations.remove(rand.nextInt(locations.size()));
+		
+		Grid2DLocation location;
+		while(true){
+			
+			int x = rand.nextInt(sizeX);
+			int y = rand.nextInt(sizeY);
+		 	
+			if(grid.isFree(x, y)){
+				location = new Grid2DLocation(x,y);
+				break;
+			}
+		}
 		
 		return location;
 	}

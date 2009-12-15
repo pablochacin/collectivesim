@@ -17,6 +17,6 @@ public interface LocationStrategy {
 	 * 
 	 * @throws Grid2DLocation location if no free location can be found
 	 */
-	public Grid2DLocation getLocation(Grid2DModel grid) throws UnderlayModelException;
+	public Grid2DLocation getLocation(Grid2DTopology topology) throws UnderlayModelException;
 
 }
