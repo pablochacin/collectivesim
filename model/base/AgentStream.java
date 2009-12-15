@@ -34,19 +34,20 @@ public class AgentStream extends ModelAction {
 
 		int numAgents = rate.nextElement();
 
-		try {
-			for(int i=0;i< numAgents;i++){
+
+		for(int i=0;i< numAgents;i++){
+			try {
 				ModelAgent agent;
 
 				agent = model.createAgent(factory, argStreams);
 
 				model.addAgent(agent);
+			} catch (ModelException e) {
+				Logger.getLogger("collectivesim.model").warning("Exception creating agent " + 
+						FormattingUtils.getStackTrace(e));
 			}
-		} catch (ModelException e) {
-			Logger.getLogger("collectivesim.model").warning("Exception creating agent " + 
-					         FormattingUtils.getStackTrace(e));
-			super.pause();
 		}
+
 	}
 
 }
