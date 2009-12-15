@@ -25,9 +25,16 @@ public class PoissonSampler implements AgentSampler {
 
 	protected MersenneTwister64 rand;
 	
+	
+	
 	public PoissonSampler(Double n, MersenneTwister64 rand){
 		this.n = n;
 		this.rand = rand;
+	}
+	
+	
+	public PoissonSampler(Double n){
+		this(n, new MersenneTwister64());
 	}
 	
 	@Override
