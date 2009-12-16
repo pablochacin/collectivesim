@@ -129,7 +129,9 @@ public class Space2DTopology implements NetworkTopology{
 		Vector<UnderlayNode> neighbors = new Vector<UnderlayNode>();
 		
 		Space2DLocation location = locations.get(node);
-		
+		 if(location == null){			 
+			 throw new IllegalArgumentException("The node[" + node.getId().toString() + "] is not in the topology");			 
+		 }
 		
 		int startX = (int)Math.max(0,location.getGridX()-1);
 		int endX =   (int)Math.min(gridSizeX, location.getGridX()+1);
