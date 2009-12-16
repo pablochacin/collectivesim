@@ -41,7 +41,6 @@ public class AgentStream extends ModelAction {
 
 				agent = model.createAgent(factory, argStreams);
 
-				model.addAgent(agent);
 			} catch (ModelException e) {
 				Logger.getLogger("collectivesim.model").warning("Exception creating agent " + 
 						FormattingUtils.getStackTrace(e));
