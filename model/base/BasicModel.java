@@ -344,6 +344,11 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	  * @param agent a ModelAgent to be removed from the model
 	  */
 	 protected final void removeAgent(ModelAgent agent){
+		
+		 if(!agents.contains(agent) || !agentMap.containsKey(agent.getName())){
+			 throw new IllegalArgumentException("Agent: " + agent.getName() + 
+					                            " not found in this model");
+		 }
 		 
 		 agents.remove(agent);
 		 agentMap.remove(agent.getName());
