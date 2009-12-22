@@ -14,16 +14,13 @@ public class AgentStream extends ModelAction {
 
 	protected AgentFactory factory;
 
-	protected Stream[] argStreams;
-
 	protected Stream<Integer>rate;
 
-	public AgentStream(BasicModel model,AgentFactory factory, Stream<Integer>rate,Stream[] argStreams, 
+	public AgentStream(BasicModel model,AgentFactory factory, Stream<Integer>rate, 
 			boolean active, Stream<Long> frequency, long delay, long endTime) {
 		super(active, 0, frequency, delay, endTime);
 		this.model = model;
 		this.factory=factory;
-		this.argStreams = argStreams;
 		this.rate = rate;
 
 
@@ -39,7 +36,7 @@ public class AgentStream extends ModelAction {
 			try {
 				ModelAgent agent;
 
-				agent = model.createAgent(factory, argStreams);
+				agent = model.createAgent(factory);
 
 			} catch (ModelException e) {
 				Logger.getLogger("collectivesim.model").warning("Exception creating agent " + 

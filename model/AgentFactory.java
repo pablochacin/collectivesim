@@ -1,7 +1,5 @@
 package edu.upc.cnds.collectivesim.model;
 
-import java.util.Map;
-
 
 /**
  * 
@@ -21,5 +19,5 @@ public interface AgentFactory <M extends Model<? extends A>,A extends ModelAgent
 	 * @return a new instance of a ModelAgent
 	 * @throws ModelException 
 	 */
-	public A createAgent(M model, Map<String,Object> args) throws ModelException;
+	public A createAgent(M model) throws ModelException;
 }

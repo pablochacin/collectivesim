@@ -122,7 +122,7 @@ public interface Model <T extends ModelAgent> {
 	/**
 	 * Creates an agent from a factory. 
 	 */
-	public ModelAgent createAgent(AgentFactory factory,Stream ...argStreams) throws ModelException;
+	public ModelAgent createAgent(AgentFactory factory) throws ModelException;
 
 	
 
@@ -137,7 +137,7 @@ public interface Model <T extends ModelAgent> {
 	 * @param factory
 	 * @param args
 	 */
-	public void addAgentStream(String name,long delay,long endTime,Stream<Long>frequency,Stream<Integer> rate,AgentFactory factory,Stream ... args);
+	public void addAgentStream(String name,long delay,long endTime,Stream<Long>frequency,Stream<Integer> rate,AgentFactory factory);
 
 
 	

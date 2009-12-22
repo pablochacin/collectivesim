@@ -83,12 +83,6 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	 */
 	private Map<String,ObserverVisitor> observers;
 
-
-	
-	/**
-	 * Stream of attributes used to initialize agents
-	 */
-	protected Stream[] attributeStreams;
 	
 	/**
 	 * Initial number of agents
@@ -117,13 +111,12 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	 * Constructor
 	 * @param name 
 	 */
-	public BasicModel(String name, Experiment experiment,AgentFactory factory,int numAgents,Stream...attributeStreams){
+	public BasicModel(String name, Experiment experiment,AgentFactory factory,int numAgents){
 		this.experiment = experiment;
 		this.name = name;
 		this.status = Status.STOPED;
 		this.factory = factory;
 		this.initialAgents = numAgents;
-		this.attributeStreams = attributeStreams;
 		this.scheduler = experiment.getScheduler();
 		this.agents = new ArrayList<T>();
 		this.agentMap = new HashMap<String,T>();
@@ -432,7 +425,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	public void populate() throws ModelException{
 
 		for(int i = 0; i < initialAgents;i++){
-			createAgent(factory,attributeStreams);
+			createAgent(factory);
 		}
 		
 		//Initialize every Agent
@@ -445,14 +438,11 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	/**
 	 * Creates an agent from a factory. 
 	 */
-	public ModelAgent createAgent(AgentFactory factory,Stream ...argStreams) throws ModelException{
+	public ModelAgent createAgent(AgentFactory factory) throws ModelException{
 		
 	
-		Map agentArgs = getAgentArguments(argStreams);
 		
-		ModelAgent agent;
-	
-		agent = factory.createAgent(this,agentArgs);
+		ModelAgent agent = factory.createAgent(this);
 
 		addAgent((ModelAgent)agent);
 		
@@ -462,16 +452,6 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	}
 	
 	
-	protected Map<String,Object> getAgentArguments(Stream ... argStreams){
-		
-		Map args = new HashMap<String,Object>();
-		
-		for(Stream s: argStreams){
-			args.put(s.getName(), s.nextElement());
-		}
-		
-		return args;
-	}
 	
 	/**
 	 * 
@@ -482,9 +462,9 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	 * @param factory
 	 * @param args
 	 */
-	public void addAgentStream(String name,long delay,long endTime,Stream<Long>frequency,Stream<Integer> rate,AgentFactory factory,Stream ... args){
+	public void addAgentStream(String name,long delay,long endTime,Stream<Long>frequency,Stream<Integer> rate,AgentFactory factory){
 		
-		AgentStream action = new AgentStream(this,factory,rate,args,true,frequency,delay,endTime);
+		AgentStream action = new AgentStream(this,factory,rate,true,frequency,delay,endTime);
 		
 		agentStreams.put(name,action);
 	}
