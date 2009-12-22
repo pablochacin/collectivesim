@@ -31,7 +31,7 @@ public abstract class AgentVisitor extends ModelAction{
 	/**
      * Model on which the agents this model applies to, reside
      */
-    protected Model model;
+    protected Model<ModelAgent> model;
     
 	/**
 	 * Sampler used to select the agents that will 
@@ -43,11 +43,7 @@ public abstract class AgentVisitor extends ModelAction{
      */
     protected String name;
 
- 
-    
-
-    
-    
+       
     
     /**
      * Default constructor
@@ -56,7 +52,7 @@ public abstract class AgentVisitor extends ModelAction{
      * @param active a boolean that indicates if the behavior must be inserted active
      *        or will be deactivated until the realm activates it.
      */
-    public AgentVisitor(Model model,String name, AgentSampler sampler, 
+    public AgentVisitor(Model<ModelAgent> model,String name, AgentSampler sampler, 
     		            boolean active,int iterations,Stream<Long>frequency,long delay,long endTime){
     	
     	super(active,iterations,frequency,delay,endTime);
@@ -84,8 +80,7 @@ public abstract class AgentVisitor extends ModelAction{
 
     	
 		List<ModelAgent> agents = sampler.sample(model.getAgents());   
-    			
-		
+    					
     	startVisit();
     	
     	for(ModelAgent a: agents) {
