@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 
 import edu.upc.cnds.collectives.events.Event;
+import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.overlay.epidemic.EpidemicOverlay;
@@ -59,9 +60,9 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	 * @param model
 	 * @param overlay
 	 */
-	public OverlayAgent(OverlayModel model,Overlay overlay,Map attributes){
+	public OverlayAgent(OverlayModel model,Overlay overlay,Identifier id){
 		
-		super(overlay.getLocalNode().getId().toString(),overlay);
+		super(id.toString(),overlay);
 		
 		this.model = model;
 		this.overlay = overlay;
@@ -96,9 +97,7 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	 * Simulates the failure of the node
 	 */
 	public void leave(){
-		
-		System.out.println("Removing node: "+ getName());
-		
+	
 		overlay.getLocalNode().leave();
 		model.nodeLeave(this);
 	}
