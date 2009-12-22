@@ -184,11 +184,17 @@ public class Experiment implements Platform, ExecutionService {
 	 * Number of runs for the experiment
 	 */
 	private int runs;
+	
+	/**
+	 * Delay before starting execution, in seconds. Use for scheduled executions;
+	 */
+	private long delay;
 
-	public Experiment(String description,Scheduler scheduler,String rootDir, int runs,long runLenght,boolean exitOnEnd){
+	public Experiment(String description,Scheduler scheduler,String rootDir, int runs,long runLenght,boolean exitOnEnd,long delay){
 
 		this.log = Logger.getLogger("colectivesim.experiment");
 
+		this.delay = delay;
 		this.beginTime = System.currentTimeMillis();
 		this.endTime = 0;
 		this.runLength = runLenght;
@@ -480,6 +486,12 @@ public class Experiment implements Platform, ExecutionService {
 	 */
 	public void start() throws ExperimentException{
 
+		try {
+			Thread.currentThread().sleep(delay*1000);
+		} catch (InterruptedException e) {
+			throw new ExperimentException("Interrupted during start delay",e);
+		}
+		
 		Collectives.setPlaform(this);
 
 
