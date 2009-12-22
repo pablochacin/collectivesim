@@ -107,6 +107,9 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	
 	protected Counter agentCounter;
 	
+	
+	protected List<Model<? extends T>> subModels;
+	
 	/**
 	 * Constructor
 	 * @param name 
@@ -124,6 +127,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 		this.observers = new HashMap<String, ObserverVisitor>();
 		this.agentStreams = new HashMap<String,AgentStream>();
 		this.agentCounter = experiment.addCounter(name+".agents");
+		this.subModels = new ArrayList<Model<? extends T>>();
 	}
 
 	
@@ -245,16 +249,29 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	public final List<T> getAgents() {
 		
 		//return a new List to avoid concurrency problems
-		return new ArrayList<T>(agents);
+		List<T> agentList= new ArrayList<T>(agents);
+		
+		for(Model m: subModels){
+			agentList.addAll(m.getAgents());
+		}
+		
+		return agentList;
 	}
 
+	
+	public void addSubModel(Model<? extends T> model){
+		subModels.add(model);
+	}
+	
 	@Override
 	public void reset(){
 		
 		//be sure that all agents are eliminated from the model
 		agents.clear();
 		status = Status.STOPED;
-		
+		for(Model m: subModels){
+			m.reset();
+		}
 	}
 
 	@Override
@@ -274,6 +291,10 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	 */
 
 	 public final void start() throws ModelException {
+		 
+		 for(Model m: subModels){
+			 m.start();
+		 }
 		 
 		 //add agents to model
 		 populate();
@@ -489,4 +510,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	protected void agentRemoved(T agent){
 		
 	}
+
+
+
 }
