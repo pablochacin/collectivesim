@@ -21,8 +21,8 @@ import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 public class OverlayModel extends BasicModel<OverlayAgent>  {
 	
 				
-	public OverlayModel(String name,Experiment experiment,int numAgents,AgentFactory factory,Stream ... attributes) {
-		super(name,experiment,factory,numAgents,attributes);
+	public OverlayModel(String name,Experiment experiment,int numAgents,AgentFactory factory) {
+		super(name,experiment,factory,numAgents);
 	}
 
 		
