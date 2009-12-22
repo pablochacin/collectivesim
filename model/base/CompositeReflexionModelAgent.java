@@ -7,7 +7,6 @@ import java.util.List;
 
 import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectives.util.ReflectionUtils;
-import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
 
 /**
@@ -101,34 +100,4 @@ public class CompositeReflexionModelAgent extends ReflexionModelAgent {
 
 
 	
-	public static class Class1 {
-		
-		public void print(){
-			System.out.println("Hello from" + this.getClass().getName());			
-		}
-		
-		public void print(String message){
-			System.out.println(message + " from "  + this.getClass().getName());
-		}
-	}
-
-	public static class Class2 {
-		public void print(){
-			System.out.println("Hello from"  + this.getClass().getName());
-		}
-	}
-
-	public static void main(String[] args) throws ModelException{
-		
-		Object o1 = new Class1();
-		Object o2 = new Class2();
-		
-		Object[] targets = {o1,o2};
-		Object[] objs = {"Hellow words"};
-		
-		ModelAgent agent = new CompositeReflexionModelAgent("Test",targets);
-		
-		agent.execute("print");
-		agent.execute("print",objs);
-	}
 }
