@@ -3,6 +3,7 @@ package edu.upc.cnds.collectivesim.overlay.utility;
 import java.util.List;
 import java.util.Map;
 
+import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.overlay.gradient.GradientOverlay;
@@ -21,11 +22,11 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 	
 	protected Double utility;
 	
-	public UtilityOverlayAgent(OverlayModel model, Overlay overlay,Map attributes) {
+	public UtilityOverlayAgent(OverlayModel model, Overlay overlay,Identifier id,Double utility) {
 			
-			super(model, overlay,attributes);
+			super(model, overlay,id);
 			
-			Double utility = (Double)attributes.get("utility");
+			this.utility = utility;
 			
 			if(utility == null){
 				throw new IllegalArgumentException("Utility attribute not specified");
