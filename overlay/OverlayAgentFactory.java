@@ -9,6 +9,7 @@ import edu.upc.cnds.collectives.underlay.UnderlayException;
 import edu.upc.cnds.collectivesim.model.AgentFactory;
 import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelException;
+import edu.upc.cnds.collectivesim.stream.Stream;
 
 /**
  * Offers the basic functionality to implement OverlayAgent factories. Uses two provided 
@@ -26,10 +27,11 @@ import edu.upc.cnds.collectivesim.model.ModelException;
  */
 public class OverlayAgentFactory implements AgentFactory<Model<? extends OverlayAgent>,OverlayAgent> {
 
-	OverlayFactory factory;
+	protected OverlayFactory factory;
 	
-	Underlay underlay;
+	protected Underlay underlay;
 	
+	protected Stream<Identifier> ids;
 	
 	
 	/**
@@ -38,23 +40,24 @@ public class OverlayAgentFactory implements AgentFactory<Model<? extends Overlay
 	 * @param factory
 	 * @param underlay
 	 */
-	public OverlayAgentFactory(OverlayFactory factory, Underlay underlay) {
+	public OverlayAgentFactory(OverlayFactory factory, Underlay underlay,Stream<Identifier> ids) {
 		super();
 		this.factory = factory;
 		this.underlay = underlay;
+		this.ids = ids;
 	}
 
 
 	@Override
-	public OverlayAgent createAgent(Model<? extends OverlayAgent> model,Map<String, Object> args) throws ModelException {
-		Identifier id = (Identifier)args.get("id");
+	public OverlayAgent createAgent(Model<? extends OverlayAgent> model) throws ModelException {
 		
 		Overlay overlay;
 		try {
+			Identifier id = ids.nextElement();
 			overlay = factory.getOverlay(underlay.createNode(id));
 	
 		
-			OverlayAgent agent = createOverlayAgent((OverlayModel)model,overlay,args);
+			OverlayAgent agent = createOverlayAgent((OverlayModel)model,overlay);
 			
 			return agent;
 		} catch (UnderlayException e) {
@@ -72,9 +75,9 @@ public class OverlayAgentFactory implements AgentFactory<Model<? extends Overlay
 	 * @param args
 	 * @return
 	 */
-	protected OverlayAgent createOverlayAgent(OverlayModel model,Overlay overlay,Map<String,Object> args){
+	protected OverlayAgent createOverlayAgent(OverlayModel model,Overlay overlay){
 	
-		return new OverlayAgent(model,overlay,args);
+		return new OverlayAgent(model,overlay,overlay.getLocalNode().getId());
 	}
 
 
