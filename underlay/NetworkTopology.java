@@ -45,4 +45,10 @@ public interface NetworkTopology {
 	 */
 	public void generateTopology(List<? extends UnderlayNode> nodes) throws UnderlayModelException;
 	
+	
+	/**
+	 * Resets the topology, emptying all the locations
+	 */
+	public void reset();
+	
 }

@@ -42,7 +42,7 @@ public class UnderlayModel extends BasicModel implements Underlay {
 	protected NetworkTopology topology;
 
 	public UnderlayModel(String name,Experiment experiment, NetworkTopology topology,AgentFactory factory,int numNodes,Stream...attributeStreams) {
-		super(name,experiment,factory, numNodes,attributeStreams);
+		super(name,experiment,factory, numNodes);
 		this.nodes = new HashMap<String,UnderlayModelNode>();
 		this.topology = topology;
 
@@ -117,7 +117,7 @@ public class UnderlayModel extends BasicModel implements Underlay {
 		addAgent(id.toString(),node);
 		
 		try {
-			 System.out.println("Adding node: " + id.toString());
+
 			topology.addNode(node);
 			
 			nodes.put(id.toString(), node);
@@ -180,4 +180,16 @@ public class UnderlayModel extends BasicModel implements Underlay {
 		return nodes.get(id.toString());
 	}
 
+	@Override
+	public void reset() {
+		
+		super.reset();
+		
+		nodes.clear();
+		
+		topology.reset();
+	}
+
+	
+	
 }

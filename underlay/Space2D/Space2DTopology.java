@@ -1,24 +1,13 @@
 package edu.upc.cnds.collectivesim.underlay.Space2D;
 
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Logger;
 
-import uchicago.src.sim.space.Object2DGrid;
-import edu.upc.cnds.collectives.identifier.Identifier;
-import edu.upc.cnds.collectives.node.Node;
-import edu.upc.cnds.collectives.underlay.UnderlayException;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
-import edu.upc.cnds.collectivesim.experiment.Experiment;
-import edu.upc.cnds.collectivesim.stream.Stream;
 import edu.upc.cnds.collectivesim.underlay.NetworkTopology;
-import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
-import edu.upc.cnds.collectivesim.underlay.Grid2D.Grid2DLocation;
 import edu.upc.cnds.collectivesim.underlay.Grid2D.UnderlayModelException;
 
 
@@ -85,14 +74,7 @@ public class Space2DTopology implements NetworkTopology{
         gridSizeX = (int)(sizeX/scope);
         gridSizeY = (int)(sizeY/scope);
         
-        grid = (Vector<Space2DLocation>[][]) new Vector[gridSizeX][gridSizeY];
-        
-        for(int i = 0; i< gridSizeX;i++)
-        	for(int j=0; j < gridSizeY;j++){
-        		grid[i][j] = new Vector<Space2DLocation>();
-        	}
-                      
-        locations = new HashMap<UnderlayNode,Space2DLocation>();
+        initGrid();
      }
         
 	
@@ -199,6 +181,27 @@ public class Space2DTopology implements NetworkTopology{
 		
 	}
 
+
+
+
+	@Override
+	public void reset() {
+		
+		initGrid();
+	}
+
+	@SuppressWarnings("unchecked")
+	private void initGrid(){
+		
+        grid = (Vector<Space2DLocation>[][]) new Vector[gridSizeX][gridSizeY];
+        
+        for(int i = 0; i< gridSizeX;i++)
+        	for(int j=0; j < gridSizeY;j++){
+        		grid[i][j] = new Vector<Space2DLocation>();
+        	}
+                      
+        locations = new HashMap<UnderlayNode,Space2DLocation>();
+	}
 	
 	
 }
