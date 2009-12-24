@@ -26,6 +26,10 @@ public class OverlayModel extends BasicModel<OverlayAgent>  {
 	}
 
 		
+	public OverlayModel(String name,Experiment experiment) {
+		super(name,experiment);
+	}
+
 		
 	/**
 	 * 
