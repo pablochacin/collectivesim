@@ -197,7 +197,12 @@ public interface Model <T extends ModelAgent> {
 	/**
 	 * Resume execution of Model (behaviors and observers)
 	 */
-	void resume();
+	public void resume();
 	
-	
+	/**
+	 * Add a submodel for the model
+	 * 
+	 * @param m
+	 */
+	public void addSubModel(Model<? extends T> model);
 }

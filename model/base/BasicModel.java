@@ -266,12 +266,14 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	@Override
 	public void reset(){
 		
+//		for(Model m: subModels){
+//			m.reset();
+//		}
+		
 		//be sure that all agents are eliminated from the model
 		agents.clear();
 		status = Status.STOPED;
-		for(Model m: subModels){
-			m.reset();
-		}
+		
 	}
 
 	@Override
@@ -292,9 +294,9 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 
 	 public final void start() throws ModelException {
 		 
-		 for(Model m: subModels){
-			 m.start();
-		 }
+//		 for(Model m: subModels){
+//			 m.start();
+//		 }
 		 
 		 //add agents to model
 		 populate();
