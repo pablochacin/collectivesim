@@ -1,10 +1,7 @@
 package edu.upc.cnds.collectivesim.scheduler.base;
 
 import java.util.Enumeration;
-import java.util.Vector;
 import java.util.logging.Logger;
-
-import edu.upc.cnds.collectivesim.stream.Stream;
 
 public class RepetitiveAction extends AbstractScheduledAction {
 	
