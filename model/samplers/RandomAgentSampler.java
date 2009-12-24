@@ -28,7 +28,7 @@ public class RandomAgentSampler implements AgentSampler {
 
 	public RandomAgentSampler(int size){
 		this.maxSampleSize = size;
-		this.fraction = 1.0;
+		this.fraction = 0.0;
 	} 
 	
 	public RandomAgentSampler(double fraction){
@@ -50,6 +50,7 @@ public class RandomAgentSampler implements AgentSampler {
 	public List<ModelAgent> sample(List<ModelAgent> agents) {
 		
 		int sampleSize;
+		
 		if(maxSampleSize != 0){
 			sampleSize = maxSampleSize;
 		}
