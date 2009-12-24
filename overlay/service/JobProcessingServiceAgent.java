@@ -3,9 +3,9 @@ package edu.upc.cnds.collectivesim.overlay.service;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Vector;
 
+import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.routing.Destination;
@@ -14,7 +14,7 @@ import edu.upc.cnds.collectives.routing.RoutingHandler;
 import edu.upc.cnds.collectivesim.overlay.OverlayModel;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityFunction;
 
-public class ServiceProviderOverlayAgent extends ServiceOverlayAgent  implements RoutingHandler {
+public class JobProcessingServiceAgent extends ServiceProviderAgent  implements RoutingHandler {
 
 	/**
 	 * Stores the information to process a service requests
@@ -79,10 +79,10 @@ public class ServiceProviderOverlayAgent extends ServiceOverlayAgent  implements
 	protected Vector<ServiceTask>tasks;
 	
 	
-	public ServiceProviderOverlayAgent(OverlayModel model, Overlay overlay,
-			UtilityFunction function,Map attributes) {
+	public JobProcessingServiceAgent(OverlayModel model, Overlay overlay,
+			Identifier id,UtilityFunction function,Double utility,String role) {
 			
-			super(model, overlay,attributes);
+			super(model, overlay,id, utility);
 	
 			this.tasks = new Vector<ServiceTask>();
 			

@@ -1,14 +1,17 @@
 package edu.upc.cnds.collectivesim.overlay.service;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
+import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.routing.Destination;
 import edu.upc.cnds.collectives.routing.Routing;
+import edu.upc.cnds.collectives.routing.RoutingException;
 import edu.upc.cnds.collectives.routing.base.Route;
-import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectivesim.overlay.OverlayModel;
+import edu.upc.cnds.collectivesim.overlay.utility.UtilityOverlayAgent;
 
 /**
  * A service agent that only generates requests
@@ -16,7 +19,7 @@ import edu.upc.cnds.collectivesim.overlay.OverlayModel;
  * @author Pablo Chacin
  *
  */
-public class ServiceEntryAgent extends ServiceOverlayAgent {
+public class ServiceEntryAgent extends UtilityOverlayAgent {
 
 	
 	
@@ -33,15 +36,10 @@ public class ServiceEntryAgent extends ServiceOverlayAgent {
 	 * @param role
 	 * @param preference
 	 */
-	public ServiceEntryAgent(OverlayModel model, Overlay overlay,Map attributes) {
+	public ServiceEntryAgent(OverlayModel model, Overlay overlay,Identifier id,Double utility,Double preference) {
 
-			super(model, overlay,attributes);
+			super(model, overlay,id,utility);
 						
-			Double preference = (Double)attributes.get("preference");
-			if(preference == null){
-				throw new IllegalArgumentException("Preference attribute not specified");
-			}
-			
 			this.preference = preference;
 			
 	}
@@ -51,9 +49,33 @@ public class ServiceEntryAgent extends ServiceOverlayAgent {
 	 * Make a request with the agent's preferred target utility
 	 */
 	public void makeRequest(Double tolerance,Long duration){
-		super.makeRequest(preference,tolerance,duration);
+		makeRequest(preference,tolerance,duration);
 	}
 		
+	/**
+	 * Makes a request for service with a minimum utility. 
+	 * 
+	 * @param utility required utility
+	 * @param tolerance tolerance (above)
+	 * @param duration duration of the request execution
+	 */
+	public void makeRequest(Double utility,Double tolerance,Long duration) {
+
+		Map attributes = new HashMap();
+		attributes.put("utility", utility);
+		Destination destination = new Destination(attributes,tolerance);
+		
+		
+		ServiceRequest request = new ServiceRequest(utility,duration);
+		
+		try {
+			overlay.route(destination, request);
+		} catch (RoutingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
 
 	@Override
 	/**
@@ -78,5 +100,15 @@ public class ServiceEntryAgent extends ServiceOverlayAgent {
 	
 	public Double getUtility(){
 		return preference;
+	}
+	
+
+	public void update(){
+		super.update();
+	}
+	
+	
+	public void join(){
+		super.join();
 	}
 }

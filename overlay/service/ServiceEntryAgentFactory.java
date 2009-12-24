@@ -2,6 +2,9 @@ package edu.upc.cnds.collectivesim.overlay.service;
 
 import java.util.Map;
 
+import javax.annotation.security.RolesAllowed;
+
+import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.routing.Routing;
@@ -12,7 +15,7 @@ import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
 import edu.upc.cnds.collectivesim.overlay.OverlayFactory;
 import edu.upc.cnds.collectivesim.overlay.OverlayModel;
-import edu.upc.cnds.collectivesim.overlay.service.ServiceOverlayAgent;
+import edu.upc.cnds.collectivesim.overlay.service.ServiceProviderAgent;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityAgentFactory;
 import edu.upc.cnds.collectivesim.stream.Stream;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
@@ -24,12 +27,16 @@ import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
  * @author Pablo Chacin
  *
  */
-public class ServiceAgentFactory extends UtilityAgentFactory {
+public class ServiceEntryAgentFactory extends UtilityAgentFactory {
 					
 	
+	protected Stream<Double>preference;
 
-	public ServiceAgentFactory(OverlayFactory factory, Underlay underlay) {
-		super(factory, underlay);
+	public ServiceEntryAgentFactory(OverlayFactory factory, Underlay underlay,
+			                   Stream<Identifier>ids,
+			                   Stream<Double> preference) {
+		super(factory, underlay,ids,preference);
+		this.preference = preference;
 	}
 
 	/**
@@ -42,15 +49,9 @@ public class ServiceAgentFactory extends UtilityAgentFactory {
 	 * @throws ModelException 
 	 */
 	@Override
-	protected OverlayAgent createOverlayAgent(OverlayModel model, Overlay overlay, Map attributes) {		
+	protected OverlayAgent createOverlayAgent(OverlayModel model, Overlay overlay) {		
 		
-		String role = (String)attributes.get("role");	
-		
-		if(role.equals("entry")){
-			return new ServiceEntryAgent(model,overlay, attributes);
-		}
-
-		return new ServiceOverlayAgent(model,overlay,attributes);
+			return new ServiceEntryAgent(model,overlay, overlay.getLocalNode().getId(),utility.nextElement(),preference.nextElement());
 		
 		
 	}

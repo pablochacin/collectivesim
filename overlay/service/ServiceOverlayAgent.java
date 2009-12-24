@@ -3,6 +3,7 @@ package edu.upc.cnds.collectivesim.overlay.service;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.routing.Destination;
 import edu.upc.cnds.collectives.routing.RoutingException;
@@ -10,12 +11,14 @@ import edu.upc.cnds.collectivesim.overlay.OverlayModel;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityOverlayAgent;
 import edu.upc.cnds.collectivesim.state.Counter;
 
+/**
+ * An agent that can make and process requests. 
+ * 
+ * @author Pablo Chacin
+ *
+ */
 public class ServiceOverlayAgent extends UtilityOverlayAgent {
-	
-	/**
-	 * Role of the agent
-	 */
-	protected String role;
+
 	
 	/**
 	 * Counts the number of requests received by this agent
@@ -28,21 +31,15 @@ public class ServiceOverlayAgent extends UtilityOverlayAgent {
 	 * @param overlay
 	 * @param attributes
 	 */
-	public ServiceOverlayAgent(OverlayModel model, Overlay overlay,Map attributes) {
+	public ServiceOverlayAgent(OverlayModel model, Overlay overlay,
+			                   Identifier id, Double utility) {
 		
-		super(model, overlay,attributes);
-				
-		this.role = (String)attributes.get("role");
-		
-		overlay.getLocalNode().getAttributes().put("role",role);
-		
+		super(model, overlay,id,utility);
+						
 		requests = model.getExperiment().getCounter("service.requests");
 	}
 
 
-	public String getRole(){
-		return (String)overlay.getLocalNode().getAttributes().get("role");
-	}
 	
 	/**
 	 * Makes a request for service with a minimum utility. 
