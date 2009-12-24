@@ -3,19 +3,13 @@ package edu.upc.cnds.collectivesim.tasks;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 
-import edu.upc.cnds.collectivesim.dataseries.DataItem;
-import edu.upc.cnds.collectivesim.dataseries.DataSequence;
-import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.stream.Stream;
 import edu.upc.cnds.collectivesim.table.Table;
@@ -74,7 +68,10 @@ public class DumpExperimentTask implements Runnable {
 		
 		out.println("\n ------ Streams ----- \n");
 		
-		for(Stream s: experiment.getStreams().values()){
+		Map<String,Stream> streamMap = new TreeMap();
+		streamMap.putAll(experiment.getStreams());
+		
+		for(Stream s: streamMap.values()){
 			out.println(s.getName() + ": " + s.toString());
 		}
 	}
@@ -84,7 +81,10 @@ public class DumpExperimentTask implements Runnable {
 		
 		out.println("\n ------ Tables ----- \n");
 		
-		for(Table t: experiment.getTables().values()){
+		Map<String,Table> tableMap = new TreeMap();
+		tableMap.putAll(experiment.getTables());
+		
+		for(Table t: tableMap.values()){
 			out.println(t.getName() + ": " + t.toString());
 		}
 	}
@@ -94,6 +94,7 @@ public class DumpExperimentTask implements Runnable {
 	protected void dumpDescription(PrintStream out ){
 		
 		out.println(experiment.getDescription());
+		out.println("Run length: "+ experiment.getRunLength());		
 		out.println("Begin time: "+ DateFormatUtils.format(experiment.beginTime(),DEFAULT_DATE_TIME_FORMAT));
 		out.println("Execution time:  " + DurationFormatUtils.formatDuration(experiment.endTime()-experiment.beginTime(),DEFAULT_DURATION_FORMAT));
 		out.println("Simulation time: " +experiment.getRunTime());
@@ -102,7 +103,11 @@ public class DumpExperimentTask implements Runnable {
 	
 	protected void dumpParameters(PrintStream out){
 		out.println("\n ------ Parameters ----- \n");
-		for(Map.Entry<String, Object> e: experiment.getParameters().entrySet()){
+		
+		Map<String,Object> parameterMap = new TreeMap();
+		parameterMap.putAll(experiment.getParameters());
+		
+		for(Map.Entry<String, Object> e: parameterMap.entrySet()){
 			out.println(e.getKey() +"=" +e.getValue().toString());
 		}
 	}
@@ -111,7 +116,10 @@ public class DumpExperimentTask implements Runnable {
 		
 		out.println("\n ------ Values ----- \n");
 		
-		for(Map.Entry<String, Double> v: experiment.getState().entrySet()){
+		Map<String,Double> valueMap = new TreeMap();
+		valueMap.putAll(experiment.getState());
+		
+		for(Map.Entry<String, Double> v: valueMap.entrySet()){
 			out.println(v.getKey() +"=" +v.getValue().toString());
 		}
 	}
