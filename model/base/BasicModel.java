@@ -331,6 +331,11 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	  * @param agent
 	  */
 	 protected final void addAgent(ModelAgent agent) {
+		 
+		 	if(agentMap.containsKey(agent.getName())){
+		 		throw new IllegalArgumentException("Duplucated agent name: "+ agent.getName());
+		 	}
+		 	
 		 	agents.add((T) agent);
 		 	agentCounter.increment();
 		 	agentMap.put(agent.getName(), (T) agent);
