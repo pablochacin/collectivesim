@@ -45,6 +45,8 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 	
 	protected Double undelivered;
 	
+	protected boolean active = true;
+	
 	public UnderlayModelNode(UnderlayModel underlay,Identifier id, UnderlayAddress address,UnderlayModelTransportDynamicProxy transport,Map attributes) {
 		super(id,address,attributes);
 		this.underlay= underlay;
@@ -76,6 +78,10 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 	 * @throws Exception
 	 */
 	public void handleTransportMessage(UnderlayModelNode source,String protocolName,String methodName,Object[] args) throws TransportException{
+		
+		if(!active){
+			throw new IllegalStateException("Node is inactive");
+		}
 		transport.handleMessage(source,protocolName,methodName,args);
 
 	}
@@ -137,6 +143,9 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 	
 	public boolean ping(Node node){
 		UnderlayNode target = underlay.getNode(node.getId());
+		if(target == null)
+			return false;
+		
 		node.setAttributes(target.getAttributes());
 		
 		return true;
@@ -147,7 +156,7 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 
 	@Override
 	public void leave() {
-		
+		active = false;
 		underlay.removeNode(this);
 		
 	}

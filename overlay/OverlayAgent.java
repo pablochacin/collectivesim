@@ -55,6 +55,8 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	protected Counter undeliverable;
 		
 
+	protected boolean active = false;
+	
 	/**
 	 * 
 	 * @param model
@@ -88,6 +90,7 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	 * Makes this agent join the overlay
 	 */
 	public void join(){
+		active = true;
 		overlay.join();
 		model.nodeJoin(this);
 	}
@@ -100,6 +103,7 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	
 		overlay.getLocalNode().leave();
 		model.nodeLeave(this);
+		active = false;
 	}
 	
 	@Override
@@ -448,6 +452,10 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 		}
 		
 		return activeNeighbors;
+	}
+	
+	public Double getActiveRatio(){
+		return (double)getActiveNeighbors().size();
 	}
 }
 
