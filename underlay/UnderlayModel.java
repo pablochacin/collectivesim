@@ -91,8 +91,10 @@ public class UnderlayModel extends BasicModel implements Underlay {
 			((UnderlayModelNode)n).notifyNodeLost(node);
 		}
 	
-	
+
 		topology.removeNode(node);
+
+		nodes.remove(node.getId().toString());
 		
 		super.removeAgent(node.getId().toString());
 
