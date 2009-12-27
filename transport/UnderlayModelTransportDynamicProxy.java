@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.protocol.Protocol;
+import edu.upc.cnds.collectives.transport.TransportException;
 import edu.upc.cnds.collectives.transport.base.DynamicProxyTransport;
 import edu.upc.cnds.collectives.util.ReflectionUtils;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
@@ -21,13 +22,13 @@ import edu.upc.cnds.collectivesim.underlay.UnderlayModelNode;
  * @author Pablo Chacin
  *
  */
-public class UnderlayModelTransport extends DynamicProxyTransport {
+public class UnderlayModelTransportDynamicProxy extends DynamicProxyTransport {
 
 	private UnderlayModelNode node;
 	
 	private UnderlayModel underlay;
 			
-	public UnderlayModelTransport(UnderlayModel underlay) {
+	public UnderlayModelTransportDynamicProxy(UnderlayModel underlay) {
 		this.underlay= underlay;
 	}
 
@@ -46,27 +47,35 @@ public class UnderlayModelTransport extends DynamicProxyTransport {
 	 * @param method
 	 * @param args
 	 */
-	public void handleMessage(UnderlayModelNode source,String protocolName,String methodName,Object[] args) throws Exception{
+	public void handleMessage(UnderlayModelNode source,String protocolName,String methodName,Object[] args) throws TransportException{
 				
 		Protocol protocol = getProtocol(protocolName);
 		if(protocol == null){
-			throw new Exception("Protocol not registered: ["+protocol +"]");
+			throw new TransportException("Protocol not registered: ["+protocol +"]");
 		}
 		
-		ReflectionUtils.invoke(protocol,methodName,args);
+		try {
+			ReflectionUtils.invoke(protocol,methodName,args);
+		} catch (Exception e) {
+			throw new TransportException("Exception invoking method " + methodName + " in protocol " + protocolName,e);
+		}
 		
 	}
 	
-	@Override
+
 	/**
 	 * This method is invoked by the protocol proxy to actually invoke a method in a remote
 	 * node. 
 	 */
-	protected void invoke(Node target, Protocol protocol,Method method, Object[] args) throws Throwable {
+	protected void invoke(Node target, Protocol protocol,Method method, Object[] args) throws TransportException {
 		
 		 // get the destination Node
 		 UnderlayModelNode targetNode = (UnderlayModelNode)underlay.getNode(target.getId());
-				 		 
+		
+		 if(targetNode == null){
+			 throw new TransportException("Target Node not found [" + target.getId()+"]");
+		 }
+		 
 		 if(deliveryFails(node, targetNode)){
 			notifyUndeliverable(node, targetNode, protocol.getName(), new Exception("Delivery failed")); 
 		 }
@@ -75,7 +84,7 @@ public class UnderlayModelTransport extends DynamicProxyTransport {
 	
 					 
 			 //node.sendTransportMessage(targetNode,delay,protocol.getName(),method.getName(),args);
-			 targetNode.handleTransportMessage(this.node, protocol.getName(), method.getName(), args);
+			 targetNode.handleTransportMessage(this.node, protocol.getName(), method.getName(),args);
 
 		 }
 		 
