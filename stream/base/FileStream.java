@@ -52,12 +52,12 @@ public class FileStream<T> implements Stream<T> {
 	@Override
 	public T nextElement() {
 
+		String value = null;
 		try {
-			String value = input.readLine(); 
+			value = input.readLine(); 
 			return (T) ReflectionUtils.parseValue(value,type);
 		} catch (Exception e) {
-			//TODO: handle properly this exception. 
-			return null;
+			throw new IllegalArgumentException("Value " + value + " is not valid for type " + type.getName());
 		} 
 	}
 

@@ -32,6 +32,9 @@ public class EmpiricalRandomStream implements Stream<Double> {
 		
 	public EmpiricalRandomStream(String name, Double min, Double max,Table<Double> distribution) {
 		
+		if(distribution == null){
+			throw new IllegalArgumentException("Distribution can't be null");
+		}
 		this.name = name;
 		this.distribution =distribution;
 		this.min = min;
