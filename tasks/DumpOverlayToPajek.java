@@ -4,16 +4,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import edu.upc.cnds.collectives.node.Node;
-import edu.upc.cnds.collectivesim.dataseries.DataItem;
-import edu.upc.cnds.collectivesim.dataseries.DataSequence;
-import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
@@ -117,8 +113,8 @@ public class DumpOverlayToPajek implements Runnable {
 		    	
 		    }
 		    
-		    
-		    outGraph.println("*Edges");
+		    //In pajek's format, directed graphs has arcs (not edges!)
+		    outGraph.println("*arcs");
 		    
 		    for(ModelAgent a: model.getAgents()){
 
@@ -129,8 +125,10 @@ public class DumpOverlayToPajek implements Runnable {
 		    	List<Node> links = ((OverlayAgent)a).getOverlay().getNodes();
 		    	
 		    	for(Node n: links){
-		    		outGraph.println(vertice + " " + vertices.get(n.getId().toString()));		    					    	
-
+		    		//check that end of edge exists
+		    		if(vertices.get(n.getId().toString()) != null){
+		    			outGraph.println(vertice + " " + vertices.get(n.getId().toString()));		    					    	
+		    		}
 		    	}
 		    }
 		    
