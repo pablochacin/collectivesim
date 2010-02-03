@@ -1,21 +1,17 @@
 package edu.upc.cnds.collectivesim.underlay.random;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Vector;
 
 import Model.RouterWaxman;
 import Topology.Topology;
-import edu.upc.cnds.collectives.identifier.Identifier;
-import edu.upc.cnds.collectives.node.Node;
-import edu.upc.cnds.collectives.underlay.UnderlayException;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
-import edu.upc.cnds.collectivesim.experiment.Experiment;
-import edu.upc.cnds.collectivesim.stream.Stream;
-import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
+import edu.upc.cnds.collectivesim.random.MersenneRandom;
+import edu.upc.cnds.collectivesim.underlay.NetworkTopology;
 import edu.upc.cnds.collectivesim.underlay.Grid2D.UnderlayModelException;
 import graph.Graph;
 
@@ -64,8 +60,37 @@ import graph.Graph;
  * @author Pablo Chacin
  *
  */
-public class RandomUnderlayModel extends UnderlayModel {
+public class WaxmanTopology implements NetworkTopology {
 
+	private class TopologyLocation{
+		
+		/**
+		 * Index of the location in the topology's graph
+		 */
+		private graph.Node node;
+		
+		/**
+		 * Nodes located in this locaiton
+		 */
+		private Vector<UnderlayNode> nodes;
+
+		TopologyLocation(graph.Node node){
+			this.node = node;
+			this.nodes = new Vector<UnderlayNode>();
+		}
+		
+		
+		public graph.Node getNode() {
+			return node;
+		}
+
+		public Vector<UnderlayNode> getNodes() {
+			return nodes;
+		}
+		
+		
+	}
+	
 	/**
 	 * Brite's topology representation
 	 */
@@ -79,16 +104,16 @@ public class RandomUnderlayModel extends UnderlayModel {
 	/**
 	 * Maintains a mapping from Graph node's id to Underlay node's identifier
 	 */
-	protected Map<UnderlayNode,graph.Node> underlayToGrap;
+	protected List<TopologyLocation> locations;
 
 	/**
 	 * Maintains a mapping from Underlay node's identifier (an integer) to Graph node's id
 	 */
-	protected Vector<UnderlayNode> graphToUnderlay;
+	protected Map<UnderlayNode,TopologyLocation> nodes;
 
 	
 	/**
-	 * Statistical model for generating the underlay topologt
+	 * Statistical model for generating the underlay topology
 	 */	
 	
 	protected static int HS = 1000;
@@ -131,74 +156,104 @@ public class RandomUnderlayModel extends UnderlayModel {
 	
 	protected  RouterWaxman model;
 	
-	/**
-	 * Maintains a mapping of identifiers to Nodes
-	 */
-	protected Map<Identifier,graph.Node> nodeMap;
+	protected int numLocations;
 	
-	public RandomUnderlayModel(String name,Experiment experiment,int numNodes,Stream...attributes) {
-		super(name,experiment,numNodes,attributes);
-		
-    	 model = new RouterWaxman(numNodes,HS,LS,nodePlacement,outDegree,alpha,beta,
-    			 growth,bandwithDistribution,minBandwidth,maxBandwidth);
-    	 
-    	 graphToUnderlay = new Vector<UnderlayNode>(numNodes);
-    	 
-    	 underlayToGrap = new HashMap<UnderlayNode,graph.Node>(numNodes);
+	protected Random rand = new MersenneRandom();
+	
+	public WaxmanTopology(int numLocations,int outDegree) {
+	
+		 this.numLocations = numLocations;
+		 
+		 this.outDegree = outDegree;
+		 
+		 this.locations = new ArrayList<TopologyLocation>(numLocations);
+		 //locations.add(0,null);
+		 
+		 this.nodes = new HashMap<UnderlayNode,TopologyLocation>();
+		 
+	   	 this.model = new RouterWaxman(numLocations,HS,LS,nodePlacement,outDegree,alpha,beta,
+	   			 growth,bandwithDistribution,minBandwidth,maxBandwidth);
+	      	 
+	     this.networkTopology = new Topology(model);
+	          
+	     this.graph = networkTopology.getGraph();
 	}
 
 
 
-	@Override
-	public List<Node> resolve(InetAddress host) throws UnderlayException {
-		throw new UnsupportedOperationException();
-	}
 
 	@Override
-	protected void generateNetworkTopology(List<? extends UnderlayNode> nodes) throws UnderlayModelException{
-		
-		networkTopology = new Topology(model);
-       
-        graph = networkTopology.getGraph();
-        
+	public void generateTopology(List<? extends UnderlayNode> nodes) throws UnderlayModelException{
+	
       
         //assign underlay nodes to graph nodes
         graph.Node[] graphNodes = graph.getNodesArray();
         
-        for(int i=0;i<numNodes;i++){
-        	UnderlayNode node = nodes.get(i);
-        	graphToUnderlay.add(i, node);
-        	underlayToGrap.put(node,graphNodes[i]);        	
+        for(int i=0;i<numLocations;i++){
+        	TopologyLocation location = new TopologyLocation(graph.getNodeFromID(i));        	
+        	locations.add(location);
         }
         
 	}
 
 
 	@Override
-	public List<Node> getKnownNodes(UnderlayNode node) {
-		List<Node> neighbors = new ArrayList<Node>();
+	public List<UnderlayNode> getKnownNodes(UnderlayNode node) {
+		List<UnderlayNode> neighbors = new ArrayList<UnderlayNode>();
 		
-		graph.Node n = underlayToGrap.get(node);
-		for(graph.Node neighbor : graph.getNeighborsOf(n)){
-			neighbors.add(graphToUnderlay.get(neighbor.getID()));
+		//add other nodes in the same location
+		TopologyLocation location = nodes.get(node);		
+		neighbors.addAll(location.getNodes());
+		neighbors.remove(node);
+		
+		//add nodes from neighbor locations
+		for(graph.Node n: graph.getNeighborsOf(location.getNode())){
+			neighbors.addAll(locations.get(n.getID()).getNodes());
 		}
+		
 		
 		return neighbors;
 	}
 
 
+
+
 	@Override
-	protected void terminate() {
+	public void addNode(UnderlayNode node) {
 		
-		//do nothing
-		
+		TopologyLocation location = locations.get(rand.nextInt(numLocations));
+		location.getNodes().add(node);		
+		nodes.put(node, location);
 	}
 
 
 
+
+
 	@Override
-	public String[] getSupportedMetrics() {
-		throw new UnsupportedOperationException();
+	public void removeNode(UnderlayNode node) {
+	
+		TopologyLocation location = nodes.remove(node);
+		
+		if(location != null){
+			location.getNodes().remove(node);
+		}
 	}
 
+
+
+
+	@Override
+	public void reset() {
+		
+		for(TopologyLocation l: locations){
+			l.getNodes().clear();
+		}
+		
+		nodes.clear();
+	}
+
+
+	
+	
 }
