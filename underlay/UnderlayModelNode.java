@@ -1,5 +1,6 @@
 package edu.upc.cnds.collectivesim.underlay;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -61,8 +62,13 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 	
 
 
-	public List<UnderlayNode> getKnownNodes() {
-		return underlay.getKnownNodes(this);
+	public List<Node> getKnownNodes() {
+		List<Node> neighbors = new ArrayList<Node>();
+		for(UnderlayNode n: underlay.getKnownNodes(this)){
+			neighbors.add(n.getReference());
+		}
+		
+		return neighbors;
 	}
 	
 	public Underlay getUnderlay(){
