@@ -1,12 +1,10 @@
 package edu.upc.cnds.collectivesim.overlay.utility;
 
 import java.util.List;
-import java.util.Map;
 
 import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.overlay.Overlay;
-import edu.upc.cnds.collectives.overlay.gradient.GradientOverlay;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
 import edu.upc.cnds.collectivesim.overlay.OverlayModel;
 
@@ -33,6 +31,7 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 			}
 					
 			setUtility(utility);
+			lastUtility = utility;
 			
 	}
 	
@@ -82,7 +81,17 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 		setUtility(newUtility);
 	}
 
+	Double direction = 1.0;
+	public void updateUtility(Double variation,Double direction){
+		this.direction = this.direction*direction;
+		updateUtility(variation*this.direction);
+	}
 	
+	
+	
+	public void setDirection(Double direction){
+		this.direction = direction;
+	}
 	
 	/**
 	 * 
@@ -135,9 +144,15 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 
 	
 
+	Double lastUtility = 0.0;
+	Double alpha = 0.9;
 	
 	public Double getUtility(){
-		return utility;
+
+		Double nowUtility = alpha*utility + (1.0-alpha)*lastUtility;
+		lastUtility = nowUtility;
+		return nowUtility;
+		
 	}
 
 	
