@@ -80,6 +80,11 @@ public class DescriptiveStatistics implements SeriesFunction {
 
 	public boolean processItem(DataItem item){
 		Double value = item.getDouble(attribute);
+		
+		if((value == null) || value.isNaN()){
+			return true;
+		}
+		
 		count++;		
 		sumX += value;
 		sumX2 += value*value;

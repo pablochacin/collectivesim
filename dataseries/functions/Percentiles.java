@@ -41,7 +41,12 @@ public class Percentiles implements SeriesFunction {
 
 	@Override
 	public boolean processItem(DataItem item){
-		values.add((Double)item.getDouble(attribute));
+		
+		Double value =(Double)item.getDouble(attribute); 
+		if((value == null) || (value.isNaN())){
+			return true;
+		}
+		values.add(value);
 
 		return true;
 	}
