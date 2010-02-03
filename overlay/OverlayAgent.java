@@ -454,9 +454,12 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 		return activeNeighbors;
 	}
 	
-	public Double getActiveRatio(){
+	public Double getOutDegree(){
 		return (double)getActiveNeighbors().size();
 	}
+	
+	
+	
 }
 
 
