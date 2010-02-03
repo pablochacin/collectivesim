@@ -272,6 +272,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 		
 		//be sure that all agents are eliminated from the model
 		agents.clear();
+		agentMap.clear();
 		status = Status.STOPED;
 		
 	}
