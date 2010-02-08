@@ -86,6 +86,11 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 	}
 	
 	
+	public void updateUtility(Double variation,Double drift,Double direction){
+		this.direction = this.direction*direction;
+		updateUtility(variation +(this.direction*drift));
+		
+	}
 	
 	public void setDirection(Double direction){
 		this.direction = direction;
