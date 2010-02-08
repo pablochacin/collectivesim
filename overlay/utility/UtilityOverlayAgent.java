@@ -31,8 +31,6 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 			}
 					
 			setUtility(utility);
-			lastUtility = utility;
-			
 	}
 	
 	
@@ -100,8 +98,7 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 	 */
 	public Double getGradient(List<OverlayAgent>neighbors){
 
-		
-		Double gradient = 0.0;
+				Double gradient = 0.0;
 		for(OverlayAgent n: neighbors){
 			
 			Double difference = + Math.abs(getUtility()-((UtilityOverlayAgent)n).getUtility());
@@ -144,14 +141,11 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 
 	
 
-	Double lastUtility = 0.0;
-	Double alpha = 0.9;
+
 	
 	public Double getUtility(){
 
-		Double nowUtility = alpha*utility + (1.0-alpha)*lastUtility;
-		lastUtility = nowUtility;
-		return nowUtility;
+		return utility;
 		
 	}
 
