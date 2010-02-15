@@ -25,7 +25,7 @@ public class ServiceProviderAgent extends UtilityOverlayAgent {
 		
 		super(model, overlay,id,utility);
 						
-		requests = model.getExperiment().getCounter("service.requests");
+		requests = model.getExperiment().getCounter("service.requests").getChild();
 	}
 	
 	
