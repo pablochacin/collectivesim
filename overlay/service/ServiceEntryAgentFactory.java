@@ -2,7 +2,6 @@ package edu.upc.cnds.collectivesim.overlay.service;
 
 import java.util.Map;
 
-import javax.annotation.security.RolesAllowed;
 
 import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.node.Node;
