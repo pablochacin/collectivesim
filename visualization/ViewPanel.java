@@ -22,9 +22,11 @@ import javax.swing.filechooser.FileFilter;
 import net.sf.epsgraphics.ColorMode;
 import net.sf.epsgraphics.EpsGraphics;
 import ptolemy.util.StringUtilities;
-import sun.awt.image.codec.JPEGImageEncoderImpl;
+
 
 import com.sun.image.codec.jpeg.ImageFormatException;
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
 /**
  * Displays a view in a JPanel and updates it.
@@ -202,9 +204,9 @@ public class ViewPanel implements Runnable {
 			Graphics g = awtImage.getGraphics();
 			view.print(g);
 
-			JPEGImageEncoderImpl j = new JPEGImageEncoderImpl(out);
+			JPEGCodec.createJPEGEncoder(out).encode(awtImage);
 
-			j.encode(awtImage);
+			
 
 	}
 
