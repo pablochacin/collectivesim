@@ -7,6 +7,7 @@ import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
 import edu.upc.cnds.collectivesim.overlay.OverlayFactory;
 import edu.upc.cnds.collectivesim.overlay.OverlayModel;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityAgentFactory;
+import edu.upc.cnds.collectivesim.overlay.utility.UtilityFunction;
 import edu.upc.cnds.collectivesim.stream.Stream;
 
 /**
@@ -21,8 +22,8 @@ public class ServiceProviderAgentFactory extends UtilityAgentFactory {
 	
 	public ServiceProviderAgentFactory(OverlayFactory factory, Underlay underlay,
 			                   Stream<Identifier>ids,
-			                   Stream<Double> utility) {
-		super(factory, underlay,ids,utility);
+			                   UtilityFunction function) {
+		super(factory, underlay,ids,function);
 	}
 
 	
@@ -33,7 +34,7 @@ public class ServiceProviderAgentFactory extends UtilityAgentFactory {
 	protected OverlayAgent createOverlayAgent(OverlayModel model, Overlay overlay) {		
 		
 				
-		return new ServiceProviderAgent(model,overlay,overlay.getLocalNode().getId(),utility.nextElement());
+		return new ServiceProviderAgent(model,overlay,overlay.getLocalNode().getId(),function);
 				
 	}
 

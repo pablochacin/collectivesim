@@ -19,14 +19,13 @@ import edu.upc.cnds.collectivesim.stream.Stream;
  */
 public class UtilityAgentFactory extends OverlayAgentFactory {
 
-	protected Stream<Double> utility;
+	protected UtilityFunction function;
 	
 	public UtilityAgentFactory(OverlayFactory factory, Underlay underlay,
-			                   Stream<Identifier>ids,
-			                   Stream<Double> utility) {
+			                   Stream<Identifier>ids,UtilityFunction function) {
 		super(factory, underlay,ids);
 		
-		this.utility = utility;
+		this.function = function;
 	}
 
 	/**
@@ -41,7 +40,7 @@ public class UtilityAgentFactory extends OverlayAgentFactory {
 	@Override
 	protected OverlayAgent createOverlayAgent(OverlayModel model,Overlay overlay) {	
 		
-		return new UtilityOverlayAgent(model,overlay,overlay.getLocalNode().getId(),utility.nextElement());
+		return new UtilityOverlayAgent(model,overlay,overlay.getLocalNode().getId(),function);
 
 	}
 	

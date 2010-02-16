@@ -18,37 +18,20 @@ import edu.upc.cnds.collectivesim.overlay.OverlayModel;
 public class UtilityOverlayAgent extends OverlayAgent  {
 
 	
+	protected UtilityFunction function;
+	
 	protected Double utility;
 	
-	public UtilityOverlayAgent(OverlayModel model, Overlay overlay,Identifier id,Double utility) {
+	public UtilityOverlayAgent(OverlayModel model, Overlay overlay,Identifier id,UtilityFunction function) {
 			
 			super(model, overlay,id);
 			
-			this.utility = utility;
-			
-			if(utility == null){
-				throw new IllegalArgumentException("Utility attribute not specified");
-			}
-					
-			setUtility(utility);
+			this.function = function;
+						
+			setUtility(function.getUtility(overlay.getLocalNode()));
 	}
 	
 	
-	/**
-	 * Sets the utility of this node to a new value.
-	 * Updates the Overlay node's "utility" attribute.
-	 * 
-	 * @param utility Double with the new utility value
-	 */
-	public void setUtility(Double utility){
-		
-		
-		this.utility = utility;
-		
-		overlay.getLocalNode().getAttributes().put("utility", utility);
-		//overlay.getLocalNode().touch(model.getCurrentTime());
-
-	}
 	
 	/**
 	 * Updates the node's utility with a variation (negative or positive) from 
@@ -59,43 +42,16 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 	 * 
 	 * @param variation a Double to be added to the current utility. 
 	 */
-	public void updateUtility(Double variation){
+	public void updateUtility(){
 					
-		Double newUtility;
+	}
 		
-		if((utility == 1) && (variation > 0))
-			variation = -1.0*variation;
-
-		if((utility == 0) && (variation < 0))
-			variation = -1.0*variation;
-
-		//ensure that 0 <= utility+variation `<= 1
-		if(variation < 0)
-			newUtility = Math.max(0,utility+variation);
-		else
-			newUtility = Math.min(1, utility+variation);
+	
+	protected void setUtility(Double utility) {
+		this.utility = utility;
 		
-				
-		setUtility(newUtility);
+		overlay.getLocalNode().getAttributes().put("utility", utility);
 	}
-
-	Double direction = 1.0;
-	public void updateUtility(Double variation,Double direction){
-		this.direction = this.direction*direction;
-		updateUtility(variation*this.direction);
-	}
-	
-	
-	public void updateUtility(Double variation,Double drift,Double direction){
-		this.direction = this.direction*direction;
-		updateUtility(variation +(this.direction*drift));
-		
-	}
-	
-	public void setDirection(Double direction){
-		this.direction = direction;
-	}
-	
 	/**
 	 * 
 	 * @return the average of the (absolute) difference between the node's utility 
