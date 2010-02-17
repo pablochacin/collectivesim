@@ -41,6 +41,7 @@ public class ServiceProviderAgent extends UtilityOverlayAgent {
 		
 		if(!active){
 			log.severe("Processing request in an inactive node");
+			
 		}
 		requests.increment();
 	}

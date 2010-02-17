@@ -11,6 +11,7 @@ import edu.upc.cnds.collectives.routing.Routing;
 import edu.upc.cnds.collectives.routing.RoutingException;
 import edu.upc.cnds.collectives.routing.base.Route;
 import edu.upc.cnds.collectivesim.overlay.OverlayModel;
+import edu.upc.cnds.collectivesim.overlay.utility.FixedUtilityFunction;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityOverlayAgent;
 
 /**
@@ -27,7 +28,9 @@ public class ServiceEntryAgent extends UtilityOverlayAgent {
 	 * Preferred target utility
 	 */
 	protected Double preference;
-			
+	
+	protected Double tolerance;
+				
 	/**
 	 * 
 	 * @param model
@@ -36,21 +39,15 @@ public class ServiceEntryAgent extends UtilityOverlayAgent {
 	 * @param role
 	 * @param preference
 	 */
-	public ServiceEntryAgent(OverlayModel model, Overlay overlay,Identifier id,Double utility,Double preference) {
+	public ServiceEntryAgent(OverlayModel model, Overlay overlay,Identifier id,Double preference,Double tolerance) {
 
-			super(model, overlay,id,utility);
+			super(model, overlay,id, new FixedUtilityFunction(preference));
 						
 			this.preference = preference;
 			
+			this.tolerance = tolerance;
 	}
 
-	
-	/**
-	 * Make a request with the agent's preferred target utility
-	 */
-	public void makeRequest(Double tolerance,Long duration){
-		makeRequest(preference,tolerance,duration);
-	}
 		
 	/**
 	 * Makes a request for service with a minimum utility. 
@@ -59,14 +56,14 @@ public class ServiceEntryAgent extends UtilityOverlayAgent {
 	 * @param tolerance tolerance (above)
 	 * @param duration duration of the request execution
 	 */
-	public void makeRequest(Double utility,Double tolerance,Long duration) {
+	public void makeRequest() {
 
 		Map attributes = new HashMap();
 		attributes.put("utility", utility);
 		Destination destination = new Destination(attributes,tolerance);
 		
 		
-		ServiceRequest request = new ServiceRequest(utility,duration);
+		ServiceRequest request = new ServiceRequest(utility);
 		
 		try {
 			overlay.route(destination, request);

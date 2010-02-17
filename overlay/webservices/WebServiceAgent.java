@@ -125,7 +125,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 			ServiceRequest request = requests.remove(0);
 			
 			Map attributes = new HashMap();
-			attributes.put("qos",request.getUtility());
+			attributes.put("qos",request.getQoS());
 			attributes.put("utility",getUtility());
 			attributes.put("serviceTime",serviceTime);
 			

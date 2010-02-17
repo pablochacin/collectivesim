@@ -43,7 +43,7 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 	 * @param variation a Double to be added to the current utility. 
 	 */
 	public void updateUtility(){
-					
+		setUtility(function.getUtility(overlay.getLocalNode()));
 	}
 		
 	
@@ -52,6 +52,8 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 		
 		overlay.getLocalNode().getAttributes().put("utility", utility);
 	}
+	
+
 	/**
 	 * 
 	 * @return the average of the (absolute) difference between the node's utility 

@@ -13,30 +13,21 @@ public class ServiceRequest implements Serializable {
 	/**
 	 * Target utility for the request
 	 */
-	Double utility;
+	Double qos;
 
-	/**
-	 * Duration of the request
-	 */
-	Long duration;
 
-	public ServiceRequest(Double utility, Long duration) {
-		super();
-		this.utility = utility;
-		this.duration = duration;
+	public ServiceRequest(Double qos) {
+		this.qos = qos;
+
 	}
 
-	public Double getUtility() {
-		return utility;
+	public Double getQoS() {
+		return qos;
 	}
 
-	public Long getDuration() {
-		return duration;
-	}
 	
-
 	public String toString(){
-		return "[utility="+utility + "][duration="+duration+"]";
+		return "[QoS="+qos + "]";
 	}
 	
 }
