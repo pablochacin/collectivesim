@@ -16,18 +16,27 @@ public class ServiceRequest implements Serializable {
 	Double qos;
 
 
-	public ServiceRequest(Double qos) {
+	Double serviceDemand;
+	
+	public ServiceRequest(Double qos,Double serviceDemand) {
 		this.qos = qos;
+		this.serviceDemand= serviceDemand;
+		
 
 	}
 
+	
+	public Double getServiceDemand() {
+		return serviceDemand;
+	}
+	
 	public Double getQoS() {
 		return qos;
 	}
 
 	
 	public String toString(){
-		return "[QoS="+qos + "]";
+		return "[QoS="+qos + "][Service Demand="+serviceDemand+"]";
 	}
 	
 }

@@ -22,9 +22,10 @@ public class ServiceProviderAgentFactory extends UtilityAgentFactory {
 	
 	public ServiceProviderAgentFactory(OverlayFactory factory, Underlay underlay,
 			                   Stream<Identifier>ids,
-			                   Stream<UtilityFunction> function) {
+			                   Stream<Double>utility,Stream<Double>initialTrend,
+			                   Stream<Double>drift,Stream<Double>variation,Stream<Double>trend) {
 		
-		super(factory, underlay,ids,function);
+		super(factory, underlay,ids,utility,initialTrend,drift,variation,trend);
 	}
 
 	
@@ -34,7 +35,7 @@ public class ServiceProviderAgentFactory extends UtilityAgentFactory {
 	@Override	
 	protected OverlayAgent createOverlayAgent(OverlayModel model, Overlay overlay) {		
 						
-		return new ServiceProviderAgent(model,overlay,overlay.getLocalNode().getId(),function.nextElement());
+		return new ServiceProviderAgent(model,overlay,overlay.getLocalNode().getId(),getUtilityFunction());
 				
 	}
 

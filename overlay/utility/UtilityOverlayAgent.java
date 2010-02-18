@@ -49,7 +49,7 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 	
 	protected void setUtility(Double utility) {
 		this.utility = utility;
-		
+
 		overlay.getLocalNode().getAttributes().put("utility", utility);
 	}
 	

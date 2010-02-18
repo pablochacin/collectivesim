@@ -10,6 +10,7 @@ import edu.upc.cnds.collectives.routing.Destination;
 import edu.upc.cnds.collectives.routing.Routing;
 import edu.upc.cnds.collectives.routing.RoutingException;
 import edu.upc.cnds.collectives.routing.base.Route;
+import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectivesim.overlay.OverlayModel;
 import edu.upc.cnds.collectivesim.overlay.utility.FixedUtilityFunction;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityOverlayAgent;
@@ -56,20 +57,21 @@ public class ServiceEntryAgent extends UtilityOverlayAgent {
 	 * @param tolerance tolerance (above)
 	 * @param duration duration of the request execution
 	 */
-	public void makeRequest() {
+	public void makeRequest(Double serviceDemand) {
 
 		Map attributes = new HashMap();
-		attributes.put("utility", utility);
+		attributes.put("utility", preference);
+		attributes.put("role", "entry");
+		
 		Destination destination = new Destination(attributes,tolerance);
 		
 		
-		ServiceRequest request = new ServiceRequest(utility);
+		ServiceRequest request = new ServiceRequest(preference,serviceDemand);
 		
 		try {
 			overlay.route(destination, request);
 		} catch (RoutingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.warning("unable to route request " + FormattingUtils.getStackTrace(e));
 		}
 
 	}

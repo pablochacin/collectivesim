@@ -4,6 +4,7 @@ import java.util.Random;
 
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectivesim.random.MersenneRandom;
+import edu.upc.cnds.collectivesim.stream.Stream;
 
 /**
  * Returns a random utility value
@@ -15,9 +16,9 @@ public class RandomUtilityFunction implements UtilityFunction {
 
 
 	
-	protected Double variation;
+	protected Stream<Double> variation;
 	
-	protected Double trendProbability;
+	protected Stream<Double> trend;
 	
 	protected Double direction;
 	
@@ -38,14 +39,14 @@ public class RandomUtilityFunction implements UtilityFunction {
 	 * @param direction
 	 * @param utility
 	 */
-	public RandomUtilityFunction(Double utility, Double variation, Double drift,Double trendProbability) {
+	public RandomUtilityFunction(Double utility, Double initialTrend,Stream<Double> variation, Double drift,Stream<Double> trend) {
 		super();
 		this.utility = utility;
 		this.drift = drift;
 		this.variation = variation;
-		this.trendProbability = trendProbability;
+		this.trend = trend;
 		this.random = new MersenneRandom((int)System.currentTimeMillis());
-		this.direction = getInitialTrend();
+		this.direction = initialTrend;
 		
 		
 	}
@@ -55,9 +56,9 @@ public class RandomUtilityFunction implements UtilityFunction {
 	@Override
 	public Double getUtility(Node n) {
 		
-		direction = direction*getTrend();
+		direction = direction*trend.nextElement();
 		
-		Double newUtility = utility + getVariation() +direction*drift;
+		Double newUtility = utility + variation.nextElement()+direction*drift;
 		
 		//ensure that 0 <= utility+variation `<= 1
 		if(newUtility < 0)
@@ -71,27 +72,7 @@ public class RandomUtilityFunction implements UtilityFunction {
 									
 		return newUtility;
 	}
-
-	private Double getVariation() {
-		return variation*(random.nextDouble()*2.0-1.0);
-	}
 	
-	private Double getTrend() {
-		if(random.nextDouble() < trendProbability) {
-			return 1.0;
-		}
-		else {
-			return -1.0;
-		}
-	}
 	
-	private Double getInitialTrend() {
-		
-		if(random.nextGaussian() < 0) 
-			return -1.0;
-		else
-			return 1.0;
-		
-	}
 
 }
