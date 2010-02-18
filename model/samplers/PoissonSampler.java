@@ -2,11 +2,13 @@ package edu.upc.cnds.collectivesim.model.samplers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import cern.jet.random.engine.MersenneTwister64;
 
 import edu.upc.cnds.collectivesim.model.AgentSampler;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
+import edu.upc.cnds.collectivesim.random.MersenneRandom;
 
 /**
  * Makes a sample of (approximately) k agents following a Poisson process.
@@ -21,31 +23,29 @@ import edu.upc.cnds.collectivesim.model.ModelAgent;
  */
 public class PoissonSampler implements AgentSampler {
 
-	protected Double n;
+	protected Integer n;
 
-	protected MersenneTwister64 rand;
+	protected Random rand;
 	
 	
 	
-	public PoissonSampler(Double n, MersenneTwister64 rand){
+	public PoissonSampler(Integer n, Random rand){
 		this.n = n;
 		this.rand = rand;
 	}
 	
 	
-	public PoissonSampler(Double n){
-		this(n, new MersenneTwister64());
+	public PoissonSampler(Integer n){
+		this(n, new MersenneRandom());
 	}
 	
 	@Override
 	public List<ModelAgent> sample(List<ModelAgent> agents) {
-		List<ModelAgent> sample = new ArrayList<ModelAgent>();
 		
-		Double p = n/(double)agents.size();
-		for(ModelAgent n: agents){
-			if(rand.nextDouble() < p){
-				sample.add(n);
-			}
+		List<ModelAgent> sample = new ArrayList<ModelAgent>(n);
+		
+		for(int i=0;i<n;i++) {
+			sample.add(agents.get(rand.nextInt(agents.size())));
 		}
 		
 		return sample;
