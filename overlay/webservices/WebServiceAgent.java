@@ -43,10 +43,8 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	
 	private List<ServiceRequest> requests;
 	
-	private Double backgroundLoad;
-	
-	private Double averageServiceRequest;
-	
+	private Double backgroundLoad = 0.0;
+		
 	private Double arrivals = 0.0;
 	
 	private UtilityFunction function;
@@ -55,14 +53,15 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	
 	
 	public WebServiceAgent(OverlayModel model, Overlay overlay, Identifier id,
-			Double utility, UtilityFunction function,Double averageServiceRequest,Integer requestLimit) {
+			UtilityFunction function,Integer requestLimit) {
 		super(model, overlay, id, function);	
 		
-		this.averageServiceRequest = averageServiceRequest;
 		this.queueLimit = requestLimit;
 		this.function = function;
 		
 		requests = new ArrayList<ServiceRequest>(requestLimit);
+		
+		overlay.getLocalNode().getAttributes().put("service.time", 0.0);
 		
 	}
 
@@ -77,6 +76,12 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		
 		requests.add(request);
 		arrivals++;
+		
+		//update utility to be sure the current utility is reflected
+		//when routing
+		Double serviceTime = getServiceTime();
+		overlay.getLocalNode().getAttributes().put("service.time", serviceTime);
+		updateUtility();
 
 	}
 	
@@ -119,13 +124,15 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		Double serviceTime = getServiceTime();
 		
 		//update node's attribute
-		overlay.getLocalNode().getAttributes().put("serviceTime",serviceTime);
+		overlay.getLocalNode().getAttributes().put("service.time",serviceTime);
 		
-		for(int r =0;r < servicedRequests;r++){
+		for(int r=0;r < servicedRequests;r++){
+			try {
 			ServiceRequest request = requests.remove(0);
-			
+	
 			Map attributes = new HashMap();
 			attributes.put("qos",request.getQoS());
+			attributes.put("serviceDemand",request.getServiceDemand());			
 			attributes.put("utility",getUtility());
 			attributes.put("serviceTime",serviceTime);
 			
@@ -133,7 +140,9 @@ public class WebServiceAgent extends ServiceProviderAgent {
 					attributes);
 
 			model.getExperiment().reportEvent(event);
-
+			} catch(IndexOutOfBoundsException e) {
+				System.out.println();
+			}
 		
 		}
 		
@@ -148,6 +157,10 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 */
 	public Double getServiceTime(){
             
+		if(arrivals == 0) {
+			return Double.NaN;
+		}
+		
 		Double serviceRate = getServiceRate();
 		Double serviceTime = (Math.pow(serviceRate, queueLimit+1.0) * (queueLimit*serviceRate-queueLimit-1) + serviceRate)/
 		                     (arrivals*(1-Math.pow(serviceRate, queueLimit))*(1-serviceRate));
@@ -163,9 +176,26 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 * @return
 	 */
 	Double getServiceRate(){
-	   return arrivals*averageServiceRequest*(1-backgroundLoad);	
+	   return arrivals*getAverageServiceDemand()*(1-backgroundLoad);	
 	}
 	
+	
+	protected Double getAverageServiceDemand() {
+		Double avg = 0.0;
+		
+		if(requests.size() == 0) {
+			return 0.0;
+		}
+		
+		for(ServiceRequest r: requests) {
+			avg += r.getServiceDemand();
+			
+		}
+		
+		avg = avg/requests.size();
+		
+		return avg;
+	}
 	
 	public Double getUtility(){
 		
