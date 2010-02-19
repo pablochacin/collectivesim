@@ -67,8 +67,8 @@ public class Percentiles implements SeriesFunction {
 	        int intPos = (int) fpos;
 	        double dif = pos - fpos;
 	        
-	        double lower = values.get(intPos - 1);
-	        double upper = values.get(intPos);
+	        double lower = values.get(Math.max(intPos - 1,0));
+	        double upper = values.get(Math.min(intPos,values.size()-1));
 	        pctValues[p] = lower + dif* (upper - lower);
 	        
 	       	        
