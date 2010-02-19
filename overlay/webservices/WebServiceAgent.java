@@ -51,12 +51,15 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	
 	private Integer queueLimit;
 	
+	private Double serviceRate;
+	
 	
 	public WebServiceAgent(OverlayModel model, Overlay overlay, Identifier id,
-			UtilityFunction function,Integer requestLimit) {
+			UtilityFunction function,Integer requestLimit,Double serviceRate) {
 		super(model, overlay, id, function);	
 		
 		this.queueLimit = requestLimit;
+		this.serviceRate = serviceRate;
 		this.function = function;
 		
 		requests = new ArrayList<ServiceRequest>(requestLimit);
@@ -87,6 +90,14 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	
 	
 	
+	public Double getQueueLength() {
+		return new Double(requests.size());
+	}
+	
+	
+	public Double getArrivals() {
+		return arrivals;
+	}
 	
 	@Override
 	/**
@@ -119,7 +130,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	public void dispatchRequests(){
 		
 		//number of requests attended in the current dispatch cycle
-		int servicedRequests = (int)Math.ceil(getServiceRate());
+		int servicedRequests = Math.min((int)Math.ceil(1.0/serviceRate),requests.size());
 		
 		Double serviceTime = getServiceTime();
 		
@@ -161,9 +172,9 @@ public class WebServiceAgent extends ServiceProviderAgent {
 			return Double.NaN;
 		}
 		
-		Double serviceRate = getServiceRate();
-		Double serviceTime = (Math.pow(serviceRate, queueLimit+1.0) * (queueLimit*serviceRate-queueLimit-1) + serviceRate)/
-		                     (arrivals*(1-Math.pow(serviceRate, queueLimit))*(1-serviceRate));
+		Double offeredDemand = getOfferedDemand();
+		Double serviceTime = (Math.pow(offeredDemand, queueLimit+1.0) * (queueLimit*offeredDemand-queueLimit-1) + offeredDemand)/
+		                     (arrivals*(1-Math.pow(offeredDemand, queueLimit))*(1-offeredDemand));
 		
 		return serviceTime;
 	}
@@ -175,27 +186,12 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 * 
 	 * @return
 	 */
-	Double getServiceRate(){
-	   return arrivals*getAverageServiceDemand()*(1-backgroundLoad);	
+	Double getOfferedDemand(){
+	   return serviceRate*(1-backgroundLoad)*arrivals;	
 	}
 	
 	
-	protected Double getAverageServiceDemand() {
-		Double avg = 0.0;
-		
-		if(requests.size() == 0) {
-			return 0.0;
-		}
-		
-		for(ServiceRequest r: requests) {
-			avg += r.getServiceDemand();
-			
-		}
-		
-		avg = avg/requests.size();
-		
-		return avg;
-	}
+
 	
 	public Double getUtility(){
 		

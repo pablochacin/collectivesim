@@ -16,14 +16,17 @@ public class WebServiceAgentFactory extends OverlayAgentFactory {
 	
 	protected Integer requestLimit;
 	
+	protected Double serviceRate;
+	
 	protected Double targetServiceTime;
 	
 	
 	public WebServiceAgentFactory(OverlayFactory factory, Underlay underlay,
-			Stream<Identifier> ids,Integer requestLimit,Double targetServiceTime) {
+			Stream<Identifier> ids,Integer requestLimit,Double serviceRate,Double targetServiceTime) {
 		
 		super(factory, underlay, ids);
 		this.requestLimit = requestLimit;
+		this.serviceRate = serviceRate;
 		this.targetServiceTime = targetServiceTime;
 	}
 
@@ -32,7 +35,7 @@ public class WebServiceAgentFactory extends OverlayAgentFactory {
 	protected OverlayAgent createOverlayAgent(OverlayModel model, Overlay overlay) {		
 		
 			return new WebServiceAgent(model,overlay,overlay.getLocalNode().getId(),
-					                   getUtilityFunction(),requestLimit);
+					                   getUtilityFunction(),requestLimit,serviceRate);
 				
 	}
 
