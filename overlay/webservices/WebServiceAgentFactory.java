@@ -20,14 +20,16 @@ public class WebServiceAgentFactory extends OverlayAgentFactory {
 	
 	protected Double targetServiceTime;
 	
+	protected Double alpha;
 	
 	public WebServiceAgentFactory(OverlayFactory factory, Underlay underlay,
-			Stream<Identifier> ids,Integer requestLimit,Double serviceRate,Double targetServiceTime) {
+			Stream<Identifier> ids,Integer requestLimit,Double serviceRate,Double targetServiceTime,Double alpha) {
 		
 		super(factory, underlay, ids);
 		this.requestLimit = requestLimit;
 		this.serviceRate = serviceRate;
 		this.targetServiceTime = targetServiceTime;
+		this.alpha = alpha;
 	}
 
 	
@@ -42,6 +44,6 @@ public class WebServiceAgentFactory extends OverlayAgentFactory {
 
 	private UtilityFunction getUtilityFunction() {
 	
-		return new ResponseTimeUtilityFunction(targetServiceTime);
+		return new ResponseTimeUtilityFunction(targetServiceTime,alpha);
 	}
 }
