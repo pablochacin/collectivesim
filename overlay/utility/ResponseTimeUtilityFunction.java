@@ -6,10 +6,13 @@ public class ResponseTimeUtilityFunction implements UtilityFunction {
 
 	protected Double targetServiceTime;
 	
+	protected Double alpha;
 	
 	
-	public ResponseTimeUtilityFunction(Double targetServiceTime) {
+	
+	public ResponseTimeUtilityFunction(Double targetServiceTime,Double alpha) {
 		this.targetServiceTime = targetServiceTime;
+		this.alpha =  alpha;
 	}
 
 
@@ -27,7 +30,7 @@ public class ResponseTimeUtilityFunction implements UtilityFunction {
 			return 0.0;
 		}
 		
-		return (targetServiceTime-serviceTime)/targetServiceTime;
+		return Math.pow((targetServiceTime-serviceTime)/targetServiceTime,alpha);
 	}
 
 }
