@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.vents;
+package edu.upc.cnds.collectivesim.events;
 
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.events.EventObserver;
