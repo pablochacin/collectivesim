@@ -74,6 +74,11 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 * Count the requests received in the current dispatch cycle
 	 */
 	protected void processRequest(ServiceRequest request) {
+
+		if(getName().equals("0ccccccccccccccc")) {
+			System.out.print("");
+		}
+		
 		//count request
 		super.processRequest(request);
 		
@@ -128,6 +133,10 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 * Attend requests in the queue
 	 */
 	public void dispatchRequests(){
+	
+		if(getName().equals("0ccccccccccccccc")) {
+			System.out.print("");
+		}
 		
 		//number of requests attended in the current dispatch cycle
 		int servicedRequests = Math.min((int)Math.ceil(1.0/serviceRate),requests.size());
@@ -187,14 +196,17 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 * @return
 	 */
 	Double getOfferedDemand(){
-	   return serviceRate*(1-backgroundLoad)*arrivals;	
+	   //return serviceRate*(1-backgroundLoad)*arrivals;
+		return serviceRate*(1-backgroundLoad)*(double)requests.size();
 	}
 	
 	
 
 	
 	public Double getUtility(){
-		
+		if(getName().equals("0ccccccccccccccc")) {
+			System.out.print("");
+		}		
 		return function.getUtility(overlay.getLocalNode());
 		
 	}
