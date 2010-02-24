@@ -197,7 +197,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 */
 	Double getOfferedDemand(){
 	   //return serviceRate*(1-backgroundLoad)*arrivals;
-		return serviceRate*(1-backgroundLoad)*(double)requests.size();
+		return (serviceRate/(1.0-backgroundLoad))*(double)requests.size();
 	}
 	
 	
