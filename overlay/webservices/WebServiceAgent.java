@@ -195,18 +195,16 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 * 
 	 * @return
 	 */
-	Double getOfferedDemand(){
+	public Double getOfferedDemand(){
 	   //return serviceRate*(1-backgroundLoad)*arrivals;
-		return (serviceRate/(1.0-backgroundLoad))*(double)requests.size();
+		return Math.min(serviceRate*(double)requests.size()+ backgroundLoad,1.0);
 	}
 	
 	
 
 	
 	public Double getUtility(){
-		if(getName().equals("0ccccccccccccccc")) {
-			System.out.print("");
-		}		
+	
 		return function.getUtility(overlay.getLocalNode());
 		
 	}
