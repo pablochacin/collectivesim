@@ -90,7 +90,7 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 		//RoutingAlgorithm algorithm = new GradientRoutingAlgorithm(topology,randomTopology,function);
 
 		
-		Router router = new GenericRouter("overlay.router",node,new UtilityMatchFunction("utility"),algorithm,node.getTransport(),false,ttl);
+		Router router = new GenericRouter("overlay.router",node,new UtilityMatchFunction(),algorithm,node.getTransport(),false,ttl);
 		
 		Overlay overlay = new GradientOverlay(node,topology,router,updateRouter,new Destination(new HashMap(),false),1,
 				                             randomTopology, randomUpdater, new Destination(new HashMap(),false), distanceViewExchangeSize);
