@@ -61,10 +61,14 @@ public class ServiceEntryAgent extends UtilityOverlayAgent {
 
 		Map attributes = new HashMap();
 		attributes.put("utility", preference);
+		attributes.put("tolerance", tolerance);		
 		attributes.put("role", "entry");
 		
-		Destination destination = new Destination(attributes,tolerance);
+		Destination destination = new Destination(attributes);
 		
+		if(preference == 0.4) {
+			System.out.print("");
+		}
 		
 		ServiceRequest request = new ServiceRequest(preference,serviceDemand);
 		
@@ -74,6 +78,10 @@ public class ServiceEntryAgent extends UtilityOverlayAgent {
 			log.warning("unable to route request " + FormattingUtils.getStackTrace(e));
 		}
 
+	}
+	
+	public void startDebug() {
+		System.out.print("");
 	}
 
 	@Override
