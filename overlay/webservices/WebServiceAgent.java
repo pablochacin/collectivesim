@@ -120,10 +120,19 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	}
 
 
+	
 	public void setBackgroundLoad(Double load){
 		backgroundLoad = load;
 	}
 	
+	public void updateBackgroundLoad(Double variation) {
+		if(variation >= 0) 
+			backgroundLoad = Math.min(backgroundLoad +variation,1.0);
+		else
+			backgroundLoad = Math.max(backgroundLoad +variation,0.0);
+		
+		
+	}
 	
 	public Double getBackgroundLoad(){
 		return backgroundLoad;
