@@ -122,16 +122,30 @@ public class WebServiceAgent extends ServiceProviderAgent {
 
 	
 	public void setBackgroundLoad(Double load){
-		backgroundLoad = load;
+		
+		Double availableCapacity = 1.0-serviceRate*arrivals;
+		backgroundLoad = Math.min(availableCapacity,load);
+		
+		Double serviceTime = getServiceTime();
+		overlay.getLocalNode().getAttributes().put("service.time", serviceTime);
+		updateUtility();
+		
+		
 	}
 	
 	public void updateBackgroundLoad(Double variation) {
+				
 		if(variation >= 0) 
-			backgroundLoad = Math.min(backgroundLoad +variation,1.0);
+			setBackgroundLoad(Math.min(backgroundLoad +variation,1.0));
 		else
-			backgroundLoad = Math.max(backgroundLoad +variation,0.0);
+			setBackgroundLoad(Math.max(backgroundLoad +variation,0.0));
 		
 		
+	}
+	
+	
+	public Double getWorkload() {
+		return serviceRate*arrivals + backgroundLoad;
 	}
 	
 	public Double getBackgroundLoad(){
@@ -194,6 +208,10 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		Double serviceTime = (Math.pow(offeredDemand, queueLimit+1.0) * (queueLimit*offeredDemand-queueLimit-1) + offeredDemand)/
 		                     (arrivals*(1-Math.pow(offeredDemand, queueLimit))*(1-offeredDemand));
 		
+		if(serviceTime > 1.0) {
+			System.out.print("");
+		}
+		
 		return serviceTime;
 	}
 
@@ -205,8 +223,8 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 * @return
 	 */
 	public Double getOfferedDemand(){
-	   //return serviceRate*(1-backgroundLoad)*arrivals;
-		return Math.min(serviceRate*(double)requests.size()+ backgroundLoad,1.0);
+	   return (serviceRate/(1-backgroundLoad))*arrivals;
+		//return Math.min(serviceRate*(double)requests.size()+ backgroundLoad,1.0);
 	}
 	
 	
