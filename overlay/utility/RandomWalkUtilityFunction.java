@@ -12,7 +12,7 @@ import edu.upc.cnds.collectivesim.stream.Stream;
  * @author 
  *
  */
-public class RandomUtilityFunction implements UtilityFunction {
+public class RandomWalkUtilityFunction implements UtilityFunction {
 
 
 	
@@ -39,7 +39,7 @@ public class RandomUtilityFunction implements UtilityFunction {
 	 * @param direction
 	 * @param utility
 	 */
-	public RandomUtilityFunction(Double utility, Double initialTrend,Stream<Double> variation, Double drift,Stream<Double> trend) {
+	public RandomWalkUtilityFunction(Double utility, Double initialTrend,Stream<Double> variation, Double drift,Stream<Double> trend) {
 		super();
 		this.utility = utility;
 		this.drift = drift;
