@@ -87,7 +87,7 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 
 		
 		RoutingAlgorithm algorithm = new GreedyRoutingAlgorithm(topology,function);
-		//RoutingAlgorithm algorithm = new GradientRoutingAlgorithm(topology,randomTopology,function);
+		//RoutingAlgorithm algorithm = new EpidemicRoutingAlgorithm(topology,1);
 
 		
 		Router router = new GenericRouter("overlay.router",node,function,algorithm,node.getTransport(),false,ttl);
