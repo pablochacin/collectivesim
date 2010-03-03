@@ -467,18 +467,21 @@ public class Experiment implements Platform, ExecutionService {
 	 * @param dataSeries
 	 * @param frequency
 	 */
-	public void addStateObserver(String name,String dataSeries,long frequency,long delay){
+	public void addStateObserver(String name,String dataSeries,long frequency,long delay,boolean incremental){
 
 		StateValue value = stateValues.get(name);
 		if(value == null){
 			throw new IllegalArgumentException("Value [" + name + "] not found");
 		}
-		StateValueObserver observer = new StateValueObserver(value,getDataSeries(dataSeries));
+		StateValueObserver observer = new StateValueObserver(value,getDataSeries(dataSeries),incremental);
 
 		scheduledTasks.add(new ExperimentTask(scheduler, observer,delay,frequency));
 	}
 
 
+	public void addStateObserver(String name,String dataSeries,long frequency,long delay){
+	  addStateObserver(name, dataSeries, frequency, delay,false);
+	}
 	/**
 	 * Starts the experiment. Executes the initialization tasks and then the first run.
 	 * 
