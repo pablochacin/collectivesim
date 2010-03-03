@@ -75,9 +75,6 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 */
 	protected void processRequest(ServiceRequest request) {
 
-		if(getName().equals("0ccccccccccccccc")) {
-			System.out.print("");
-		}
 		
 		//count request
 		super.processRequest(request);
@@ -90,6 +87,8 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		Double serviceTime = getServiceTime();
 		overlay.getLocalNode().getAttributes().put("service.time", serviceTime);
 		updateUtility();
+		
+		overlay.getLocalNode().setAttribute("queue", requests.size());
 
 	}
 	
@@ -156,11 +155,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 * Attend requests in the queue
 	 */
 	public void dispatchRequests(){
-	
-		if(getName().equals("0ccccccccccccccc")) {
-			System.out.print("");
-		}
-		
+			
 		//number of requests attended in the current dispatch cycle
 		int servicedRequests = Math.min((int)Math.ceil(1.0/serviceRate),requests.size());
 		
@@ -191,6 +186,8 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		
 		//reset counter
 		arrivals = 0.0;
+		
+		overlay.getLocalNode().setAttribute("queue", requests.size());
 	}
 
 		
