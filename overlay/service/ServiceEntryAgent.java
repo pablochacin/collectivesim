@@ -47,6 +47,8 @@ public class ServiceEntryAgent extends UtilityOverlayAgent {
 			this.preference = preference;
 			
 			this.tolerance = tolerance;
+			
+			overlay.getLocalNode().getAttributes().put("role", "entry");
 	}
 
 		
@@ -62,7 +64,6 @@ public class ServiceEntryAgent extends UtilityOverlayAgent {
 		Map attributes = new HashMap();
 		attributes.put("utility", preference);
 		attributes.put("tolerance", tolerance);		
-		attributes.put("role", "entry");
 		
 		Destination destination = new Destination(attributes);
 		
