@@ -9,7 +9,7 @@ import edu.upc.cnds.collectives.node.Node;
 public class ServiceEvent extends BasicEvent {
 
 	
-	public static String SERVICE_EVENT_SERVICED= "collectives.service.serviced";
+	public static String SERVICE_EVENT_SERVICED= "collectives.service.processed";
 	
 	public ServiceEvent(Node node, long timeStamp, Map attributes, Object... data) {
 		super(node, SERVICE_EVENT_SERVICED, timeStamp, attributes, data);
