@@ -13,10 +13,13 @@ import edu.upc.cnds.collectives.routing.Destination;
 import edu.upc.cnds.collectives.routing.Routing;
 import edu.upc.cnds.collectives.routing.RoutingEvent;
 import edu.upc.cnds.collectives.routing.base.Route;
+import edu.upc.cnds.collectivesim.model.ModelException;
+import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
 import edu.upc.cnds.collectivesim.overlay.OverlayModel;
 import edu.upc.cnds.collectivesim.overlay.service.ServiceProviderAgent;
 import edu.upc.cnds.collectivesim.overlay.service.ServiceRequest;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityFunction;
+import edu.upc.cnds.collectivesim.state.Counter;
 
 /**
  * 
@@ -53,6 +56,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	
 	private Double serviceRate;
 	
+	private Counter notAllocated;
 	
 	public WebServiceAgent(OverlayModel model, Overlay overlay, Identifier id,
 			UtilityFunction function,Integer requestLimit,Double serviceRate) {
@@ -61,12 +65,40 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		this.queueLimit = requestLimit;
 		this.serviceRate = serviceRate;
 		this.function = function;
+		this.notAllocated = model.getExperiment().getCounter("service.not.allocated");
 		
 		requests = new ArrayList<ServiceRequest>(requestLimit);
 		
 		overlay.getLocalNode().getAttributes().put("service.time", 0.0);
 		
 	}
+
+	
+	
+
+	@Override
+	public void dropped(Routing router, Destination destination, Route route, Exception cause, Serializable message) {
+		
+		super.dropped(router, destination, route, cause, message);
+		
+		ServiceRequest request = (ServiceRequest)message;
+		
+		for(OverlayAgent a: model.getAgents()) {
+			try {
+				Double agentUtility = (Double)a.getAttribute("Utility");
+				if(agentUtility >= request.getQoS()) {
+					notAllocated.increment();
+					break;
+				}
+			} catch (ModelException e) {
+				
+			}
+			
+		}
+		
+	}
+
+
 
 
 	@Override
@@ -163,16 +195,20 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		
 		//update node's attribute
 		overlay.getLocalNode().getAttributes().put("service.time",serviceTime);
+	
+		Double currentUtility = getUtility();
 		
 		for(int r=0;r < servicedRequests;r++){
 			try {
 			ServiceRequest request = requests.remove(0);
 	
 			Map attributes = new HashMap();
-			attributes.put("qos",request.getQoS());
-			attributes.put("serviceDemand",request.getServiceDemand());			
-			attributes.put("utility",getUtility());
-			attributes.put("serviceTime",serviceTime);
+			attributes.put("request.qos",request.getQoS());
+			attributes.put("request.demand",request.getServiceDemand());			
+			attributes.put("node.utility",currentUtility);
+			attributes.put("service.time",serviceTime);	
+			attributes.put("service.ratio",utility/request.getQoS());	
+			
 			
 			Event event = new ServiceEvent(overlay.getLocalNode(),model.getCurrentTime(),
 					attributes);
@@ -198,17 +234,16 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	public Double getServiceTime(){
             
 		if(arrivals == 0) {
-			return Double.NaN;
+			return serviceRate/(1.0-backgroundLoad);
 		}
 		
-		Double offeredDemand = getOfferedDemand();
-		Double serviceTime = (Math.pow(offeredDemand, queueLimit+1.0) * (queueLimit*offeredDemand-queueLimit-1) + offeredDemand)/
-		                     (arrivals*(1-Math.pow(offeredDemand, queueLimit))*(1-offeredDemand));
+		//Double offeredDemand = getOfferedDemand();
+		//Double serviceTime = (Math.pow(offeredDemand, queueLimit+1.0) * (queueLimit*offeredDemand-queueLimit-1) + offeredDemand)/
+		//                     (arrivals*(1-Math.pow(offeredDemand, queueLimit))*(1-offeredDemand));
 		
-		if(serviceTime > 1.0) {
-			System.out.print("");
-		}
-		
+		                     
+		Double serviceTime = requests.size()*(serviceRate/(1.0-backgroundLoad));
+					
 		return serviceTime;
 	}
 
