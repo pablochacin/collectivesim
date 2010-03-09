@@ -82,13 +82,14 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		super.dropped(router, destination, route, cause, message);
 		
 		ServiceRequest request = (ServiceRequest)message;
-		
+
+		Integer count = 0;
+
 		for(OverlayAgent a: model.getAgents()) {
 			try {
 				Double agentUtility = (Double)a.getAttribute("Utility");
 				if(agentUtility >= request.getQoS()) {
-					notAllocated.increment();
-					break;
+					count++;
 				}
 			} catch (ModelException e) {
 				
@@ -96,6 +97,9 @@ public class WebServiceAgent extends ServiceProviderAgent {
 			
 		}
 		
+		if(count > 0){
+			notAllocated.increment();
+		}
 	}
 
 
@@ -237,12 +241,12 @@ public class WebServiceAgent extends ServiceProviderAgent {
 			return serviceRate/(1.0-backgroundLoad);
 		}
 		
-		//Double offeredDemand = getOfferedDemand();
-		//Double serviceTime = (Math.pow(offeredDemand, queueLimit+1.0) * (queueLimit*offeredDemand-queueLimit-1) + offeredDemand)/
-		//                     (arrivals*(1-Math.pow(offeredDemand, queueLimit))*(1-offeredDemand));
+		Double offeredDemand = getOfferedDemand();
+		Double serviceTime = (Math.pow(offeredDemand, queueLimit+1.0) * (queueLimit*offeredDemand-queueLimit-1) + offeredDemand)/
+		                     (arrivals*(1-Math.pow(offeredDemand, queueLimit))*(1-offeredDemand));
 		
 		                     
-		Double serviceTime = requests.size()*(serviceRate/(1.0-backgroundLoad));
+		//Double serviceTime = requests.size()*(serviceRate/(1.0-backgroundLoad));
 					
 		return serviceTime;
 	}
