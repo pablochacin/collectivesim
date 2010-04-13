@@ -496,6 +496,7 @@ public class Experiment implements Platform, ExecutionService {
 		}
 		
 		Collectives.setPlaform(this);
+		Collectives.setExperiment(this);
 
 
 		//execute initialization tasks
@@ -777,7 +778,7 @@ public class Experiment implements Platform, ExecutionService {
 					log.severe("Exception starting mode "+model.getName()+FormattingUtils.getStackTrace(e));
 				}}};
 
-				scheduledTasks.add(new ExperimentTask(scheduler,target, delay,0));
+		scheduledTasks.add(new ExperimentTask(scheduler,target, delay,0));
 
 	}
 
