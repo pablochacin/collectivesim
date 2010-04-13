@@ -91,12 +91,12 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 		//RoutingAlgorithm utilityRouting = new GreedyRoutingAlgorithm(topology,new UtilityMatchFunction("utility"));
 
 		
-		//RoutingAlgorithm algorithm = new GreedyRoutingAlgorithm(topology,function);
-		RoutingAlgorithm algorithm = new EpidemicRoutingAlgorithm(topology,1);
+		RoutingAlgorithm algorithm = new GreedyRoutingAlgorithm(topology,function);
+		//RoutingAlgorithm algorithm = new EpidemicRoutingAlgorithm(topology,1);
 
 		
-		Router router = new GenericRouter("overlay.router",node,function,algorithm,node.getTransport(),false,ttl);
-		//Router router = new AdativeRouter("overlay.router",node,function,algorithm,node.getTransport(),false,ttl,(AdaptiveTopology)topology);
+		//Router router = new GenericRouter("overlay.router",node,function,algorithm,node.getTransport(),false,ttl);
+		Router router = new AdativeRouter("overlay.router",node,function,algorithm,node.getTransport(),false,ttl,(AdaptiveTopology)topology);
 		
 		Overlay overlay = new GradientOverlay(node,topology,router,updateRouter,new Destination(new HashMap(),false),1,
 				                             randomTopology, randomUpdater, new Destination(new HashMap(),false), distanceViewExchangeSize);
