@@ -62,13 +62,13 @@ public class UtilityAgentFactory extends OverlayAgentFactory {
 
 	protected UtilityFunction getUtilityFunction() {
 		
-//		UtilityFunction function = new RandomWalkUtilityFunction(utility.nextElement(), 
-//                initialTrend.nextElement(),
-//                variation, drift.nextElement(), 
-//                trend);
+		UtilityFunction function = new RandomWalkUtilityFunction(utility.nextElement(), 
+                initialTrend.nextElement(),
+                variation, drift.nextElement(), 
+                trend);
 		
-		UtilityFunction function = new WhiteNoiseUtilityFunction(utility.nextElement(), 
-										variation);
+//		UtilityFunction function = new WhiteNoiseUtilityFunction(utility.nextElement(), 
+//										variation);
 
 		return function;
 	}
