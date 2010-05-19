@@ -56,22 +56,18 @@ public class ServiceEntryAgent extends UtilityOverlayAgent {
 	 * Makes a request for service with a minimum utility. 
 	 * 
 	 * @param utility required utility
-	 * @param tolerance tolerance (above)
-	 * @param duration duration of the request execution
+	 * @param demand duration of the request execution
 	 */
-	public void makeRequest(Double serviceDemand) {
+	public void makeRequest(Double utility,Double serviceDemand) {
 
 		Map attributes = new HashMap();
-		attributes.put("utility", preference);
+		attributes.put("utility", utility);
 		attributes.put("tolerance", tolerance);		
 		
 		Destination destination = new Destination(attributes);
 		
-		if(preference == 0.4) {
-			System.out.print("");
-		}
 		
-		ServiceRequest request = new ServiceRequest(preference,serviceDemand);
+		ServiceRequest request = new ServiceRequest(utility,serviceDemand);
 		
 		try {
 			overlay.route(destination, request);
@@ -80,6 +76,12 @@ public class ServiceEntryAgent extends UtilityOverlayAgent {
 		}
 
 	}
+	
+	
+	public void makeRequest(Double demand) {
+		makeRequest(preference,demand);
+	}
+	
 	
 	public void startDebug() {
 		System.out.print("");
