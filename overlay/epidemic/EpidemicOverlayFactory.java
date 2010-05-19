@@ -8,7 +8,7 @@ import edu.upc.cnds.collectives.overlay.gradient.UtilityMatchFunction;
 import edu.upc.cnds.collectives.routing.Destination;
 import edu.upc.cnds.collectives.routing.MatchFunction;
 import edu.upc.cnds.collectives.routing.Routing;
-import edu.upc.cnds.collectives.routing.adaptive.AdaptiveTopology;
+import edu.upc.cnds.collectives.routing.adaptive.AdaptiveDistanceTopology;
 import edu.upc.cnds.collectives.routing.adaptive.AdativeRouter;
 import edu.upc.cnds.collectives.routing.base.DummyMatch;
 import edu.upc.cnds.collectives.routing.base.GenericRouter;
@@ -17,6 +17,7 @@ import edu.upc.cnds.collectives.routing.base.Router;
 import edu.upc.cnds.collectives.routing.base.RoutingAlgorithm;
 import edu.upc.cnds.collectives.routing.epidemic.EpidemicRoutingAlgorithm;
 import edu.upc.cnds.collectives.routing.gradient.GradientRoutingAlgorithm;
+import edu.upc.cnds.collectives.topology.AdaptiveTopology;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.topology.base.RandomTopology;
 import edu.upc.cnds.collectives.topology.distance.DistanceSpace;
@@ -67,8 +68,8 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 		
 		
 				
-		//Topology topology = new DistanceTopology(node,null,distanceViewSize,false,space);	
-		Topology topology = new AdaptiveTopology(node,null,distanceViewSize,false,space);
+		Topology topology = new DistanceTopology(node,null,distanceViewSize,false,space);	
+		//Topology topology = new AdaptiveDistanceTopology(node,null,distanceViewSize,false,space);
 		
 		
 		RoutingAlgorithm epidemicRouting = new EpidemicRoutingAlgorithm(topology,distanceViewExchangeSize);
@@ -95,8 +96,8 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 		//RoutingAlgorithm algorithm = new EpidemicRoutingAlgorithm(topology,1);
 
 		
-		//Router router = new GenericRouter("overlay.router",node,function,algorithm,node.getTransport(),false,ttl);
-		Router router = new AdativeRouter("overlay.router",node,function,algorithm,node.getTransport(),false,ttl,(AdaptiveTopology)topology);
+		Router router = new GenericRouter("overlay.router",node,function,algorithm,node.getTransport(),false,ttl);
+		//Router router = new AdativeRouter("overlay.router",node,function,algorithm,node.getTransport(),false,ttl,(AdaptiveTopology)topology);
 		
 		Overlay overlay = new GradientOverlay(node,topology,router,updateRouter,new Destination(new HashMap(),false),1,
 				                             randomTopology, randomUpdater, new Destination(new HashMap(),false), distanceViewExchangeSize);
