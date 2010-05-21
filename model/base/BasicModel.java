@@ -498,6 +498,10 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 		agentStreams.put(name,action);
 	}
 	
+	public void addAgentStream(String name,long delay,long endTime,Stream<Long>frequency,Stream<Integer> rate){
+		
+		addAgentStream(name,delay,endTime,frequency,rate,this.factory);
+	}
 	
 	/**
 	 * Informs that an agent has been added to the model. Can be used by subclasses to handle

@@ -140,6 +140,8 @@ public interface Model <T extends ModelAgent> {
 	public void addAgentStream(String name,long delay,long endTime,Stream<Long>frequency,Stream<Integer> rate,AgentFactory factory);
 
 
+	public void addAgentStream(String name,long delay,long endTime,Stream<Long>frequency,Stream<Integer> rate);
+
 	
 	
 	/**
