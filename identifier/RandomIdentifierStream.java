@@ -3,6 +3,7 @@ package edu.upc.cnds.collectivesim.identifier;
 import java.util.Random;
 
 import cern.jet.random.engine.MersenneTwister64;
+import edu.upc.cnds.collectives.Collectives;
 import edu.upc.cnds.collectives.identifier.BasicIdentifier;
 import edu.upc.cnds.collectives.identifier.IdSpace;
 import edu.upc.cnds.collectives.identifier.Identifier;
@@ -22,13 +23,14 @@ public class RandomIdentifierStream implements Stream<Identifier> {
 
 	private int size;
 	
-	private Random rnd = new MersenneRandom();
+	private Random rnd; 
 
 	
 	public RandomIdentifierStream(String name,int size) {
 		super();
 		this.name = name;
 		this.size = size;
+		this.rnd = Collectives.getExperiment().getRandomGenerator();
 	}
 
 	@Override

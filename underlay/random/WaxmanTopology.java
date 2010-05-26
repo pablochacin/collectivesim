@@ -9,6 +9,7 @@ import java.util.Vector;
 
 import Model.RouterWaxman;
 import Topology.Topology;
+import edu.upc.cnds.collectives.Collectives;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectivesim.random.MersenneRandom;
 import edu.upc.cnds.collectivesim.underlay.NetworkTopology;
@@ -158,13 +159,15 @@ public class WaxmanTopology implements NetworkTopology {
 	
 	protected int numLocations;
 	
-	protected Random rand = new MersenneRandom();
+	protected Random rand;
 	
 	public WaxmanTopology(int numLocations,int outDegree) {
 	
 		 this.numLocations = numLocations;
 		 
 		 this.outDegree = outDegree;
+		 
+		 this.rand = Collectives.getExperiment().getRandomGenerator();
 		 
 		 this.locations = new ArrayList<TopologyLocation>(numLocations);
 		 //locations.add(0,null);

@@ -2,6 +2,7 @@ package edu.upc.cnds.collectivesim.overlay.utility;
 
 import java.util.Random;
 
+import edu.upc.cnds.collectives.Collectives;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectivesim.random.MersenneRandom;
 import edu.upc.cnds.collectivesim.stream.Stream;
@@ -45,7 +46,7 @@ public class RandomWalkUtilityFunction implements UtilityFunction {
 		this.drift = drift;
 		this.variation = variation;
 		this.trend = trend;
-		this.random = new MersenneRandom((int)System.currentTimeMillis());
+		this.random = Collectives.getExperiment().getRandomGenerator();
 		this.direction = initialTrend;
 		
 		

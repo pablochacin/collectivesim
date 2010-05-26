@@ -7,6 +7,7 @@ import cern.jet.random.Empirical;
 import cern.jet.random.EmpiricalWalker;
 import cern.jet.random.engine.MersenneTwister64;
 
+import edu.upc.cnds.collectivesim.random.ColtRandomEngine;
 import edu.upc.cnds.collectivesim.stream.Stream;
 import edu.upc.cnds.collectivesim.table.Table;
 
@@ -38,7 +39,8 @@ public class RandomTableStream<T> implements Stream<T> {
 			histogram[i] = distribution.getElement(i);
 		}
 		
-		this.rand = new EmpiricalWalker(histogram,Empirical.LINEAR_INTERPOLATION, new MersenneTwister64(new Date(System.currentTimeMillis())));
+		this.rand = new EmpiricalWalker(histogram,Empirical.LINEAR_INTERPOLATION, 
+				                  new ColtRandomEngine());
 
 	}
 

@@ -6,6 +6,7 @@ import java.util.Random;
 
 import cern.jet.random.engine.MersenneTwister64;
 
+import edu.upc.cnds.collectives.Collectives;
 import edu.upc.cnds.collectivesim.model.AgentSampler;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.random.MersenneRandom;
@@ -29,15 +30,12 @@ public class PoissonSampler implements AgentSampler {
 	
 	
 	
-	public PoissonSampler(Integer n, Random rand){
-		this.n = n;
-		this.rand = rand;
-	}
-	
-	
 	public PoissonSampler(Integer n){
-		this(n, new MersenneRandom());
+		this.n = n;
+		this.rand = Collectives.getExperiment().getRandomGenerator();
 	}
+	
+	
 	
 	@Override
 	public List<ModelAgent> sample(List<ModelAgent> agents) {

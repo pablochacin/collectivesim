@@ -2,6 +2,7 @@ package edu.upc.cnds.collectivesim.overlay.utility;
 
 import java.util.Random;
 
+import edu.upc.cnds.collectives.Collectives;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectivesim.random.MersenneRandom;
 import edu.upc.cnds.collectivesim.stream.Stream;
@@ -35,7 +36,7 @@ public class WhiteNoiseUtilityFunction implements UtilityFunction {
 		super();
 		this.base = base;
 		this.variation = variation;
-		this.random = new MersenneRandom((int)System.currentTimeMillis());		
+		this.random = Collectives.getExperiment().getRandomGenerator();		
 		
 	}
 
