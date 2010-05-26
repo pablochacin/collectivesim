@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -189,8 +190,10 @@ public class Experiment implements Platform, ExecutionService {
 	 * Delay before starting execution, in seconds. Use for scheduled executions;
 	 */
 	private long delay;
-
-	public Experiment(String description,Scheduler scheduler,String rootDir, int runs,long runLenght,boolean exitOnEnd,long delay){
+	
+	private Random randomGenerator;
+	
+	public Experiment(String description,Random randomGenerator,Scheduler scheduler,String rootDir, int runs,long runLenght,boolean exitOnEnd,long delay){
 
 		this.log = Logger.getLogger("colectivesim.experiment");
 
@@ -199,6 +202,8 @@ public class Experiment implements Platform, ExecutionService {
 		this.endTime = 0;
 		this.runLength = runLenght;
 		this.runs = runs;
+		
+		this.randomGenerator = randomGenerator;
 
 		this.description = description;
 		this.scheduler = scheduler;
@@ -236,6 +241,9 @@ public class Experiment implements Platform, ExecutionService {
 			scheduledTasks.add(new ExperimentTask(scheduler,endTask,endTime,0));
 		}
 
+		Collectives.setPlaform(this);
+		Collectives.setExperiment(this);
+		
 	}
 
 
@@ -304,6 +312,16 @@ public class Experiment implements Platform, ExecutionService {
 		streams.put(stream.getName(), stream);
 	}
 
+	
+	/**
+	 * Returns a random number generator 
+	 * 
+	 * @return
+	 */
+	public Random getRandomGenerator() {
+		
+		return randomGenerator;
+	}
 
 	public Counter addCounter(String name){
 
@@ -495,9 +513,6 @@ public class Experiment implements Platform, ExecutionService {
 			throw new ExperimentException("Interrupted during start delay",e);
 		}
 		
-		Collectives.setPlaform(this);
-		Collectives.setExperiment(this);
-
 
 		//execute initialization tasks
 		for(Runnable r: initializationTasks){
