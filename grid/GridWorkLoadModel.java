@@ -2,7 +2,7 @@ package edu.upc.cnds.collectivesim.grid;
 
 import edu.upc.cnds.collectiveg.GridResourceBroker;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
-import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
+import edu.upc.cnds.collectivesim.model.base.BasicModel;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 
 /**
@@ -11,7 +11,7 @@ import edu.upc.cnds.collectivesim.scheduler.Scheduler;
  * @author Pablo Chacin
  *
  */
-public class GridWorkLoadModel extends AbstractModel {
+public class GridWorkLoadModel extends BasicModel {
 
 	
 	public GridWorkLoadModel(String name,Experiment experiment) {

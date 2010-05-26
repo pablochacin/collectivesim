@@ -14,10 +14,10 @@ import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelException;
-import edu.upc.cnds.collectivesim.model.Stream;
-import edu.upc.cnds.collectivesim.model.imp.AbstractModel;
+import edu.upc.cnds.collectivesim.model.base.BasicModel;
+import edu.upc.cnds.collectivesim.stream.Stream;
 
-public class GridLrmModel extends AbstractModel {
+public class GridLrmModel extends BasicModel {
 
 	/**
 	 * Frequency of updates for LRMs
@@ -116,4 +116,6 @@ public class GridLrmModel extends AbstractModel {
 	public DataSeries getExecutions(){
 		return executions;
 	}
+
+
 }

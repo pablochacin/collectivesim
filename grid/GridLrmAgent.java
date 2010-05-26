@@ -14,8 +14,8 @@ import edu.upc.cnds.collectiveg.GridLRM.POLICY;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
-import edu.upc.cnds.collectivesim.model.Stream;
-import edu.upc.cnds.collectivesim.model.imp.ReflexionModelAgent;
+import edu.upc.cnds.collectivesim.model.base.ReflexionModelAgent;
+import edu.upc.cnds.collectivesim.stream.Stream;
 
 
 public class GridLrmAgent extends ReflexionModelAgent implements GridLRM{
