@@ -3,21 +3,16 @@ package edu.upc.cnds.collectivesim.overlay.epidemic;
 import java.util.HashMap;
 
 import edu.upc.cnds.collectives.overlay.Overlay;
-import edu.upc.cnds.collectives.overlay.gradient.GradientOverlay;
-import edu.upc.cnds.collectives.overlay.gradient.UtilityMatchFunction;
+import edu.upc.cnds.collectives.overlay.epidemic.EpidemicOverlay;
+import edu.upc.cnds.collectives.routing.AdmissionFunction;
 import edu.upc.cnds.collectives.routing.Destination;
-import edu.upc.cnds.collectives.routing.MatchFunction;
+import edu.upc.cnds.collectives.routing.RankFunction;
 import edu.upc.cnds.collectives.routing.Routing;
-import edu.upc.cnds.collectives.routing.adaptive.AdaptiveDistanceTopology;
-import edu.upc.cnds.collectives.routing.adaptive.AdativeRouter;
-import edu.upc.cnds.collectives.routing.base.DummyMatch;
 import edu.upc.cnds.collectives.routing.base.GenericRouter;
 import edu.upc.cnds.collectives.routing.base.GreedyRoutingAlgorithm;
 import edu.upc.cnds.collectives.routing.base.Router;
 import edu.upc.cnds.collectives.routing.base.RoutingAlgorithm;
 import edu.upc.cnds.collectives.routing.epidemic.EpidemicRoutingAlgorithm;
-import edu.upc.cnds.collectives.routing.gradient.GradientRoutingAlgorithm;
-import edu.upc.cnds.collectives.topology.AdaptiveTopology;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.topology.base.RandomTopology;
 import edu.upc.cnds.collectives.topology.distance.DistanceSpace;
@@ -45,11 +40,13 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 	
 	DistanceSpace space;
 	
-	MatchFunction function;
+	AdmissionFunction admission;
+	
+	RankFunction ranking;
 	
 	public EpidemicOverlayFactory(int distanceViewSize, int distanceViewExchangeSize, 
 			int randomViewSize,int radomViewExchangeSize, int ttl,
-			DistanceSpace space,MatchFunction function) {
+			DistanceSpace space,AdmissionFunction admission,RankFunction ranking) {
 		super();
 		this.distanceViewSize = distanceViewSize;
 		this.randomViewSize = randomViewSize;
@@ -57,7 +54,8 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 		this.radomViewExchangeSize = radomViewExchangeSize;
 		this.ttl = ttl;
 		this.space = space;
-		this.function = function;
+		this.admission= admission;
+		this.ranking = ranking;
 
 	}
 
@@ -73,34 +71,17 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 		
 		
 		RoutingAlgorithm epidemicRouting = new EpidemicRoutingAlgorithm(topology,distanceViewExchangeSize);
-		Routing updateRouter = new GenericRouter("TopologyUpdateRouter",node,new DummyMatch(1.0),epidemicRouting,node.getTransport());
+		Routing updateRouter = new GenericRouter("TopologyUpdateRouter",node,epidemicRouting,node.getTransport(),1);
 				
-				
-		Topology randomTopology = new RandomTopology(node,randomViewSize,false);
-		RoutingAlgorithm randomEpidemic = new EpidemicRoutingAlgorithm(randomTopology,radomViewExchangeSize);
-		Routing randomUpdater =new GenericRouter("topology.updater",node,new DummyMatch(1.0),randomEpidemic,node.getTransport());
-
-		
-		//RoutingAlgorithm utilityRouting = new GradientNeighborRoutingAlgorithm(topology,randomTopology,routingFuction,
-		//		                                                                 exchangeSet,overlaySelector);
-		//RoutingAlgorithm utilityRouting = new GradientRoutingAlgorithmWithMemory(topology,randomTopology,routingFuction,
-		//		                                                                 exchangeSet,overlaySelector);
-		//RoutingAlgorithm utilityRouting = new GradientRoutingAlgorithm(topology,randomTopology,new UtilityMatchFunction("utility"));
-		//RoutingAlgorithm utilityRouting = new ProbabilisticRoutingAlgorithm(topology,routingFuction);
-		//RoutingAlgorithm utilityRouting = new EpidemicRoutingAlgorithm(topology,1);
-		//RoutingAlgorithm utilityRouting = new GreedyRoutingAlgorithm(topology,new DecayUtilityMatchFunction("utility",cycleLength,alpha));
-		//RoutingAlgorithm utilityRouting = new GreedyRoutingAlgorithm(topology,new UtilityMatchFunction("utility"));
-
-		
-		RoutingAlgorithm algorithm = new GreedyRoutingAlgorithm(topology,function);
+						
+		RoutingAlgorithm algorithm = new GreedyRoutingAlgorithm(topology,ranking);
 		//RoutingAlgorithm algorithm = new EpidemicRoutingAlgorithm(topology,1);
 
 		
-		Router router = new GenericRouter("overlay.router",node,function,algorithm,node.getTransport(),false,ttl);
+		Router router = new GenericRouter("overlay.router",node,admission,algorithm,node.getTransport(),false,ttl);
 		//Router router = new AdativeRouter("overlay.router",node,function,algorithm,node.getTransport(),false,ttl,(AdaptiveTopology)topology);
 		
-		Overlay overlay = new GradientOverlay(node,topology,router,updateRouter,new Destination(new HashMap(),false),1,
-				                             randomTopology, randomUpdater, new Destination(new HashMap(),false), distanceViewExchangeSize);
+		Overlay overlay = new EpidemicOverlay(node,topology,router,updateRouter);
 					
 		return overlay;
 
