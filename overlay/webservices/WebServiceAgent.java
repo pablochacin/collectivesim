@@ -23,13 +23,18 @@ import edu.upc.cnds.collectivesim.state.Counter;
 
 /**
  * 
- * Simulates a web server that process service requests according to a M/G/1/k*PS model, that is
- * -Poisson arrival distribution
- * -General distribution of service time
- * - 1 server station
- * - a limit of k concurrent requests
- * - a Processor Sharing dispatch discipline
+ * Simulates a web server that process service requests using a PS discipline.
+ * The simulation is based on the model for a M/G/k/PS, adapted to consider the
+ * effect of a background load. 
  * 
+ * The server operates in cycles, triggered by the dispatchRequests method. 
+ * 
+ * The requests received during a cycle are not directly processed, but are placed in a
+ * waiting queue (entry queue). 
+ * 
+ * On each cycle, the server process the requests in its run queue using a PS discipline.
+ * At the end, the requests from the entry queue are moved to the run queue.
+ *  
  * The model considers a background load that influences the actual service time of the requests.
  * This load can vary on each cycle.
  *
@@ -44,17 +49,36 @@ import edu.upc.cnds.collectivesim.state.Counter;
 public class WebServiceAgent extends ServiceProviderAgent {
 
 	
+	/**
+	 * Requests being processed in the current simulation cycle
+	 */
 	private List<ServiceRequest> runQueue;
 
+	/**
+	 * Requests arrived in the current simulation cycle and waiting to enter the server
+	 */
 	private List<ServiceRequest> entryQueue;
 
+	/**
+	 * Percentage of the server's capacity occupied by an "external" workload 
+	 */
 	private Double backgroundLoad = 0.0;
 			
+	/**
+	 * Function used to calculate the utility offered by the server
+	 */
 	private UtilityFunction function;
 	
+	/**
+	 * Maximun number of requests accepted by the server on each cycle
+	 */
 	private Integer queueLimit;
 	
+	/**
+	 * Nominal service capacity of the server (the inverse of its maximum throughput)
+	 */
 	private Double serviceRate;
+	
 	
 	private Counter notAllocated;
 	
@@ -166,14 +190,9 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	
 	public void setBackgroundLoad(Double load){
 		
-		Double availableCapacity = 1.0-serviceRate*(double)runQueue.size();
+		Double availableCapacity = 1.0-getOfferedDemand();
 		backgroundLoad = Math.min(availableCapacity,load);
-		
-		Double serviceTime = getServiceTime();
-		overlay.getLocalNode().getAttributes().put("service.time", serviceTime);
-		updateUtility();
-		
-		
+					
 	}
 	
 	public void updateBackgroundLoad(Double variation) {
@@ -203,10 +222,10 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		//number of requests attended in the current dispatch cycle
 		int servicedRequests = Math.min((int)Math.ceil(1.0/serviceRate),runQueue.size());
 		
-		Double serviceTime = getServiceTime();
+		Double responseTime = getResponseTime();
 		
 		//update node's attribute
-		overlay.getLocalNode().getAttributes().put("service.time",serviceTime);
+		overlay.getLocalNode().getAttributes().put("service.time",responseTime);
 	
 		Double currentUtility = getUtility();
 		
@@ -218,7 +237,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 			attributes.put("request.qos",request.getQoS());
 			attributes.put("request.demand",request.getServiceDemand());			
 			attributes.put("node.utility",currentUtility);
-			attributes.put("service.time",serviceTime);	
+			attributes.put("service.time",responseTime);	
 			attributes.put("service.ratio",utility/request.getQoS());	
 			
 			
@@ -250,47 +269,85 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 */
 	public Double getUtilization(){
 	   
-		return (getServiceDemand()/(1-backgroundLoad))*(double)runQueue.size();
+		return  Math.min(getOfferedDemand()+getBackgroundLoad(),1.0);
 
-	   //return Math.min(serviceRate*(double)requests.size()+ backgroundLoad,1.0);
 	}
 	
+	
+	/**
+	 * Returns the processor's utilization demanded for the tasks in the runQueue,
+	 * independently of any other background load.
+	 * 
+	 * @return
+	 */
+	public Double getOfferedDemand() {
+		return getAverageServiceDemand()*(double)runQueue.size();
+	}
 		
 	/**
-	 * @return the average service time based on the current arrival rate and the average service 
-	 *         demand per request
+	 * 
+	 * Used the analytical formula for the response time, but substitutes the utilization
+	 * factor (offered demand) adding also the background load.
+	 * 
+	 * Returns the average response time using little's law
+	 * 
+	 * @return 
 	 */
-	public Double getServiceTime(){
+	public Double getResponseTime(){
             
 		if(runQueue.size() == 0) {
-			return serviceRate/(1.0-backgroundLoad);
+			return 0.0;
 		}
 				
-		Double serviceTime = (double)runQueue.size()*getServiceDemand();
-					
-		return serviceTime;
+		Double u = getUtilization();
+		Double responseTime = (Math.pow(u,queueLimit+1)*(queueLimit*u-queueLimit-1)+u)/ 
+		                      ((double)runQueue.size()*(1.0-Math.pow(u, queueLimit))*(1.0-u));
+				
+				
+		return responseTime;
 	}
 
 	
 	/**
-	 * Returns the average service demand for the requests in the run queue
+	 * Returns the throughput considering the backgroud load, using the
+	 * operational utilization law  U = X*S  and then
+	 *                              X = U/S
+	 * @return
+	 */
+	public Double getThroughput() {
+		return Math.min(1.0/serviceRate, getUtilization()/getAverageServiceDemand());
+	}
+	
+	
+	/**
+	 * Returns the total service demand for the requests currently executing
 	 * 
 	 * @return
 	 */
 	public Double getServiceDemand() {
-		
-		if(runQueue.size() == 0) {
-			return 0.0;
-		}
-		
+				
 		Double serviceDemand = 0.0;
 		for(ServiceRequest r: runQueue) {
 			serviceDemand += r.getServiceDemand();
 		}
 		
-		return serviceDemand/(double)runQueue.size();
+		return serviceDemand;
 	}
 	
+		
+	/**
+	 * Returns the total service demand from the requests currently in execution
+	 * 
+	 * @return
+	 */
+	public Double getAverageServiceDemand() {
+
+		if(runQueue.size() == 0) {
+			return 0.0;
+		}
+
+		return getServiceDemand()/(double)runQueue.size();
+	}
 	
 	
 	public Double getUtility(){
