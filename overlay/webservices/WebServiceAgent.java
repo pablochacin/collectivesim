@@ -225,7 +225,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		Double responseTime = getResponseTime();
 		
 		//update node's attribute
-		overlay.getLocalNode().getAttributes().put("service.time",responseTime);
+		overlay.getLocalNode().getAttributes().put("service.response",responseTime);
 	
 		Double currentUtility = getUtility();
 		
@@ -237,7 +237,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 			attributes.put("request.qos",request.getQoS());
 			attributes.put("request.demand",request.getServiceDemand());			
 			attributes.put("node.utility",currentUtility);
-			attributes.put("service.time",responseTime);	
+			attributes.put("service.response",responseTime);	
 			attributes.put("service.ratio",utility/request.getQoS());	
 			
 			
@@ -303,7 +303,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		Double responseTime = (Math.pow(u,queueLimit+1)*(queueLimit*u-queueLimit-1)+u)/ 
 		                      ((double)runQueue.size()*(1.0-Math.pow(u, queueLimit))*(1.0-u));
 				
-				
+		
 		return responseTime;
 	}
 
