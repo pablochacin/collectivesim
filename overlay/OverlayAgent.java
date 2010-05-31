@@ -241,12 +241,7 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 
 	@Override
 	public boolean delivered(Routing router, Destination destination,Route route, Serializable message) {
-		
-		Double destUtil = (Double)destination.getAttributes().get("utility");
-		Double nodeUtil = (Double)overlay.getLocalNode().getAttributes().get("utility");
-		Double fitness = nodeUtil-destUtil;
-
-		
+				
 		delivered.increment();
 		
 		Map attributes = new HashMap();
