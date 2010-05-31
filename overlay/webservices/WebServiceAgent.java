@@ -8,11 +8,13 @@ import java.util.Map;
 
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.identifier.Identifier;
+import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.routing.Destination;
 import edu.upc.cnds.collectives.routing.Routing;
 import edu.upc.cnds.collectives.routing.RoutingEvent;
 import edu.upc.cnds.collectives.routing.base.Route;
+import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
 import edu.upc.cnds.collectivesim.overlay.OverlayModel;
@@ -106,7 +108,15 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	public void dropped(Routing router, Destination destination, Route route, Exception cause, Serializable message) {
 		
 		super.dropped(router, destination, route, cause, message);
+
+		System.out.println("--------------------------------");
+		System.out.println("Utility: " + (Double)destination.getAttributes().get("utility") + 
+				           "  Tolerance: " + (Double)destination.getAttributes().get("tolerance"));
 		
+		for(Node h: route.getHops()) {
+			System.out.println(FormattingUtils.mapToString(h.getAttributes()) + "\n");
+		}
+			
 		ServiceRequest request = (ServiceRequest)message;
 
 		Integer count = 0;
@@ -136,9 +146,9 @@ public class WebServiceAgent extends ServiceProviderAgent {
 			Serializable message) {
 		super.forwarded(router, destination, route, message);
 		
-		Double tolerance = (Double)destination.getAttributes().get("tolerance");
-		tolerance = 0.1+Math.pow((double)route.getNumHops()/12.0, 5.0);
-		destination.getAttributes().put("tolerance",tolerance);
+//		Double tolerance = (Double)destination.getAttributes().get("tolerance");
+//		tolerance = 0.1+Math.pow((double)route.getNumHops()/12.0, 5.0);
+//		destination.getAttributes().put("tolerance",tolerance);
 	}
 
 
@@ -163,7 +173,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	
 	
 	public Double getQueueLength() {
-		return new Double(entryQueue.size());
+		return new Double(runQueue.size());
 	}
 	
 	
@@ -178,6 +188,8 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 */
 	public boolean delivered(Routing router, Destination destination,
 			Route route, Serializable message) {
+		
+		
 		if(entryQueue.size() < queueLimit){
 			return super.delivered(router, destination, route, message);
 		}
@@ -219,8 +231,12 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 */
 	public void dispatchRequests(){
 			
+		if(runQueue.size() > queueLimit) {
+			System.out.println();
+		}
+		
 		//number of requests attended in the current dispatch cycle
-		int servicedRequests = Math.min((int)Math.ceil(1.0/serviceRate),runQueue.size());
+		//int servicedRequests = Math.min((int)Math.ceil(1.0/serviceRate),runQueue.size());
 		
 		Double responseTime = getResponseTime();
 		
@@ -229,9 +245,11 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	
 		Double currentUtility = getUtility();
 		
-		for(int r=0;r < servicedRequests;r++){
+	//	for(int r=0;r < runQueue.size();r++){
+		for(ServiceRequest request: runQueue) {
 			try {
-			ServiceRequest request = runQueue.remove(0);
+			
+				//ServiceRequest request = runQueue.remove(0);
 	
 			Map attributes = new HashMap();
 			attributes.put("request.qos",request.getQoS());
@@ -246,18 +264,22 @@ public class WebServiceAgent extends ServiceProviderAgent {
 
 			model.getExperiment().reportEvent(event);
 			} catch(IndexOutOfBoundsException e) {
-				System.out.println();
+				log.severe("Error calculating the throughput in the service: IndexOutofbounds");
 			}
 		
 
 		}
 		
+		runQueue.clear();
 		runQueue.addAll(entryQueue);
-		entryQueue.clear();
 		
+
+		entryQueue.clear();
+				
 		overlay.getLocalNode().setAttribute("runQueue", (double)runQueue.size());
 		overlay.getLocalNode().setAttribute("entryQueue", (double)entryQueue.size());
-
+		overlay.getLocalNode().setAttribute("service.response",getResponseTime());
+		overlay.getLocalNode().setAttribute("utility",getUtility());
 	}
 
 	
@@ -355,4 +377,6 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		return function.getUtility(overlay.getLocalNode());
 		
 	}
+	
+	
 }
