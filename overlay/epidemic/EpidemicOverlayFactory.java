@@ -81,7 +81,7 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 		Router router = new GenericRouter("overlay.router",node,admission,algorithm,node.getTransport(),false,ttl);
 		//Router router = new AdativeRouter("overlay.router",node,function,algorithm,node.getTransport(),false,ttl,(AdaptiveTopology)topology);
 		
-		Overlay overlay = new EpidemicOverlay(node,topology,router,updateRouter);
+		Overlay overlay = new EpidemicOverlay(node,topology,updateRouter,router);
 					
 		return overlay;
 
