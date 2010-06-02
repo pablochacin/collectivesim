@@ -38,14 +38,15 @@ public class ObserverVisitor extends AgentVisitor{
 	/**
 	 * Default constructor
 	 */
-	public ObserverVisitor(Model model,String name,AgentSampler sampler,String[] attributes,DataSeries values,boolean reset,int iterations,Stream<Long> frequency, long delay, long endTime){
-		super(model,name,sampler,true,iterations,frequency,delay,endTime);
+	public ObserverVisitor(Model model,String name,AgentSampler sampler,String[] attributes,DataSeries values,boolean reset,int iterations,Stream<Long> frequency, long delay, long endTime,int priority){
+		super(model,name,sampler,true,iterations,frequency,delay,endTime,priority);
 		this.attributes = attributes;
 		this.values = values;
 		this.reset= reset;
 	}
 
 
+	
 	protected void startVisit(){
 		if(reset){
 			values.reset();

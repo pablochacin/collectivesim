@@ -18,11 +18,10 @@ public class CalculatingObserverVisitor extends ObserverVisitor {
 	public CalculatingObserverVisitor(Model model, String name,
 			AgentSampler sampler, String[] attributes, DataSeries values,SeriesFunction function,
 			boolean reset, int iterations, Stream<Long> frequency, long delay,
-			long endTime) {
+			long endTime,int priority) {
 		
 		
-		super(model, name, sampler, attributes, values, reset, iterations, frequency,
-				delay, endTime);
+		super(model, name, sampler, attributes, values, reset, iterations, frequency, delay, endTime,priority);
 		
 		this.function = function;
 		this.itemCount = 0;

@@ -38,13 +38,17 @@ public abstract class ModelAction implements Runnable {
 	 * Indicates if the behavior is active
 	 */
 	protected boolean active=false;
+	
+	
+	protected int priority;
 
-	public ModelAction(boolean active,int iterations, Stream<Long> frequency, long delay,long endTime) {
+	public ModelAction(boolean active,int iterations, Stream<Long> frequency, long delay,long endTime,int priority) {
 		this.active = active;
 		this.iterations = iterations;
 		this.frequency = frequency;
 		this.delay = delay;
 		this.endTime = endTime;
+		this.priority = priority;
 	}
 
 	public int getIterations() {
@@ -63,6 +67,10 @@ public abstract class ModelAction implements Runnable {
 		return endTime;
 	}
 
+	public int getPriority() {
+		return priority;
+	}
+	
 	/**
 	 * starts the execution of the behavior 
 	 */	

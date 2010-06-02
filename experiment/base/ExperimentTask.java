@@ -20,6 +20,8 @@ public class ExperimentTask {
 	
 	private long frequency;
 	
+	private int priority;
+	
 	private Scheduler scheduler;
 	
 	/**
@@ -29,13 +31,15 @@ public class ExperimentTask {
 	 * @param task
 	 * @param delay
 	 * @param frequency
+	 * @param priority
 	 */
-	public ExperimentTask(Scheduler scheduler,Runnable task, long delay,long frequency) {
+	public ExperimentTask(Scheduler scheduler,Runnable task, long delay,long frequency,int priority) {
 		super();
 		this.scheduler = scheduler;
 		this.task = task;
 		this.delay = delay;
 		this.frequency = frequency;
+		this.priority = priority;
 	}
 
 	/**
@@ -45,7 +49,7 @@ public class ExperimentTask {
 	 * @param delay
 	 */
 	public ExperimentTask(Scheduler scheduler,Runnable task, long delay) {
-		this(scheduler,task,delay,0);
+		this(scheduler,task,delay,0,0);
 	}
 
 
@@ -67,6 +71,6 @@ public class ExperimentTask {
 	 * Schedule the task in the associated scheduler.
 	 */
 	public void schedule(){
-			scheduler.scheduleAction(task, 0, frequency, delay, 0);
+			scheduler.scheduleAction(task, 0, frequency, delay, 0,priority);
 	}
 }

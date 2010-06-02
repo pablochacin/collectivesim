@@ -10,6 +10,14 @@ import edu.upc.cnds.collectivesim.stream.Stream;
 
 public interface Model <T extends ModelAgent> {
 
+	
+	public static int EXECUTION_ORDER_BEFORE = Integer.MIN_VALUE;
+	
+	public static int EXECUTION_ORDER_RANDOM = 0;
+	
+	public static int EXECUTION_ORDER_AFTER  = Integer.MAX_VALUE;
+	
+	
 	/**
 	 * Adds a behavior to agents in the collective, defined as the execution of a method. 
 	 *
@@ -43,6 +51,7 @@ public interface Model <T extends ModelAgent> {
 	 * @param frequency a long that specifies the frequency of execution of the behavior
 	 * @param delay the time the behavior will begin to execute. 0 means start running immediately.
 	 * @param endTime the maximum time the executions will be scheduled
+	 * @param priority order of execution of the behavior during the cycle
 	 * @param args a variable number of Streams of that are used to retrieve the arguments for the
 	 *        behavior's method on each iteration
 	 */
@@ -90,6 +99,9 @@ public interface Model <T extends ModelAgent> {
 	public abstract void addBehavior(String name, String method,
 			long frequency, long delay,long endTime,Stream<? extends Object>... args);
 
+		
+	public abstract void addCompositeBehavior(String name, CompositeBehavior behavior,
+			boolean active, int iterations,long frequency, long delay, long endTime);
 	
 	/**
 	 * Convenience method to generate a series from a single attribute

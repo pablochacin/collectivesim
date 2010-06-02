@@ -7,7 +7,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import edu.upc.cnds.collectivesim.scheduler.ScheduledAction;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
 
 

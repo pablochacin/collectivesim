@@ -39,7 +39,7 @@ public interface Scheduler {
 	 * @param endTime the maximum time this action can be executed
 	 * @return
 	 */
-	public abstract ScheduledAction scheduleAction(Runnable target, int iterations,Enumeration<Long> frequency,long delay, long endTime);
+	public abstract ScheduledAction scheduleAction(Runnable target, int iterations,Enumeration<Long> frequency,long delay, long endTime,int priority);
 	
 	 
 	/**
@@ -53,7 +53,7 @@ public interface Scheduler {
 	 * @param endTime the maximum time this action can be executed
 	 * @return
 	 */
-	public abstract ScheduledAction scheduleAction(Runnable target, int iterations,Long frequency,long delay, long endTime);
+	public abstract ScheduledAction scheduleAction(Runnable target, int iterations,Long frequency,long delay, long endTime,int priority);
 	
 
 	/**

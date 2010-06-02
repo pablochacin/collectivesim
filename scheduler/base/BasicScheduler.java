@@ -9,7 +9,6 @@ import java.util.Queue;
 
 import edu.upc.cnds.collectivesim.scheduler.ScheduledAction;
 import edu.upc.cnds.collectivesim.scheduler.Scheduler;
-import edu.upc.cnds.collectivesim.stream.base.FixedValueStream;
 
 /**
  * Implements a simple event based scheduler.
@@ -102,7 +101,7 @@ public class BasicScheduler extends AbstractScheduler {
 
 
 	@Override
-	public ScheduledAction scheduleAction(Runnable target, int iterations, Enumeration<Long> frequency, long delay, long endTime) {
+	public ScheduledAction scheduleAction(Runnable target, int iterations, Enumeration<Long> frequency, long delay, long endTime,int priority) {
 
 		
 		long initTime = delay;
@@ -110,7 +109,7 @@ public class BasicScheduler extends AbstractScheduler {
 			initTime = getTime() + frequency.nextElement();
 		}
 	
-		AbstractScheduledAction action = new RepetitiveAction(this,target,initTime,frequency,iterations, endTime);
+		AbstractScheduledAction action = new RepetitiveAction(this,target,initTime,frequency,iterations, endTime,priority);
 		
 		addAction(action);
 
@@ -119,8 +118,8 @@ public class BasicScheduler extends AbstractScheduler {
 	}
 	
 
-	public ScheduledAction scheduleAction(Runnable target, int iterations, Long frequency, long delay, long endTime) {
-		return scheduleAction(target,iterations,new FixedElementEmumeation(frequency),delay,endTime);
+	public ScheduledAction scheduleAction(Runnable target, int iterations, Long frequency, long delay, long endTime,int priority) {
+		return scheduleAction(target,iterations,new FixedElementEmumeation(frequency),delay,endTime,priority);
 	}
 	
 	public void addAction(AbstractScheduledAction action) {
@@ -154,21 +153,21 @@ public class BasicScheduler extends AbstractScheduler {
 		
 		sch.scheduleAction(new Runnable(){
 			public void run(){
-				System.out.println("TASK 10 at" + sch.getTime());
+				System.out.println("TASK 10 at " + sch.getTime());
 			}
-		}, 1,(long)0,(long)10,(long)0);
+		}, 1,(long)0,(long)10,(long)0,(int)0);
 		
 		sch.scheduleAction(new Runnable(){
 			public void run(){
-				System.out.println("Reperitive TASK  at" + sch.getTime());
+				System.out.println("Reperitive TASK  at " + sch.getTime());
 			}
-		}, 0,(long)5,(long)0,(long)200);
+		}, 0,(long)5,(long)0,(long)200,Integer.MIN_VALUE);
 		
 		sch.scheduleAction(new Runnable(){
 			public void run(){
-				System.out.println("TASK 20 at" + sch.getTime());
+				System.out.println("TASK 20 at " + sch.getTime());
 			}
-		}, 1,(long)0,(long)20,(long)0);
+		}, 1,(long)0,(long)20,(long)0,(int)0);
 		
 		sch.start();
 	}

@@ -11,6 +11,7 @@ import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.AgentFactory;
 import edu.upc.cnds.collectivesim.model.AgentSampler;
+import edu.upc.cnds.collectivesim.model.CompositeBehavior;
 import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
@@ -41,7 +42,7 @@ import edu.upc.cnds.collectivesim.stream.base.FixedValueStream;
  */
 
 public class BasicModel<T extends ModelAgent> implements Model<T> {
-
+	
 	
 	private static Logger log = Logger.getLogger("collectivesim.model");
 
@@ -158,7 +159,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, edu.upc.cnds.collectivesim.scheduler.Stream, int, long, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
 	public final void addBehavior(String name, String method,AgentSampler sampler,
-			boolean active, int iterations,Stream<Long> frequency, long delay, long endTime,
+			boolean active, int iterations,Stream<Long> frequency, long delay, long endTime, int priority,
 			Stream<? extends Object> ... args){
 	
 		//the sampler is optional, if none specified, use a dummy one, 
@@ -167,8 +168,17 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 			sampler = new DummySampler();
 		}
 		
-		BehaviorVisitor behavior = new BehaviorVisitor(this,name,sampler,method, active,iterations,frequency,delay,endTime,args);
+		BehaviorVisitor behavior = new BehaviorVisitor(this,name,sampler,method, active,iterations,frequency,delay,endTime,priority,args);
 		behaviors.put(name,behavior);
+		
+	}
+	
+	
+	public final void addBehavior(String name, String method,AgentSampler sampler,
+			boolean active, int iterations,Stream<Long> frequency, long delay, long endTime,
+			Stream<? extends Object> ... args){
+	
+		addBehavior(name,method,sampler,active,iterations,frequency,delay,endTime,0,args);
 		
 	}
 	
@@ -201,11 +211,19 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 		
 	}
 
+	
+	public void addCompositeBehavior(String name, CompositeBehavior behavior,
+			boolean active, int iterations,long frequency, long delay, long endTime) {
+		
+		throw new UnsupportedOperationException();
+		
+	}
 
+	
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addObserver(java.lang.String, edu.upc.cnds.collectivesim.model.ModelObserver, java.lang.String, boolean, long)
 	 */
-	public final void addObserver(String name, AgentSampler sampler,String[] attributes,DataSeries values,boolean reset,long frequency,long delay) {
+	public final void addObserver(String name, AgentSampler sampler,String[] attributes,DataSeries values,boolean reset,long frequency,long delay,int priority) {
 
 		//the sampler is optional, if none specified, use a dummy one, 
 		//to assure there is always one
@@ -213,7 +231,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 			sampler = new DummySampler();
 		}
 		
-		ObserverVisitor visitor = new ObserverVisitor(this,name,sampler,attributes,values,reset,0,new FixedValueStream<Long>("",frequency),delay,0);
+		ObserverVisitor visitor = new ObserverVisitor(this,name,sampler,attributes,values,reset,0,new FixedValueStream<Long>("",frequency),delay,(long)0,priority);
 		
 		observers.put(name,visitor);
 		
@@ -223,24 +241,26 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	public final void addObserver(String name, AgentSampler sampler,String attribute,DataSeries values,boolean reset,long frequency,long delay) {
 	
 		String[] attributes = {attribute};
-		addObserver(name,sampler, attributes,values,reset,frequency,delay);
+		addObserver(name,sampler, attributes,values,reset,frequency,delay,0);
 	}
 	
-	public final void addObserver(String name, AgentSampler sampler,String[] attributes,DataSeries values,SeriesFunction function,boolean reset,long frequency,long delay) {
+	public final void addObserver(String name, AgentSampler sampler,String[] attributes,DataSeries values,SeriesFunction function,boolean reset,long frequency,long delay,int priority) {
 		//the sampler is optional, if none specified, use a dummy one, 
 		//to assure there is always one
 		if(sampler == null){
 			sampler = new DummySampler();
 		}
 		
-		ObserverVisitor visitor = new CalculatingObserverVisitor(this,name,sampler,attributes,values,function,reset,0,new FixedValueStream<Long>("",frequency),delay,0);
+		ObserverVisitor visitor = new CalculatingObserverVisitor(this,name,sampler,attributes,values,function,reset,0,new FixedValueStream<Long>("",frequency),delay,(long)0,priority);
 		
 		observers.put(name,visitor);
 	}
 	
 	public final void addObserver(String name, AgentSampler sampler,String attribute,DataSeries values,SeriesFunction function, boolean append,long frequency,long delay) {
 		String[] attributes = {attribute};
-		addObserver(name,sampler, attributes,values,function,append,frequency,delay);
+		
+		//add obserever ensuring it is executed at the end of the cycle
+		addObserver(name,sampler, attributes,values,function,append,frequency,delay,Integer.MAX_VALUE);
 	}
 	
 	/* (non-Javadoc)
@@ -308,15 +328,15 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 		 
 
 		 for(BehaviorVisitor b: behaviors.values()){
-			 scheduler.scheduleAction((Runnable)b, b.getIterations(), b.getFrequency(), b.getDelay(), b.getEndTime());
+			 scheduler.scheduleAction((Runnable)b, b.getIterations(), b.getFrequency(), b.getDelay(), b.getEndTime(),b.getPriority());
 		 }
 		 
 		 for(ObserverVisitor o: observers.values()){
-			 scheduler.scheduleAction((Runnable)o, o.getIterations(), o.getFrequency(), o.getDelay(), o.getEndTime());
+			 scheduler.scheduleAction((Runnable)o, o.getIterations(), o.getFrequency(), o.getDelay(), o.getEndTime(),o.getPriority());
 		 }
 		 
 		 for(AgentStream a: agentStreams.values()){
-			 scheduler.scheduleAction((Runnable)a, a.getIterations(), a.getFrequency(), a.getDelay(), a.getEndTime());
+			 scheduler.scheduleAction((Runnable)a, a.getIterations(), a.getFrequency(), a.getDelay(), a.getEndTime(),a.getPriority());
 		 }
 		 
 		 status = Status.STARTED;
@@ -438,7 +458,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	 * 
 	 */
 	public final void scheduleEvent(ModelAgent agent,long delay,String method,Object ... args){
-		scheduler.scheduleAction(new ModelEvent(agent,method,args), 0,(long)0,delay,(long)0);
+		scheduler.scheduleAction(new ModelEvent(agent,method,args), 0,(long)0,delay,(long)0,(int)0);
 	}
 
 	public final void scheduleEvent(String name,long delay, String method,Object...args){

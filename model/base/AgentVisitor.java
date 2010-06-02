@@ -42,7 +42,6 @@ public abstract class AgentVisitor extends ModelAction{
      * name of the visitor
      */
     protected String name;
-
        
     
     /**
@@ -53,9 +52,9 @@ public abstract class AgentVisitor extends ModelAction{
      *        or will be deactivated until the realm activates it.
      */
     public AgentVisitor(Model<ModelAgent> model,String name, AgentSampler sampler, 
-    		            boolean active,int iterations,Stream<Long>frequency,long delay,long endTime){
+    		            boolean active,int iterations,Stream<Long>frequency,long delay,long endTime,int priority){
     	
-    	super(active,iterations,frequency,delay,endTime);
+    	super(active,iterations,frequency,delay,endTime,priority);
         this.name = name;
         this.model = model;
         this.sampler = sampler;
@@ -63,10 +62,7 @@ public abstract class AgentVisitor extends ModelAction{
 
     }
 
-
-
-
-    
+   
     
     /**
      * This method is periodically executed. Visits all agenst returned by the sampler, while the

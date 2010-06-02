@@ -1,7 +1,6 @@
 package edu.upc.cnds.collectivesim.model.base;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectivesim.model.AgentSampler;
@@ -17,7 +16,7 @@ import edu.upc.cnds.collectivesim.stream.Stream;
  * From the perspective of the Node, is an Agent. From the perspective of the
  * Agent, represent the Collective
  * 
- * @author pchacin
+ * @author Pablo Chacin
  *
  */
 public class BehaviorVisitor extends AgentVisitor{
@@ -40,8 +39,8 @@ public class BehaviorVisitor extends AgentVisitor{
      * @param method a String the name of the method to be execute
      * @param streams an array of Streams to feed the arguments of the method
      */
-    public BehaviorVisitor(Model model,String name,AgentSampler sampler,String method, boolean active,int iterations,Stream<Long> frequency, long delay, long endTime,Stream<? extends Object> ... streams){
-    	super(model,name,sampler,active,iterations,frequency,delay,endTime);
+    public BehaviorVisitor(Model model,String name,AgentSampler sampler,String method, boolean active,int iterations,Stream<Long> frequency, long delay, long endTime,int priority,Stream<? extends Object> ... streams){
+    	super(model,name,sampler,active,iterations,frequency,delay,endTime,priority);
 
         
     	this.method = method;

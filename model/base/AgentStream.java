@@ -18,7 +18,7 @@ public class AgentStream extends ModelAction {
 
 	public AgentStream(BasicModel model,AgentFactory factory, Stream<Integer>rate, 
 			boolean active, Stream<Long> frequency, long delay, long endTime) {
-		super(active, 0, frequency, delay, endTime);
+		super(active, 0, frequency, delay, endTime,0);
 		this.model = model;
 		this.factory=factory;
 		this.rate = rate;

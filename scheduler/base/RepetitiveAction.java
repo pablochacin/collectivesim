@@ -22,7 +22,6 @@ public class RepetitiveAction extends AbstractScheduledAction {
 	private long maxIterations;
 	
 	
-	
 	/**
 	 * Constructor with all parameters
 	 * 
@@ -32,8 +31,8 @@ public class RepetitiveAction extends AbstractScheduledAction {
      * @param maxIterations maximum number of executions of the task
      * @param endTime time limit for execution of the task
 	 */
-	public RepetitiveAction(BasicScheduler scheduler,Runnable target,Long startTime,Enumeration<Long> frequency,long maxIterations,Long endTime) {
-		super(scheduler,target);
+	public RepetitiveAction(BasicScheduler scheduler,Runnable target,Long startTime,Enumeration<Long> frequency,long maxIterations,Long endTime,int priority) {
+		super(scheduler,target,priority);
 		this.target = target;
         this.frequency = frequency;
         this.iterations = 0;
@@ -52,7 +51,7 @@ public class RepetitiveAction extends AbstractScheduledAction {
 	 * @param frequency
 	 */
 	public RepetitiveAction(BasicScheduler scheduler,Runnable target,Long startTime,Enumeration<Long> frequency) {
-		this(scheduler,target,startTime,frequency,(long)0,(long)0);
+		this(scheduler,target,startTime,frequency,(long)0,(long)0,0);
 	}
 	               
      

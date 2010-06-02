@@ -238,7 +238,7 @@ public class Experiment implements Platform, ExecutionService {
 				}
 			};
 
-			scheduledTasks.add(new ExperimentTask(scheduler,endTask,endTime,0));
+			scheduledTasks.add(new ExperimentTask(scheduler,endTask,endTime));
 		}
 
 		Collectives.setPlaform(this);
@@ -456,7 +456,7 @@ public class Experiment implements Platform, ExecutionService {
 
 		DataSeriesObserverTask observer = new DataSeriesObserverTask(targetSeries,function,resultSeries,false,false);
 
-		scheduledTasks.add(new ExperimentTask(scheduler, observer,delay,frequency));
+		scheduledTasks.add(new ExperimentTask(scheduler, observer,delay,frequency,0));
 	}
 
 	/**
@@ -493,7 +493,7 @@ public class Experiment implements Platform, ExecutionService {
 		}
 		StateValueObserver observer = new StateValueObserver(value,getDataSeries(dataSeries),incremental);
 
-		scheduledTasks.add(new ExperimentTask(scheduler, observer,delay,frequency));
+		scheduledTasks.add(new ExperimentTask(scheduler, observer,delay,frequency,0));
 	}
 
 
@@ -760,7 +760,7 @@ public class Experiment implements Platform, ExecutionService {
 	 */
 	public void addPeriodicTask(Runnable task,long delay, long frequency){
 
-		scheduledTasks.add(new ExperimentTask(scheduler,task,delay,frequency));
+		scheduledTasks.add(new ExperimentTask(scheduler,task,delay,frequency,0));
 	}
 
 	public TypedMap getParameters(){
@@ -793,7 +793,7 @@ public class Experiment implements Platform, ExecutionService {
 					log.severe("Exception starting mode "+model.getName()+FormattingUtils.getStackTrace(e));
 				}}};
 
-		scheduledTasks.add(new ExperimentTask(scheduler,target, delay,0));
+		scheduledTasks.add(new ExperimentTask(scheduler,target, delay));
 
 	}
 

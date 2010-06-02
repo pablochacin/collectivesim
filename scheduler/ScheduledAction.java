@@ -1,11 +1,11 @@
 package edu.upc.cnds.collectivesim.scheduler;
 
 /**
- * An action scheduled for exection in the SimulationModel
+ * An action scheduled for execution in the SimulationModel
  * 
  * TODO: extend the interface ScheduleTask to give access to the
  *       needed information, like the due time, the executable, and
- *       the exection status.
+ *       the execution status.
  * 
  * @author Pablo Chacin
  *

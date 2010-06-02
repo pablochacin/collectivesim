@@ -19,11 +19,20 @@ public abstract class AbstractScheduledAction implements ScheduledAction, Runnab
 	 */
 	protected Runnable target;
 	
+	protected int priority;
 	
+	public AbstractScheduledAction(AbstractScheduler scheduler,Runnable target,int priority) {
+		this.scheduler = scheduler;
+		this.target = target;
+		this.priority = priority;
+	}
+
 	public AbstractScheduledAction(AbstractScheduler scheduler,Runnable target) {
 		this.scheduler = scheduler;
 		this.target = target;
+		this.priority = 0;
 	}
+
 	
 	public void run(){
    	 	log.finest("[" + scheduler.getTime() + "]" + target.getClass().getName());
@@ -56,12 +65,22 @@ public abstract class AbstractScheduledAction implements ScheduledAction, Runnab
       * @return
       */
      public abstract long getExecutionTime();
+     
+     public int getPriority() {
+    	 return priority;
+     }
 
 	@Override
 	public int compareTo(AbstractScheduledAction o) {
 			Long t1 = getExecutionTime();
 			Long t2 = o.getExecutionTime();
-				
+			
+			if(t1.equals(t2)) {
+				Integer p1 = getPriority();
+				Integer p2 = o.getPriority();
+				return p1.compareTo(p2);
+			}
+			
 			return t1.compareTo(t2);
 	     }
 		
