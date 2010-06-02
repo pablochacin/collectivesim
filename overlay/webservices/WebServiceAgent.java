@@ -84,12 +84,29 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	
 	private Counter notAllocated;
 	
+	/**
+	 * Response time offered during this cycle
+	 */
+	private Double responseTime = 0.0;
+	
+	/**
+	 * Throughput during the current cycle
+	 */
+	private Double throughput = 0.0;
+	
+	private Double serviceDemand = 0.0;
+	
+	private Double offeredDemand = 0.0;
+	
+	
 	public WebServiceAgent(OverlayModel model, Overlay overlay, Identifier id,
-			UtilityFunction function,Integer requestLimit,Double serviceRate) {
+			UtilityFunction function,Integer requestLimit,Double serviceRate,Double load) {
 		super(model, overlay, id, function);	
 		
 		this.queueLimit = requestLimit;
 		this.serviceRate = serviceRate;
+		this.backgroundLoad= load;
+		
 		this.function = function;
 		this.notAllocated = model.getExperiment().getCounter("service.not.allocated");
 		
@@ -109,13 +126,13 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		
 		super.dropped(router, destination, route, cause, message);
 
-		System.out.println("--------------------------------");
-		System.out.println("Utility: " + (Double)destination.getAttributes().get("utility") + 
-				           "  Tolerance: " + (Double)destination.getAttributes().get("tolerance"));
-		
-		for(Node h: route.getHops()) {
-			System.out.println(FormattingUtils.mapToString(h.getAttributes()) + "\n");
-		}
+//		System.out.println("--------------------------------");
+//		System.out.println("Utility: " + (Double)destination.getAttributes().get("utility") + 
+//				           "  Tolerance: " + (Double)destination.getAttributes().get("tolerance"));
+//		
+//		for(Node h: route.getHops()) {
+//			System.out.println(FormattingUtils.mapToString(h.getAttributes()) + "\n");
+//		}
 			
 		ServiceRequest request = (ServiceRequest)message;
 
@@ -150,7 +167,6 @@ public class WebServiceAgent extends ServiceProviderAgent {
 //		tolerance = 0.1+Math.pow((double)route.getNumHops()/12.0, 5.0);
 //		destination.getAttributes().put("tolerance",tolerance);
 	}
-
 
    
 
@@ -192,34 +208,23 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		
 		if(entryQueue.size() < queueLimit){
 			return super.delivered(router, destination, route, message);
+			
 		}
 		else{
 			return false;
 		}
 	}
 
-
-	
-	public void setBackgroundLoad(Double load){
 		
-		Double availableCapacity = 1.0-getOfferedDemand();
-		backgroundLoad = Math.min(availableCapacity,load);
-					
-	}
 	
-	public void updateBackgroundLoad(Double variation) {
-				
-		if(variation >= 0) 
-			setBackgroundLoad(Math.min(backgroundLoad +variation,1.0));
-		else
-			setBackgroundLoad(Math.max(backgroundLoad +variation,0.0));
-		
-		
-	}
-	
-	
-	public Double getWorkload() {
-		return serviceRate*(double)runQueue.size() + backgroundLoad;
+	public void setBackgroundLoad(Double load) {
+		if(load < 0.0) {
+			this.backgroundLoad = Math.max(0.0, backgroundLoad+load);
+		}
+		else {
+			this.backgroundLoad = Math.min(1.0, backgroundLoad+load);
+			
+		}
 	}
 	
 	public Double getBackgroundLoad(){
@@ -227,25 +232,46 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	}
 	
 	/**
-	 * Attend requests in the queue
+	 * Attend requests in the queue. 
+	 * 
+	 * On each cycle, calculates the metrics for the next cycle.
+	 * 
+	 *  This method is assumed to be executed at the beginning of the cycle!
 	 */
-	public void dispatchRequests(){
+	public void dispatchRequests(Double loadVariation){
 			
-		if(runQueue.size() > queueLimit) {
-			System.out.println();
-		}
+		//report terminations from the previous cycle
+		reportTerminations();
+		
+		runQueue.clear();
+		
+		setBackgroundLoad(loadVariation);
 		
 		//number of requests attended in the current dispatch cycle
-		//int servicedRequests = Math.min((int)Math.ceil(1.0/serviceRate),runQueue.size());
+		serviceDemand = getAverageServiceDemand();
 		
-		Double responseTime = getResponseTime();
+		//calculate throughput considering background load
+		throughput = (1.0-backgroundLoad)/serviceDemand;
+			
+		int servedRequests = (int) Math.min(Math.floor(throughput),entryQueue.size());
 		
-		//update node's attribute
-		overlay.getLocalNode().getAttributes().put("service.response",responseTime);
+		offeredDemand = serviceDemand*servedRequests;
+		
+		for(int i=0;i<servedRequests;i++) {
+			runQueue.add(entryQueue.remove(0));
+		}
+
+		responseTime = calculatetResponseTime();
+		
+		overlay.getLocalNode().setAttribute("runQueue", (double)runQueue.size());
+		overlay.getLocalNode().setAttribute("entryQueue", (double)entryQueue.size());
+		overlay.getLocalNode().setAttribute("service.response",getResponseTime());
+		overlay.getLocalNode().setAttribute("utility",getUtility());
+	}
+
 	
-		Double currentUtility = getUtility();
-		
-	//	for(int r=0;r < runQueue.size();r++){
+	
+	private void reportTerminations() {
 		for(ServiceRequest request: runQueue) {
 			try {
 			
@@ -254,7 +280,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 			Map attributes = new HashMap();
 			attributes.put("request.qos",request.getQoS());
 			attributes.put("request.demand",request.getServiceDemand());			
-			attributes.put("node.utility",currentUtility);
+			attributes.put("node.utility",getUtility());
 			attributes.put("service.response",responseTime);	
 			attributes.put("service.ratio",utility/request.getQoS());	
 			
@@ -269,20 +295,11 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		
 
 		}
-		
-		runQueue.clear();
-		runQueue.addAll(entryQueue);
-		
-
-		entryQueue.clear();
-				
-		overlay.getLocalNode().setAttribute("runQueue", (double)runQueue.size());
-		overlay.getLocalNode().setAttribute("entryQueue", (double)entryQueue.size());
-		overlay.getLocalNode().setAttribute("service.response",getResponseTime());
-		overlay.getLocalNode().setAttribute("utility",getUtility());
 	}
-
 	
+	
+
+
 	/**
 	 * Calculates the current service rate based on the arrivals and the average service rate 
 	 * adjusted with the background load.
@@ -291,7 +308,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 */
 	public Double getUtilization(){
 	   
-		return  Math.min(getOfferedDemand()+getBackgroundLoad(),1.0);
+		return offeredDemand+backgroundLoad;
 
 	}
 	
@@ -303,9 +320,14 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 * @return
 	 */
 	public Double getOfferedDemand() {
-		return getAverageServiceDemand()*(double)runQueue.size();
+		
+		return offeredDemand;
 	}
 		
+	public Double getResponseTime() {
+		return responseTime;
+	}
+	
 	/**
 	 * 
 	 * Used the analytical formula for the response time, but substitutes the utilization
@@ -315,18 +337,19 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 * 
 	 * @return 
 	 */
-	public Double getResponseTime(){
+	public Double calculatetResponseTime(){
             
 		if(runQueue.size() == 0) {
 			return 0.0;
 		}
-				
-		Double u = getUtilization();
-		Double responseTime = (Math.pow(u,queueLimit+1)*(queueLimit*u-queueLimit-1)+u)/ 
-		                      ((double)runQueue.size()*(1.0-Math.pow(u, queueLimit))*(1.0-u));
-				
 		
-		return responseTime;
+		return runQueue.size()/getThroughput();
+		
+//		Double u = getUtilization();
+//		Double responseTime = (Math.pow(u,queueLimit+1)*(queueLimit*u-queueLimit-1)+u)/ 
+//		((double)runQueue.size()*(1.0-Math.pow(u, queueLimit))*(1.0-u));		
+//
+// 		return responseTime;
 	}
 
 	
@@ -337,26 +360,10 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 * @return
 	 */
 	public Double getThroughput() {
-		return Math.min(1.0/serviceRate, getUtilization()/getAverageServiceDemand());
+		return throughput;
 	}
 	
 	
-	/**
-	 * Returns the total service demand for the requests currently executing
-	 * 
-	 * @return
-	 */
-	public Double getServiceDemand() {
-				
-		Double serviceDemand = 0.0;
-		for(ServiceRequest r: runQueue) {
-			serviceDemand += r.getServiceDemand();
-		}
-		
-		return serviceDemand;
-	}
-	
-		
 	/**
 	 * Returns the total service demand from the requests currently in execution
 	 * 
@@ -364,13 +371,20 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 */
 	public Double getAverageServiceDemand() {
 
-		if(runQueue.size() == 0) {
+		if(entryQueue.size() == 0) {
 			return 0.0;
 		}
 
-		return getServiceDemand()/(double)runQueue.size();
+		Double serviceDemand = 0.0;
+		for(ServiceRequest r: entryQueue) {
+			serviceDemand += r.getServiceDemand();
+		}
+		
+		return serviceDemand/(double)entryQueue.size();
+		
 	}
 	
+
 	
 	public Double getUtility(){
 	
@@ -378,5 +392,9 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		
 	}
 	
+	
+	public void startDebug() {
+		System.out.println();
+	}
 	
 }
