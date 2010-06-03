@@ -247,6 +247,13 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		
 		setBackgroundLoad(loadVariation);
 		
+		if(entryQueue.size() == 0) {
+			responseTime = 0.0;
+			offeredDemand = 0.0;
+			serviceDemand = 0.0;
+			throughput = 0.0;
+		}
+		
 		//number of requests attended in the current dispatch cycle
 		serviceDemand = getAverageServiceDemand();
 		
@@ -343,13 +350,13 @@ public class WebServiceAgent extends ServiceProviderAgent {
 			return 0.0;
 		}
 		
-		return runQueue.size()/getThroughput();
+		//return runQueue.size()/getThroughput();
 		
-//		Double u = getUtilization();
-//		Double responseTime = (Math.pow(u,queueLimit+1)*(queueLimit*u-queueLimit-1)+u)/ 
-//		((double)runQueue.size()*(1.0-Math.pow(u, queueLimit))*(1.0-u));		
-//
-// 		return responseTime;
+		Double u = getUtilization();
+		Double responseTime = (Math.pow(u,queueLimit+1)*(queueLimit*u-queueLimit-1)+u)/ 
+		((double)runQueue.size()*(1.0-Math.pow(u, queueLimit))*(1.0-u));		
+
+ 		return responseTime;
 	}
 
 	
