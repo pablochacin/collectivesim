@@ -22,6 +22,7 @@ import edu.upc.cnds.collectivesim.overlay.service.ServiceProviderAgent;
 import edu.upc.cnds.collectivesim.overlay.service.ServiceRequest;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityFunction;
 import edu.upc.cnds.collectivesim.state.Counter;
+import edu.upc.cnds.collectivesim.stream.Stream;
 
 /**
  * 
@@ -43,7 +44,6 @@ import edu.upc.cnds.collectivesim.state.Counter;
  * This model makes the following assumptions:
  *  - the system is in steady state, that is, the service rate is greater or equal than the arrival 
  *    rate
- *  - On each cycle at least one request is processed
  * 
  * @author Pablo Chacin
  *
@@ -64,7 +64,9 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	/**
 	 * Percentage of the server's capacity occupied by an "external" workload 
 	 */
-	private Double backgroundLoad = 0.0;
+	private Stream<Double> load;
+	
+	private Double backgroundLoad;
 			
 	/**
 	 * Function used to calculate the utility offered by the server
@@ -100,13 +102,13 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	
 	
 	public WebServiceAgent(OverlayModel model, Overlay overlay, Identifier id,
-			UtilityFunction function,Integer requestLimit,Double serviceRate,Double load) {
+			UtilityFunction function,Integer requestLimit,Double serviceRate,Stream<Double> load) {
 		super(model, overlay, id, function);	
 		
 		this.queueLimit = requestLimit;
 		this.serviceRate = serviceRate;
-		this.backgroundLoad= load;
-		
+		this.load= load;
+		this.backgroundLoad = load.nextElement();		
 		this.function = function;
 		this.notAllocated = model.getExperiment().getCounter("service.not.allocated");
 		
@@ -160,12 +162,16 @@ public class WebServiceAgent extends ServiceProviderAgent {
 
 	@Override
 	public void forwarded(Routing router, Destination destination, Route route,
-			Serializable message) {
-		super.forwarded(router, destination, route, message);
+				Serializable message) {
+			super.forwarded(router, destination, route, message);
 		
 //		Double tolerance = (Double)destination.getAttributes().get("tolerance");
-//		tolerance = 0.1+Math.pow((double)route.getNumHops()/12.0, 5.0);
+//		tolerance = Math.pow((double)route.getNumHops()/8.0, 2.0);
 //		destination.getAttributes().put("tolerance",tolerance);
+//		
+//		ServiceRequest r = (ServiceRequest)message;
+//		r.setTolerance(tolerance);
+//		
 	}
 
    
@@ -217,14 +223,9 @@ public class WebServiceAgent extends ServiceProviderAgent {
 
 		
 	
-	public void setBackgroundLoad(Double load) {
-		if(load < 0.0) {
-			this.backgroundLoad = Math.max(0.0, backgroundLoad+load);
-		}
-		else {
-			this.backgroundLoad = Math.min(1.0, backgroundLoad+load);
-			
-		}
+	public void updateBackgroundLoad() {
+		backgroundLoad = load.nextElement();
+		
 	}
 	
 	public Double getBackgroundLoad(){
@@ -238,14 +239,14 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 * 
 	 *  This method is assumed to be executed at the beginning of the cycle!
 	 */
-	public void dispatchRequests(Double loadVariation){
+	public void dispatchRequests(){
 			
 		//report terminations from the previous cycle
 		reportTerminations();
-		
+			
 		runQueue.clear();
 		
-		setBackgroundLoad(loadVariation);
+		updateBackgroundLoad();
 		
 		if(entryQueue.size() == 0) {
 			responseTime = 0.0;
@@ -270,15 +271,42 @@ public class WebServiceAgent extends ServiceProviderAgent {
 
 		responseTime = calculatetResponseTime();
 		
+		
 		overlay.getLocalNode().setAttribute("runQueue", (double)runQueue.size());
 		overlay.getLocalNode().setAttribute("entryQueue", (double)entryQueue.size());
 		overlay.getLocalNode().setAttribute("service.response",getResponseTime());
 		overlay.getLocalNode().setAttribute("utility",getUtility());
+		
+		//wadjustWindow();
 	}
 
 	
+	private void adjustWindow() {
+		
+		if(runQueue.size() == 0) {
+			return;
+		}
+		
+		Double serviceRatio = 0.0;
+		Double utility = getUtility();
+		
+		for(ServiceRequest r : runQueue) {
+			serviceRatio += utility/(r.getQoS()-r.getTolerance());
+		}
+		
+		serviceRatio = serviceRatio/(double)runQueue.size();
+		
+		if(serviceRatio < 1.0) {
+			queueLimit--;
+		}
+		else if (serviceRatio > 1.0) {
+			queueLimit++;
+		}
+	}
 	
 	private void reportTerminations() {
+		
+		Double utility = getUtility();
 		for(ServiceRequest request: runQueue) {
 			try {
 			
@@ -287,9 +315,9 @@ public class WebServiceAgent extends ServiceProviderAgent {
 			Map attributes = new HashMap();
 			attributes.put("request.qos",request.getQoS());
 			attributes.put("request.demand",request.getServiceDemand());			
-			attributes.put("node.utility",getUtility());
+			attributes.put("node.utility",utility);
 			attributes.put("service.response",responseTime);	
-			attributes.put("service.ratio",utility/request.getQoS());	
+			attributes.put("service.utility.ratio",utility/request.getQoS());	
 			
 			
 			Event event = new ServiceEvent(overlay.getLocalNode(),model.getCurrentTime(),

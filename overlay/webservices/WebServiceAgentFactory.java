@@ -10,6 +10,7 @@ import edu.upc.cnds.collectivesim.overlay.OverlayModel;
 import edu.upc.cnds.collectivesim.overlay.utility.ResponseTimeUtilityFunction;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityFunction;
 import edu.upc.cnds.collectivesim.stream.Stream;
+import edu.upc.cnds.collectivesim.stream.base.RandomWalkStream;
 
 public class WebServiceAgentFactory extends OverlayAgentFactory {
 
@@ -22,26 +23,36 @@ public class WebServiceAgentFactory extends OverlayAgentFactory {
 	
 	protected Double alpha;
 	
-	protected Stream<Double> load;
+	protected Double minLoad,maxLoad;
+	
+	protected Double trend;
+	
+	protected Double drift;
+	
+	protected Double variation;
 	
 	public WebServiceAgentFactory(OverlayFactory factory, Underlay underlay,
 			Stream<Identifier> ids,Integer requestLimit,Double serviceRate,
-			Double targetServiceTime,Double alpha,Stream<Double>load) {
+			Double targetServiceTime,Double alpha,Double minLoad,Double maxLoad,Double variation,Double trend,Double drift) {
 		
 		super(factory, underlay, ids);
 		this.requestLimit = requestLimit;
 		this.serviceRate = serviceRate;
 		this.targetServiceTime = targetServiceTime;
 		this.alpha = alpha;
-		this.load = load;
-	}
+		this.minLoad = minLoad;
+		this.maxLoad = maxLoad;
+		this.variation = variation;
+		this.drift = drift;
+		this.trend = trend;
+		}
 
 	
 	@Override
 	protected OverlayAgent createOverlayAgent(OverlayModel model, Overlay overlay) {		
 		
 			return new WebServiceAgent(model,overlay,overlay.getLocalNode().getId(),
-					                   getUtilityFunction(),requestLimit,serviceRate,load.nextElement());
+					                   getUtilityFunction(),requestLimit,serviceRate,getLoadStream());
 				
 	}
 
@@ -49,5 +60,10 @@ public class WebServiceAgentFactory extends OverlayAgentFactory {
 	private UtilityFunction getUtilityFunction() {
 	
 		return new ResponseTimeUtilityFunction(targetServiceTime,alpha);
+	}
+	
+	
+	private Stream<Double> getLoadStream(){
+		return new RandomWalkStream("", minLoad, maxLoad, variation, drift, trend);
 	}
 }
