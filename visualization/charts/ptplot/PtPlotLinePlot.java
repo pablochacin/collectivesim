@@ -43,7 +43,7 @@ public class PtPlotLinePlot extends AbstractPtPlotChart {
  	protected static Parameter<Boolean> USER_MARKERS = new Parameter<Boolean>("plot.line.markers",false, new Boolean(true));
  	
     /**  	
-     * indicates the name of the attribute for the lowe error value
+     * indicates the name of the attribute for the lower error value
      */
  	protected static Parameter<String> ERROR_LOW= new Parameter<String>("plot.error.low",false,String.class);
 
@@ -51,6 +51,11 @@ public class PtPlotLinePlot extends AbstractPtPlotChart {
  	 *  indicates the name of the attribute for the upper error value
  	 */
  	protected static Parameter<String> ERROR_HIGH = new Parameter<String>("plot.error.high",false,String.class);
+
+	/**
+ 	 *  indicates if points of the sequence must be connected by a line (false) or not (true)
+ 	 */
+ 	protected static Parameter<Boolean> NO_LINE = new Parameter<Boolean>("plot.noline.",false, new Boolean(true));
 
 	/**
 	 * Displays a sequence in a LinePlot
@@ -67,6 +72,8 @@ public class PtPlotLinePlot extends AbstractPtPlotChart {
 		protected String errorHighAttribute;
 		
 		protected boolean withErrors;
+		
+		protected boolean connected;
 		
 		public PtPlotLineSequence(AbstractPtPlotChart chart, Plot ptplot, String name,
 				DataSeries series, String sequenceAttribute,String valueAttribute,int sequenceNumber) 	throws UnsoportedChartProperty {
@@ -87,10 +94,10 @@ public class PtPlotLinePlot extends AbstractPtPlotChart {
 			if(withErrors){
 				double errorHigh = item.getDouble(errorHighAttribute);
 				double errorLow = item.getDouble(errorLowAttribute);				
-				ptplot.addPointWithErrorBars(sequenceNumber,sequence,value,errorLow,errorHigh,true);				
+				ptplot.addPointWithErrorBars(sequenceNumber,sequence,value,errorLow,errorHigh,connected);				
 			}
 			else{
-				ptplot.addPoint(sequenceNumber,sequence,value,true);
+				ptplot.addPoint(sequenceNumber,sequence,value,connected);
 			}
 			
 		}
@@ -100,10 +107,13 @@ public class PtPlotLinePlot extends AbstractPtPlotChart {
 				Map properties) throws UnsoportedChartProperty {
 					
 			Parameter<String> errorHigh = new Parameter(ERROR_HIGH);
-			Parameter<String> errorLow = new Parameter(ERROR_LOW);
+			Parameter<String> errorLow = new Parameter(ERROR_LOW);			
+			Parameter<Boolean> noline = new Parameter(NO_LINE);
+			
 			ParameterList  parameters = new ParameterList();
 			parameters.addParameter(errorHigh);
 			parameters.addParameter(errorLow);
+			parameters.addParameter(noline);
 			parameters.load(properties);
 	
 		    errorLowAttribute = errorLow.getValue();
@@ -114,6 +124,9 @@ public class PtPlotLinePlot extends AbstractPtPlotChart {
 		    else{
 		    	withErrors = false;
 		    }
+
+		    
+		    connected = !noline.getValue();
 
 		}
 		
@@ -167,9 +180,12 @@ public class PtPlotLinePlot extends AbstractPtPlotChart {
 		Parameter<Integer> scrollWindow = new Parameter(SCROLL_WINDOW);
 		Parameter<Boolean> markers = new Parameter(USER_MARKERS);
 
+
 		ParameterList  parameters = new ParameterList();
 		parameters.addParameter(scrollWindow);
-		parameters.addParameter(markers);
+		parameters.addParameter(markers);	
+
+
 		parameters.load(properties);
 		
 	    ptplot.setPointsPersistence(scrollWindow.getValue());
