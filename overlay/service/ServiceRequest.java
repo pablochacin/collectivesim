@@ -15,11 +15,16 @@ public class ServiceRequest implements Serializable {
 	 */
 	Double qos;
 
+	/**
+	 * Accepted tolerance
+	 */
+	Double tolerance;
 
 	Double serviceDemand;
 	
-	public ServiceRequest(Double qos,Double serviceDemand) {
+	public ServiceRequest(Double qos,Double tolerance,Double serviceDemand) {
 		this.qos = qos;
+		this.tolerance = tolerance;
 		this.serviceDemand= serviceDemand;
 		
 
@@ -34,9 +39,12 @@ public class ServiceRequest implements Serializable {
 		return qos;
 	}
 
+	public Double getTolerance(){
+		return tolerance;
+	}
 	
 	public String toString(){
-		return "[QoS="+qos + "][Service Demand="+serviceDemand+"]";
+		return "[QoS="+qos + "][Tolerance="+tolerance +"][Service Demand="+serviceDemand+"]";
 	}
 	
 }

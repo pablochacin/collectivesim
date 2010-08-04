@@ -66,6 +66,10 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 */
 	private Stream<Double> load;
 	
+	
+	/**
+	 * Load not related to the service requests
+	 */
 	private Double backgroundLoad;
 			
 	/**
@@ -73,19 +77,25 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 */
 	private UtilityFunction function;
 	
+	
+	
 	/**
-	 * Maximun number of requests accepted by the server on each cycle
+	 * Maximum number of requests accepted by the server on each cycle
 	 */
 	private Integer queueLimit;
+	
+	
+	/**
+	 * Maximum capacity of the server
+	 */
+	private Integer maxQueueLimit;
 	
 	/**
 	 * Nominal service capacity of the server (the inverse of its maximum throughput)
 	 */
 	private Double serviceRate;
 	
-	
-	private Counter notAllocated;
-	
+		
 	/**
 	 * Response time offered during this cycle
 	 */
@@ -102,62 +112,27 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	
 	
 	public WebServiceAgent(OverlayModel model, Overlay overlay, Identifier id,
-			UtilityFunction function,Integer requestLimit,Double serviceRate,Stream<Double> load) {
+			UtilityFunction function,Integer maxQueueLimit,Double serviceRate,Stream<Double> load) {
 		super(model, overlay, id, function);	
 		
-		this.queueLimit = requestLimit;
+		this.maxQueueLimit = maxQueueLimit;
+		this.queueLimit = maxQueueLimit;
 		this.serviceRate = serviceRate;
 		this.load= load;
-		this.backgroundLoad = load.nextElement();		
+		this.backgroundLoad = 0.0;		
 		this.function = function;
-		this.notAllocated = model.getExperiment().getCounter("service.not.allocated");
 		
-		entryQueue = new ArrayList<ServiceRequest>(requestLimit);
+		entryQueue = new ArrayList<ServiceRequest>(maxQueueLimit);
 
-		runQueue = new ArrayList<ServiceRequest>(requestLimit);
+		runQueue = new ArrayList<ServiceRequest>(maxQueueLimit);
 
 		overlay.getLocalNode().getAttributes().put("service.time", 0.0);
+		overlay.getLocalNode().getAttributes().put("service.window", new Double(maxQueueLimit));
+		
 		
 	}
 
 	
-	
-
-	@Override
-	public void dropped(Routing router, Destination destination, Route route, Exception cause, Serializable message) {
-		
-		super.dropped(router, destination, route, cause, message);
-
-//		System.out.println("--------------------------------");
-//		System.out.println("Utility: " + (Double)destination.getAttributes().get("utility") + 
-//				           "  Tolerance: " + (Double)destination.getAttributes().get("tolerance"));
-//		
-//		for(Node h: route.getHops()) {
-//			System.out.println(FormattingUtils.mapToString(h.getAttributes()) + "\n");
-//		}
-			
-		ServiceRequest request = (ServiceRequest)message;
-
-		Integer count = 0;
-
-		for(OverlayAgent a: model.getAgents()) {
-			try {
-				Double agentUtility = (Double)a.getAttribute("Utility");
-				if(agentUtility >= request.getQoS()) {
-					count++;
-				}
-			} catch (ModelException e) {
-				
-			}
-			
-		}
-		
-		if(count > 0){
-			notAllocated.increment();
-		}
-	}
-
-
 	
 
 	@Override
@@ -188,11 +163,13 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		
 		entryQueue.add(request);
 			
-		overlay.getLocalNode().setAttribute("entryQueue", entryQueue.size());
 
 	}
 	
 	
+	public Double getWindow(){
+		return new Double(queueLimit);
+	}
 	
 	public Double getQueueLength() {
 		return new Double(runQueue.size());
@@ -272,36 +249,40 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		responseTime = calculatetResponseTime();
 		
 		
-		overlay.getLocalNode().setAttribute("runQueue", (double)runQueue.size());
-		overlay.getLocalNode().setAttribute("entryQueue", (double)entryQueue.size());
+		overlay.getLocalNode().setAttribute("service.runQueue", new Double(runQueue.size()));
+		overlay.getLocalNode().setAttribute("service.window", new Double(queueLimit));
+		overlay.getLocalNode().setAttribute("service.arrivals",new Double(entryQueue.size()));
 		overlay.getLocalNode().setAttribute("service.response",getResponseTime());
 		overlay.getLocalNode().setAttribute("utility",getUtility());
 		
-		//wadjustWindow();
+		adjustWindow();
 	}
 
 	
 	private void adjustWindow() {
 		
-		if(runQueue.size() == 0) {
-			return;
-		}
+//		if(runQueue.size() == 0) {
+//			return;
+//		}
+//		
+//		Double serviceRatio = 0.0;
+//		Double utility = getUtility();
+//		
+//		for(ServiceRequest r : runQueue) {
+//			serviceRatio += utility/(r.getQoS()-r.getTolerance());
+//		}
+//		
+//		serviceRatio = serviceRatio/(double)runQueue.size();
+//		
+//		if(serviceRatio < 1.0) {
+//			queueLimit--;
+//		}
+//		else if (serviceRatio > 1.0) {
+//			queueLimit++;
+//		}
 		
-		Double serviceRatio = 0.0;
-		Double utility = getUtility();
-		
-		for(ServiceRequest r : runQueue) {
-			serviceRatio += utility/(r.getQoS()-r.getTolerance());
-		}
-		
-		serviceRatio = serviceRatio/(double)runQueue.size();
-		
-		if(serviceRatio < 1.0) {
-			queueLimit--;
-		}
-		else if (serviceRatio > 1.0) {
-			queueLimit++;
-		}
+	  queueLimit = (int)(1.0-getBackgroundLoad())*maxQueueLimit;
+	
 	}
 	
 	private void reportTerminations() {

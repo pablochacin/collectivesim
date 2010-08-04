@@ -55,7 +55,7 @@ public class PtPlotLinePlot extends AbstractPtPlotChart {
 	/**
  	 *  indicates if points of the sequence must be connected by a line (false) or not (true)
  	 */
- 	protected static Parameter<Boolean> NO_LINE = new Parameter<Boolean>("plot.noline.",false, new Boolean(true));
+ 	protected static Parameter<Boolean> NO_LINE = new Parameter<Boolean>("plot.noline.",false, new Boolean(false));
 
 	/**
 	 * Displays a sequence in a LinePlot

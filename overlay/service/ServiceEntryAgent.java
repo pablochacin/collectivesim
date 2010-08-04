@@ -69,7 +69,7 @@ public class ServiceEntryAgent extends UtilityOverlayAgent {
 		Destination destination = new Destination(attributes);
 		
 		
-		ServiceRequest request = new ServiceRequest(utility,serviceDemand);
+		ServiceRequest request = new ServiceRequest(utility,tolerance,serviceDemand);
 		
 		try {
 			overlay.route(destination, request);

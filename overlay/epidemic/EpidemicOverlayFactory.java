@@ -10,9 +10,13 @@ import edu.upc.cnds.collectives.routing.RankFunction;
 import edu.upc.cnds.collectives.routing.Routing;
 import edu.upc.cnds.collectives.routing.base.GenericRouter;
 import edu.upc.cnds.collectives.routing.base.GreedyRoutingAlgorithm;
+import edu.upc.cnds.collectives.routing.base.ProbabilisticRoutingAlgorithm;
 import edu.upc.cnds.collectives.routing.base.Router;
 import edu.upc.cnds.collectives.routing.base.RoutingAlgorithm;
 import edu.upc.cnds.collectives.routing.epidemic.EpidemicRoutingAlgorithm;
+import edu.upc.cnds.collectives.routing.utility.CapacityRankFunction;
+import edu.upc.cnds.collectives.routing.utility.ToleranceRestrictedAdmissionFunction;
+import edu.upc.cnds.collectives.routing.utility.UtilityRankFunction;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.topology.base.RandomTopology;
 import edu.upc.cnds.collectives.topology.distance.DistanceSpace;
@@ -29,33 +33,21 @@ import edu.upc.cnds.collectivesim.overlay.OverlayFactory;
 public class EpidemicOverlayFactory implements OverlayFactory {
 
 	int distanceViewSize;
-	
-	int randomViewSize;
-	
+		
 	int distanceViewExchangeSize;
-	
-	int radomViewExchangeSize;
 	
 	int ttl;
 	
 	DistanceSpace space;
 	
-	AdmissionFunction admission;
 	
-	RankFunction ranking;
-	
-	public EpidemicOverlayFactory(int distanceViewSize, int distanceViewExchangeSize, 
-			int randomViewSize,int radomViewExchangeSize, int ttl,
-			DistanceSpace space,AdmissionFunction admission,RankFunction ranking) {
+	public EpidemicOverlayFactory(int distanceViewSize, int distanceViewExchangeSize, int ttl,
+			DistanceSpace space) {
 		super();
 		this.distanceViewSize = distanceViewSize;
-		this.randomViewSize = randomViewSize;
 		this.distanceViewExchangeSize = distanceViewExchangeSize;
-		this.radomViewExchangeSize = radomViewExchangeSize;
 		this.ttl = ttl;
 		this.space = space;
-		this.admission= admission;
-		this.ranking = ranking;
 
 	}
 
@@ -73,10 +65,15 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 		RoutingAlgorithm epidemicRouting = new EpidemicRoutingAlgorithm(topology,distanceViewExchangeSize);
 		Routing updateRouter = new GenericRouter("TopologyUpdateRouter",node,epidemicRouting,node.getTransport(),1);
 				
-						
-		RoutingAlgorithm algorithm = new GreedyRoutingAlgorithm(topology,ranking);
+		AdmissionFunction admission = new ToleranceRestrictedAdmissionFunction();
+		
+		//RankFunction ranking = new UtilityDistanceRankFunction();
+		//RankFunction ranking = new UtilityRankFunction();	
+		RankFunction ranking = new CapacityRankFunction();
+		
+		//RoutingAlgorithm algorithm = new GreedyRoutingAlgorithm(topology,ranking);
 		//RoutingAlgorithm algorithm = new EpidemicRoutingAlgorithm(topology,1);
-
+		RoutingAlgorithm algorithm = new ProbabilisticRoutingAlgorithm(topology,ranking);
 		
 		Router router = new GenericRouter("overlay.router",node,admission,algorithm,node.getTransport(),false,ttl);
 		//Router router = new AdativeRouter("overlay.router",node,function,algorithm,node.getTransport(),false,ttl,(AdaptiveTopology)topology);
