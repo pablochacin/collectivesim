@@ -15,6 +15,7 @@ import edu.upc.cnds.collectives.routing.base.Router;
 import edu.upc.cnds.collectives.routing.base.RoutingAlgorithm;
 import edu.upc.cnds.collectives.routing.epidemic.EpidemicRoutingAlgorithm;
 import edu.upc.cnds.collectives.routing.utility.CapacityRankFunction;
+import edu.upc.cnds.collectives.routing.utility.RealCapacityRankFunction;
 import edu.upc.cnds.collectives.routing.utility.ToleranceRestrictedAdmissionFunction;
 import edu.upc.cnds.collectives.routing.utility.UtilityRankFunction;
 import edu.upc.cnds.collectives.topology.Topology;
@@ -70,6 +71,7 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 		//RankFunction ranking = new UtilityDistanceRankFunction();
 		//RankFunction ranking = new UtilityRankFunction();	
 		RankFunction ranking = new CapacityRankFunction();
+		//RankFunction ranking = new RealCapacityRankFunction();
 		
 		//RoutingAlgorithm algorithm = new GreedyRoutingAlgorithm(topology,ranking);
 		//RoutingAlgorithm algorithm = new EpidemicRoutingAlgorithm(topology,1);

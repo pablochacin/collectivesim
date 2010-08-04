@@ -248,6 +248,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 
 		responseTime = calculatetResponseTime();
 		
+		adjustWindow();
 		
 		overlay.getLocalNode().setAttribute("service.runQueue", new Double(runQueue.size()));
 		overlay.getLocalNode().setAttribute("service.window", new Double(queueLimit));
@@ -255,7 +256,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		overlay.getLocalNode().setAttribute("service.response",getResponseTime());
 		overlay.getLocalNode().setAttribute("utility",getUtility());
 		
-		adjustWindow();
+		
 	}
 
 	
@@ -281,7 +282,8 @@ public class WebServiceAgent extends ServiceProviderAgent {
 //			queueLimit++;
 //		}
 		
-	  queueLimit = (int)(1.0-getBackgroundLoad())*maxQueueLimit;
+	  queueLimit = (int)Math.ceil((1.0-getBackgroundLoad())*maxQueueLimit);
+	  
 	
 	}
 	
