@@ -219,4 +219,18 @@ public interface Model <T extends ModelAgent> {
 	 * @param m
 	 */
 	public void addSubModel(Model<? extends T> model);
+	
+	
+	/**
+	 * indicates if the model is being debugged
+	 * 
+	 * @return
+	 */
+	public boolean isDebugging();
+		
+	/**
+	 * Indicates if the actions of the model must be debugged (true) or not (false)
+	 * @param debug
+	 */
+	public void setDebug(boolean debug);
 }
