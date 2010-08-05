@@ -2,6 +2,7 @@ package edu.upc.cnds.collectivesim.model.base;
 
 import java.util.logging.Logger;
 
+import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.stream.Stream;
 
 /**
@@ -41,8 +42,14 @@ public abstract class ModelAction implements Runnable {
 	
 	
 	protected int priority;
+	
+	protected Model model;
+	
+	protected String name;
 
-	public ModelAction(boolean active,int iterations, Stream<Long> frequency, long delay,long endTime,int priority) {
+	public ModelAction(Model model,String name,boolean active,int iterations, Stream<Long> frequency, long delay,long endTime,int priority) {
+		this.model = model;
+		this.name = name;
 		this.active = active;
 		this.iterations = iterations;
 		this.frequency = frequency;
@@ -95,9 +102,27 @@ public abstract class ModelAction implements Runnable {
 			return;
 		}
 
+		if(model.isDebugging()){
+			System.out.println("[" + model.getCurrentTime() + "] [" + getType() + "][" + name + "]");
+		}
+		
 		execute();
 	}
 	
+	
+	public Model getModel(){
+		return model;
+	}
+	
+	public String getName(){
+		return name;
+	}
+	
+	/**
+	 * 
+	 * @return the type of action
+	 */
+	protected abstract String getType();
 	
 	/**
 	 * Execute the action's logic.

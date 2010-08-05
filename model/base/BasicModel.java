@@ -106,10 +106,20 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	protected Status status;
 	
 	
+	/**
+	 * Number of agents in the model
+	 */
 	protected Counter agentCounter;
 	
-	
+	/**
+	 * List of submodel
+	 */
 	protected List<Model<? extends T>> subModels;
+	
+	/**
+	 * Indicates if the actions of the model must be traced (true) or not (false)
+	 */
+	protected boolean debug;
 	
 	/**
 	 * Constructor
@@ -129,6 +139,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 		this.agentStreams = new HashMap<String,AgentStream>();
 		this.agentCounter = experiment.addCounter(name+".agents");
 		this.subModels = new ArrayList<Model<? extends T>>();
+		this.debug = false;
 	}
 
 	
@@ -148,7 +159,16 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	}
 
 	
+	public void setDebug(boolean debug){
+		this.debug = debug;
+		for(Model m: subModels){
+			m.setDebug(debug);
+		}
+	}
 
+	public boolean isDebugging(){
+		return debug;
+	}
 	
 	@Override
 	public String getName(){
@@ -240,7 +260,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 
 	public final void addObserver(String name, AgentSampler sampler,String attribute,DataSeries values,boolean reset,long frequency,long delay) {
 	
-		String[] attributes = {attribute};
+		String[] attributes = attribute.split(",");
 		addObserver(name,sampler, attributes,values,reset,frequency,delay,0);
 	}
 	
@@ -257,7 +277,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	}
 	
 	public final void addObserver(String name, AgentSampler sampler,String attribute,DataSeries values,SeriesFunction function, boolean append,long frequency,long delay) {
-		String[] attributes = {attribute};
+		String[] attributes = attribute.split(",");
 		
 		//add obserever ensuring it is executed at the end of the cycle
 		addObserver(name,sampler, attributes,values,function,append,frequency,delay,Integer.MAX_VALUE);
@@ -513,7 +533,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	 */
 	public void addAgentStream(String name,long delay,long endTime,Stream<Long>frequency,Stream<Integer> rate,AgentFactory factory){
 		
-		AgentStream action = new AgentStream(this,factory,rate,true,frequency,delay,endTime);
+		AgentStream action = new AgentStream(this,name,factory,rate,true,frequency,delay,endTime);
 		
 		agentStreams.put(name,action);
 	}
