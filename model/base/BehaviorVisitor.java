@@ -22,7 +22,10 @@ import edu.upc.cnds.collectivesim.stream.Stream;
 public class BehaviorVisitor extends AgentVisitor{
 
 	
-    /**
+    private static final String MODEL_ACTION_TYPE = "Behavior";
+
+
+	/**
      * Name of the methods to be executed
      */
     private String method;
@@ -79,11 +82,9 @@ public class BehaviorVisitor extends AgentVisitor{
     
 
 
-	public Model getModel() {
-		return model;
+
+	protected String getType(){
+		return MODEL_ACTION_TYPE;
 	}
-
-
-
 
 }

@@ -28,21 +28,14 @@ import edu.upc.cnds.collectivesim.stream.Stream;
 public abstract class AgentVisitor extends ModelAction{
 		
 	
-	/**
-     * Model on which the agents this model applies to, reside
-     */
-    protected Model<ModelAgent> model;
     
 	/**
 	 * Sampler used to select the agents that will 
 	 */
 	private AgentSampler sampler;
     
-    /**
-     * name of the visitor
-     */
-    protected String name;
-       
+
+	
     
     /**
      * Default constructor
@@ -54,7 +47,7 @@ public abstract class AgentVisitor extends ModelAction{
     public AgentVisitor(Model<ModelAgent> model,String name, AgentSampler sampler, 
     		            boolean active,int iterations,Stream<Long>frequency,long delay,long endTime,int priority){
     	
-    	super(active,iterations,frequency,delay,endTime,priority);
+    	super(model,name,active,iterations,frequency,delay,endTime,priority);
         this.name = name;
         this.model = model;
         this.sampler = sampler;
@@ -124,9 +117,7 @@ public abstract class AgentVisitor extends ModelAction{
     	
     }
     
-    protected String getName(){
-    	return name;
-    }
+
 
 
  

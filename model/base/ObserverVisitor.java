@@ -21,6 +21,9 @@ import edu.upc.cnds.collectivesim.stream.Stream;
  */
 public class ObserverVisitor extends AgentVisitor{
 
+	private static final String MODEL_ACTION_TYPE = "Observer";
+
+
 	private static Logger logger = Logger.getLogger("collectivesim.model");
 
 
@@ -95,5 +98,10 @@ public class ObserverVisitor extends AgentVisitor{
 		values.addItem(agentAttributes);
 
 		return true;
+	}
+	
+	
+	protected String getType(){
+		return MODEL_ACTION_TYPE;
 	}
 }

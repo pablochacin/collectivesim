@@ -10,15 +10,16 @@ import edu.upc.cnds.collectivesim.stream.Stream;
 
 public class AgentStream extends ModelAction {
 
-	protected BasicModel model;
+
+	private static final String MODEL_ACTION_TYPE = "Agent Stream";
 
 	protected AgentFactory factory;
 
 	protected Stream<Integer>rate;
 
-	public AgentStream(BasicModel model,AgentFactory factory, Stream<Integer>rate, 
+	public AgentStream(BasicModel model,String name,AgentFactory factory, Stream<Integer>rate, 
 			boolean active, Stream<Long> frequency, long delay, long endTime) {
-		super(active, 0, frequency, delay, endTime,0);
+		super(model, name, active, 0, frequency, delay, endTime,0);
 		this.model = model;
 		this.factory=factory;
 		this.rate = rate;
@@ -46,4 +47,8 @@ public class AgentStream extends ModelAction {
 
 	}
 
+	protected String getType(){
+		return MODEL_ACTION_TYPE;
+		
+	}
 }
