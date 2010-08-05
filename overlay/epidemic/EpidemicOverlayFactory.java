@@ -13,6 +13,7 @@ import edu.upc.cnds.collectives.routing.base.GreedyRoutingAlgorithm;
 import edu.upc.cnds.collectives.routing.base.ProbabilisticRoutingAlgorithm;
 import edu.upc.cnds.collectives.routing.base.Router;
 import edu.upc.cnds.collectives.routing.base.RoutingAlgorithm;
+import edu.upc.cnds.collectives.routing.base.TwoChoicesRoutingAlgorithm;
 import edu.upc.cnds.collectives.routing.epidemic.EpidemicRoutingAlgorithm;
 import edu.upc.cnds.collectives.routing.utility.CapacityRankFunction;
 import edu.upc.cnds.collectives.routing.utility.RealCapacityRankFunction;
@@ -70,12 +71,13 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 		
 		//RankFunction ranking = new UtilityDistanceRankFunction();
 		//RankFunction ranking = new UtilityRankFunction();	
-		RankFunction ranking = new CapacityRankFunction();
-		//RankFunction ranking = new RealCapacityRankFunction();
+		//RankFunction ranking = new CapacityRankFunction();
+		RankFunction ranking = new RealCapacityRankFunction();
 		
-		//RoutingAlgorithm algorithm = new GreedyRoutingAlgorithm(topology,ranking);
+		RoutingAlgorithm algorithm = new GreedyRoutingAlgorithm(topology,ranking);
 		//RoutingAlgorithm algorithm = new EpidemicRoutingAlgorithm(topology,1);
-		RoutingAlgorithm algorithm = new ProbabilisticRoutingAlgorithm(topology,ranking);
+		//RoutingAlgorithm algorithm = new ProbabilisticRoutingAlgorithm(topology,ranking);
+		//RoutingAlgorithm algorithm = new TwoChoicesRoutingAlgorithm(topology,ranking);
 		
 		Router router = new GenericRouter("overlay.router",node,admission,algorithm,node.getTransport(),false,ttl);
 		//Router router = new AdativeRouter("overlay.router",node,function,algorithm,node.getTransport(),false,ttl,(AdaptiveTopology)topology);
