@@ -56,6 +56,12 @@ public class DumpDataSeriesTask implements Runnable {
 	 * @param experiment
 	 * @param separator
 	 */
+	
+	public DumpDataSeriesTask(Experiment experiment,String dataseries, String attributes,String separator,boolean append) {
+		this(experiment,dataseries,attributes.split(","),separator,append);
+	
+	}
+	
 	public DumpDataSeriesTask(Experiment experiment,String dataseries, String[] attributes,String separator,boolean append) {
 		super();		
 		this.dataseries = experiment.getDataSeries(dataseries);
