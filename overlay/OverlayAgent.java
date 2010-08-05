@@ -150,7 +150,6 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 
 
 
-
 	@Override
 	public void received(Routing router, Destination destination,Route route, Serializable message) {
 		
@@ -262,6 +261,11 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 			attributes.put("destination."+e.getKey().toString(), 
 					     e.getValue().toString());
 		}
+		
+		
+		attributes.put("agent",getName());
+		
+		attributes.put("timestamp",model.getCurrentTime());
 		
 		Event event = new RoutingEvent(overlay.getLocalNode(),model.getCurrentTime(),
 											attributes);
