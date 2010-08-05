@@ -64,7 +64,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	/**
 	 * Percentage of the server's capacity occupied by an "external" workload 
 	 */
-	private Stream<Double> load;
+	private Stream<Double> loadStream;
 	
 	
 	/**
@@ -82,13 +82,13 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	/**
 	 * Maximum number of requests accepted by the server on each cycle
 	 */
-	private Integer queueLimit;
+	private Integer capacity;
 	
 	
 	/**
 	 * Maximum capacity of the server
 	 */
-	private Integer maxQueueLimit;
+	private Integer maxCapacity;
 	
 	/**
 	 * Nominal service capacity of the server (the inverse of its maximum throughput)
@@ -112,22 +112,22 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	
 	
 	public WebServiceAgent(OverlayModel model, Overlay overlay, Identifier id,
-			UtilityFunction function,Integer maxQueueLimit,Double serviceRate,Stream<Double> load) {
+			UtilityFunction function,Integer maxCapacity,Double serviceRate,Stream<Double> loadStream) {
 		super(model, overlay, id, function);	
 		
-		this.maxQueueLimit = maxQueueLimit;
-		this.queueLimit = maxQueueLimit;
+		this.maxCapacity = maxCapacity;
+		this.capacity = maxCapacity;
 		this.serviceRate = serviceRate;
-		this.load= load;
+		this.loadStream= loadStream;
 		this.backgroundLoad = 0.0;		
 		this.function = function;
 		
-		entryQueue = new ArrayList<ServiceRequest>(maxQueueLimit);
+		entryQueue = new ArrayList<ServiceRequest>(maxCapacity);
 
-		runQueue = new ArrayList<ServiceRequest>(maxQueueLimit);
+		runQueue = new ArrayList<ServiceRequest>(maxCapacity);
 
 		overlay.getLocalNode().getAttributes().put("service.time", 0.0);
-		overlay.getLocalNode().getAttributes().put("service.window", new Double(maxQueueLimit));
+		overlay.getLocalNode().getAttributes().put("service.capacity", new Double(maxCapacity));
 		
 		
 	}
@@ -167,11 +167,11 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	}
 	
 	
-	public Double getWindow(){
-		return new Double(queueLimit);
+	public Double getCapacity(){
+		return new Double(capacity);
 	}
 	
-	public Double getQueueLength() {
+	public Double getLoad() {
 		return new Double(runQueue.size());
 	}
 	
@@ -189,7 +189,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 			Route route, Serializable message) {
 		
 		
-		if(entryQueue.size() < queueLimit){
+		if(entryQueue.size() < capacity){
 			return super.delivered(router, destination, route, message);
 			
 		}
@@ -201,7 +201,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		
 	
 	public void updateBackgroundLoad() {
-		backgroundLoad = load.nextElement();
+		backgroundLoad = loadStream.nextElement();
 		
 	}
 	
@@ -250,8 +250,8 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		
 		adjustWindow();
 		
-		overlay.getLocalNode().setAttribute("service.runQueue", new Double(runQueue.size()));
-		overlay.getLocalNode().setAttribute("service.window", new Double(queueLimit));
+		overlay.getLocalNode().setAttribute("service.load", new Double(runQueue.size()));
+		overlay.getLocalNode().setAttribute("service.capacity", new Double(capacity));
 		overlay.getLocalNode().setAttribute("service.arrivals",new Double(entryQueue.size()));
 		overlay.getLocalNode().setAttribute("service.response",getResponseTime());
 		overlay.getLocalNode().setAttribute("utility",getUtility());
@@ -282,7 +282,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 //			queueLimit++;
 //		}
 		
-	  queueLimit = (int)Math.ceil((1.0-getBackgroundLoad())*maxQueueLimit);
+	  capacity = (int)Math.ceil((1.0-getBackgroundLoad())*maxCapacity);
 	  
 	
 	}
@@ -364,8 +364,8 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		//return runQueue.size()/getThroughput();
 		
 		Double u = getUtilization();
-		Double responseTime = (Math.pow(u,queueLimit+1)*(queueLimit*u-queueLimit-1)+u)/ 
-		((double)runQueue.size()*(1.0-Math.pow(u, queueLimit))*(1.0-u));		
+		Double responseTime = (Math.pow(u,capacity+1)*(capacity*u-capacity-1)+u)/ 
+		((double)runQueue.size()*(1.0-Math.pow(u, capacity))*(1.0-u));		
 
  		return responseTime;
 	}
