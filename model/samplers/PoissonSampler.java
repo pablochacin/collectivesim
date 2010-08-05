@@ -7,6 +7,7 @@ import java.util.Random;
 import cern.jet.random.engine.MersenneTwister64;
 
 import edu.upc.cnds.collectives.Collectives;
+import edu.upc.cnds.collectivesim.CollectiveSim;
 import edu.upc.cnds.collectivesim.model.AgentSampler;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.random.MersenneRandom;
@@ -32,7 +33,7 @@ public class PoissonSampler implements AgentSampler {
 	
 	public PoissonSampler(Integer n){
 		this.n = n;
-		this.rand = Collectives.getExperiment().getRandomGenerator();
+		this.rand = CollectiveSim.getExperiment().getRandomGenerator();
 	}
 	
 	

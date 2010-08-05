@@ -11,6 +11,7 @@ import Model.RouterWaxman;
 import Topology.Topology;
 import edu.upc.cnds.collectives.Collectives;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
+import edu.upc.cnds.collectivesim.CollectiveSim;
 import edu.upc.cnds.collectivesim.random.MersenneRandom;
 import edu.upc.cnds.collectivesim.underlay.NetworkTopology;
 import edu.upc.cnds.collectivesim.underlay.Grid2D.UnderlayModelException;
@@ -167,7 +168,7 @@ public class WaxmanTopology implements NetworkTopology {
 		 
 		 this.outDegree = outDegree;
 		 
-		 this.rand = Collectives.getExperiment().getRandomGenerator();
+		 this.rand = CollectiveSim.getExperiment().getRandomGenerator();
 		 
 		 this.locations = new ArrayList<TopologyLocation>(numLocations);
 		 //locations.add(0,null);

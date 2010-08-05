@@ -7,6 +7,7 @@ import edu.upc.cnds.collectives.Collectives;
 import edu.upc.cnds.collectives.identifier.BasicIdentifier;
 import edu.upc.cnds.collectives.identifier.IdSpace;
 import edu.upc.cnds.collectives.identifier.Identifier;
+import edu.upc.cnds.collectivesim.CollectiveSim;
 import edu.upc.cnds.collectivesim.random.MersenneRandom;
 import edu.upc.cnds.collectivesim.stream.Stream;
 
@@ -30,7 +31,7 @@ public class RandomIdentifierStream implements Stream<Identifier> {
 		super();
 		this.name = name;
 		this.size = size;
-		this.rnd = Collectives.getExperiment().getRandomGenerator();
+		this.rnd = CollectiveSim.getExperiment().getRandomGenerator();
 	}
 
 	@Override

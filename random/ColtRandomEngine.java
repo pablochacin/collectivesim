@@ -4,6 +4,7 @@ import java.util.Random;
 
 import cern.jet.random.engine.RandomEngine;
 import edu.upc.cnds.collectives.Collectives;
+import edu.upc.cnds.collectivesim.CollectiveSim;
 
 /**
  * Wraps the random number generator provided by the Experiment as a RandomEngine
@@ -17,7 +18,7 @@ public class ColtRandomEngine extends RandomEngine {
 	Random rand;
 	
 	public ColtRandomEngine() {
-		rand = Collectives.getExperiment().getRandomGenerator();
+		rand = CollectiveSim.getExperiment().getRandomGenerator();
 	}
 	
 	@Override

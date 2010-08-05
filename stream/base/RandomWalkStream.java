@@ -3,6 +3,7 @@ package edu.upc.cnds.collectivesim.stream.base;
 import java.util.Random;
 
 import edu.upc.cnds.collectives.Collectives;
+import edu.upc.cnds.collectivesim.CollectiveSim;
 import edu.upc.cnds.collectivesim.stream.Stream;
 import edu.upc.cnds.collectivesim.stream.StreamException;
 
@@ -38,7 +39,7 @@ public class RandomWalkStream implements Stream<Double> {
 		
 		this.trend = trend;
 
-		this.rand = Collectives.getExperiment().getRandomGenerator();
+		this.rand = CollectiveSim.getExperiment().getRandomGenerator();
 		
 		this.value = minLoad + (maxLoad-minLoad)*rand.nextDouble();
 

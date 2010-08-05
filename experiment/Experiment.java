@@ -27,6 +27,7 @@ import edu.upc.cnds.collectives.platform.Platform;
 import edu.upc.cnds.collectives.util.FileUtils;
 import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectives.util.TypedMap;
+import edu.upc.cnds.collectivesim.CollectiveSim;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
 import edu.upc.cnds.collectivesim.dataseries.base.BaseDataSeries;
@@ -115,7 +116,7 @@ public class Experiment implements Platform, ExecutionService {
 
 
 	/**
-	 * Taskt to execute at the begining of the experiment
+	 * Tasks to execute at the beginning of the experiment
 	 */
 	private List<Runnable> initializationTasks;
 
@@ -242,7 +243,7 @@ public class Experiment implements Platform, ExecutionService {
 		}
 
 		Collectives.setPlaform(this);
-		Collectives.setExperiment(this);
+		CollectiveSim.setExperiment(this);
 		
 	}
 
