@@ -82,6 +82,8 @@ public class ObserverVisitor extends AgentVisitor{
 			}
 		}
 		
+		agentAttributes.put("agent", agent.getName());
+		agentAttributes.put("timestamp",model.getCurrentTime());
 				
 		return processAttributes(agentAttributes);
 		
