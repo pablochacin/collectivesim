@@ -46,7 +46,7 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	
 	protected Counter delivered;
 	
-	protected Counter forwarded;
+
 	
 	protected Counter unreachable;
 	
@@ -54,7 +54,8 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	
 	protected Counter undeliverable;
 		
-
+	protected Counter forwarded;
+	
 	protected boolean active = false;
 	
 	/**
@@ -127,7 +128,7 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 		forwarded.increment();
 		
 		//TODO: why this is done?
-		route.getLastHop().touch(model.getCurrentTime());
+		//route.getLastHop().touch(model.getCurrentTime());
 	}
 
 	@Override
@@ -190,6 +191,10 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 		return received.getValue();
 	}
 
+	
+	public Double getForwarded(){
+		return forwarded.getValue();
+	}
 	
 	public Double getUndeliverable() {
 		return undeliverable.getValue();
