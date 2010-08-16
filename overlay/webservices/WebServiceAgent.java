@@ -119,7 +119,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		this.capacity = maxCapacity;
 		this.serviceRate = serviceRate;
 		this.loadStream= loadStream;
-		this.backgroundLoad = 0.0;		
+		this.backgroundLoad = loadStream.nextElement();		
 		this.function = function;
 		
 		entryQueue = new ArrayList<ServiceRequest>(maxCapacity);
@@ -127,7 +127,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		runQueue = new ArrayList<ServiceRequest>(maxCapacity);
 
 		overlay.getLocalNode().getAttributes().put("service.time", 0.0);
-		overlay.getLocalNode().getAttributes().put("service.capacity", new Double(maxCapacity));
+		overlay.getLocalNode().getAttributes().put("service.capacity", new Double(capacity));
 		
 		
 	}
