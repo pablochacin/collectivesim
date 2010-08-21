@@ -8,6 +8,7 @@ import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectives.util.Histogram;
 import edu.upc.cnds.collectives.util.MapFromString;
 import edu.upc.cnds.collectivesim.dataseries.DataItem;
+import edu.upc.cnds.collectivesim.dataseries.DataSequence;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
 import edu.upc.cnds.collectivesim.dataseries.base.BaseDataItem;
@@ -35,36 +36,56 @@ public class SeriesHistogram implements SeriesFunction {
 
 
 	protected String attribute;
+	
+	protected String count;
 
 	protected Histogram histogram;
 	
-	public SeriesHistogram(String attribute,Double min, Double max,int numBins,boolean truncate){
+	public SeriesHistogram(String attribute,String count,Double min, Double max,int numBins,boolean truncate){
 
 		this.attribute = attribute;
+		this.count = count;
 		this.histogram = new Histogram(min,max,numBins,truncate);
 	
 
 	}
 
+	public SeriesHistogram(String attribute,Double min, Double max,int numBins,boolean truncate){
+
+		this(attribute,null,min,max,numBins,truncate);
+
+	}
 	/**
 	 * Create a Histogram with a variable number of bins
 	 * 
 	 * @param attribute
 	 * @param binWidth
 	 */
-	public SeriesHistogram(String attribute,Double binWidth){
+	public SeriesHistogram(String attribute,String count,Double binWidth){
 
 		this.attribute = attribute;
+		this.count = count;
 		this.histogram = new Histogram(binWidth);
 
 	}	
 
+	
+	public SeriesHistogram(String attribute,Double binWidth){
+		this(attribute,null,binWidth);
+	}
+	
+	
 	@Override
 	public boolean processItem(DataItem item) {
 
 		Double value = item.getDouble(attribute);
+		Double countValue = 1.0;
 		
-		histogram.addValue(value);
+		if(count != null){
+			countValue = item.getDouble(count);
+		}
+		
+		histogram.addValue(value,countValue);
 		
 		return true;
 
@@ -103,12 +124,12 @@ public class SeriesHistogram implements SeriesFunction {
 
 		DataSeries histogramSeries = new BaseDataSeries("histogram",10);
 
-		Table<Double> ditribution = new MemoryTable<Double>("distribution","0.025;0.05;0.1;0.15;0.35;0.15;0.1;0.05;0.025",";",Double.class);
+		Table<Double> ditribution = new MemoryTable<Double>("distribution","0.1;0.1;0.1;0.1;0.1;0.1;0.1;0.1;0.1;0.1",";",Double.class);
 
-		Stream<Double> valueStream = new EmpiricalRandomStream("values",-1.0,1.0,ditribution);
+		Stream<Double> valueStream = new EmpiricalRandomStream("values",1.0,3.0,ditribution);
 
 		//SeriesFunction histogramFunc = new SeriesHistogram("value",0.0,1.0,10,false);
-		SeriesFunction histogramFunc = new SeriesHistogram("value",0.1);
+		SeriesFunction histogramFunc = new SeriesHistogram("value",1.0);
 		
 		histogramFunc.reset();
 
@@ -118,15 +139,22 @@ public class SeriesHistogram implements SeriesFunction {
 		}
 
 		histogramFunc.calculate(histogramSeries);
+		
+		DataSequence s = histogramSeries.getSequence();
+		
+		while(s.hasItems()){
+			DataItem i = s.getItem();
+			System.out.println(FormattingUtils.mapToString(i.getAttributes()));
+		}
 
-		Map histogramParams = new MapFromString("plot.bar.barwidth=0.09");
+		Map histogramParams = new MapFromString("plot.bar.barwidth=0.1");
 
 		Chart histogramPlot = new PtPlotBarPlot("","Histogram",histogramParams,false,true,true);
 
 		ViewPanel panel = new ViewPanel(histogramPlot);
 
 
-		histogramPlot.addSequence("", histogramSeries, "lower","count");
+		histogramPlot.addSequence("", histogramSeries, "lower","fraction");
 
 		histogramPlot.refresh();
 	}
