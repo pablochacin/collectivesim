@@ -15,12 +15,14 @@ import edu.upc.cnds.collectives.routing.Routing;
 import edu.upc.cnds.collectives.routing.RoutingEvent;
 import edu.upc.cnds.collectives.routing.base.Route;
 import edu.upc.cnds.collectives.util.FormattingUtils;
+import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
 import edu.upc.cnds.collectivesim.overlay.OverlayModel;
 import edu.upc.cnds.collectivesim.overlay.service.ServiceProviderAgent;
 import edu.upc.cnds.collectivesim.overlay.service.ServiceRequest;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityFunction;
+import edu.upc.cnds.collectivesim.overlay.utility.UtilityOverlayAgent;
 import edu.upc.cnds.collectivesim.state.Counter;
 import edu.upc.cnds.collectivesim.stream.Stream;
 
@@ -126,6 +128,8 @@ public class WebServiceAgent extends ServiceProviderAgent {
 
 		runQueue = new ArrayList<ServiceRequest>(maxCapacity);
 
+		adjustWindow();
+		
 		overlay.getLocalNode().getAttributes().put("service.time", 0.0);
 		overlay.getLocalNode().getAttributes().put("service.capacity", new Double(capacity));
 		
@@ -189,7 +193,9 @@ public class WebServiceAgent extends ServiceProviderAgent {
 			Route route, Serializable message) {
 		
 		
-		if(entryQueue.size() < capacity){
+//		if(entryQueue.size() < capacity){
+		if(entryQueue.size() < maxCapacity){
+			
 			return super.delivered(router, destination, route, message);
 			
 		}
@@ -223,7 +229,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 			
 		runQueue.clear();
 		
-		updateBackgroundLoad();
+		//updateBackgroundLoad();
 		
 		if(entryQueue.size() == 0) {
 			responseTime = 0.0;
@@ -414,5 +420,8 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	public void startDebug() {
 		System.out.println();
 	}
+	
+	
+	
 	
 }
