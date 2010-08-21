@@ -2,6 +2,7 @@ package edu.upc.cnds.collectivesim.model.base;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -448,7 +449,14 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	  * 
 	  */
 	 public T getAgent(String name){
-		 return agentMap.get(name);
+		 ModelAgent agent = agentMap.get(name);
+
+		 Iterator<Model<? extends T>> m = subModels.iterator(); 
+		 while((agent == null) && m.hasNext()){
+			 agent = ((Model<T>) m).getAgent(name);
+		 }
+		 
+		 return (T) agent;
 	 }
 	 
 	 /**
