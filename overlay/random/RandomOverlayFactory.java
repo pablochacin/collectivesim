@@ -1,20 +1,14 @@
 package edu.upc.cnds.collectivesim.overlay.random;
 
-import java.util.HashMap;
-
 import edu.upc.cnds.collectives.overlay.Overlay;
-import edu.upc.cnds.collectives.overlay.base.BasicOverlay;
 import edu.upc.cnds.collectives.overlay.epidemic.EpidemicOverlay;
-import edu.upc.cnds.collectives.overlay.gradient.UtilityMatchFunction;
-import edu.upc.cnds.collectives.routing.Destination;
-import edu.upc.cnds.collectives.routing.MatchFunction;
-import edu.upc.cnds.collectives.routing.Routing;
-import edu.upc.cnds.collectives.routing.base.DummyMatch;
+import edu.upc.cnds.collectives.routing.AdmissionFunction;
 import edu.upc.cnds.collectives.routing.base.GenericRouter;
-import edu.upc.cnds.collectives.routing.base.GreedyRoutingAlgorithm;
 import edu.upc.cnds.collectives.routing.base.Router;
 import edu.upc.cnds.collectives.routing.base.RoutingAlgorithm;
 import edu.upc.cnds.collectives.routing.epidemic.EpidemicRoutingAlgorithm;
+import edu.upc.cnds.collectives.routing.epidemic.RandomRoutingAlgorithm;
+import edu.upc.cnds.collectives.routing.utility.ToleranceRestrictedAdmissionFunction;
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.topology.base.RandomTopology;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
@@ -34,15 +28,11 @@ public class RandomOverlayFactory implements OverlayFactory {
 	
 	int ttl;
 		
-	MatchFunction function;
-	
-	public RandomOverlayFactory(int randomViewSize,int radomViewExchangeSize, int ttl,
-								MatchFunction function) {
+	public RandomOverlayFactory(int randomViewSize,int radomViewExchangeSize, int ttl){
 		super();
 		this.randomViewSize = randomViewSize;
 		this.radomViewExchangeSize = radomViewExchangeSize;
 		this.ttl = ttl;
-		this.function = function;
 
 	}
 
@@ -51,19 +41,20 @@ public class RandomOverlayFactory implements OverlayFactory {
 	@Override
 	public Overlay getOverlay(UnderlayNode node) {
 		
+		AdmissionFunction admission = new ToleranceRestrictedAdmissionFunction();
 		
 						
 		Topology randomTopology = new RandomTopology(node,randomViewSize,false);
-		RoutingAlgorithm randomEpidemic = new EpidemicRoutingAlgorithm(randomTopology,radomViewExchangeSize);
-		Router updateRouter = new GenericRouter("random.updater",node,new DummyMatch(1.0),randomEpidemic,node.getTransport());
+		RoutingAlgorithm randomEpidemic = new RandomRoutingAlgorithm(randomTopology);
+		Router updateRouter = new GenericRouter("random.updater",node,randomEpidemic,node.getTransport(),1);
 	
 		
 		RoutingAlgorithm algorithm = new EpidemicRoutingAlgorithm(randomTopology,1);
 		//RoutingAlgorithm algorithm = new GreedyRoutingAlgorithm(randomTopology,new UtilityMatchFunction("utility"));
 		
-		Router router = new GenericRouter("overlay.router",node,function,algorithm,node.getTransport(),false,ttl);
+		Router router = new GenericRouter("overlay.router",node,admission,algorithm,node.getTransport(),false,ttl);
 		
-		Overlay overlay = new EpidemicOverlay(node,randomTopology,router,updateRouter,new Destination(new HashMap()),1);
+		Overlay overlay = new EpidemicOverlay(node,randomTopology,updateRouter,router);
 					
 		return overlay;
 
