@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+
 
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.identifier.Identifier;
@@ -15,6 +17,7 @@ import edu.upc.cnds.collectives.routing.Routing;
 import edu.upc.cnds.collectives.routing.RoutingEvent;
 import edu.upc.cnds.collectives.routing.base.Route;
 import edu.upc.cnds.collectives.util.FormattingUtils;
+import edu.upc.cnds.collectivesim.CollectiveSim;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
@@ -23,6 +26,7 @@ import edu.upc.cnds.collectivesim.overlay.service.ServiceProviderAgent;
 import edu.upc.cnds.collectivesim.overlay.service.ServiceRequest;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityFunction;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityOverlayAgent;
+import edu.upc.cnds.collectivesim.random.MersenneRandom;
 import edu.upc.cnds.collectivesim.state.Counter;
 import edu.upc.cnds.collectivesim.stream.Stream;
 
@@ -116,7 +120,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	public WebServiceAgent(OverlayModel model, Overlay overlay, Identifier id,
 			UtilityFunction function,Integer maxCapacity,Double serviceRate,Stream<Double> loadStream) {
 		super(model, overlay, id, function);	
-		
+	
 		this.maxCapacity = maxCapacity;
 		this.capacity = maxCapacity;
 		this.serviceRate = serviceRate;
@@ -128,10 +132,11 @@ public class WebServiceAgent extends ServiceProviderAgent {
 
 		runQueue = new ArrayList<ServiceRequest>(maxCapacity);
 
-		adjustWindow();
+		adjustCapacity();
 		
 		overlay.getLocalNode().getAttributes().put("service.time", 0.0);
 		overlay.getLocalNode().getAttributes().put("service.capacity", new Double(capacity));
+		overlay.getLocalNode().setAttribute("service.acceptanceP", new Double(acceptanceP));
 		
 		
 	}
@@ -173,10 +178,12 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	
 	public Double getCapacity(){
 		return new Double(capacity);
+		//return new Double(acceptanceP);
 	}
 	
 	public Double getLoad() {
-		return new Double(runQueue.size());
+		return new Double(runQueue.size());		
+		
 	}
 	
 	
@@ -184,30 +191,52 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		return (double)entryQueue.size();
 	}
 	
+	
+	Random rand = new MersenneRandom();
+	
 	@Override
 	/**
 	 * Check if the request must be rejected as the server has a fixed capacity
 	 * 
-	 */
+	 */	
 	public boolean delivered(Routing router, Destination destination,
 			Route route, Serializable message) {
 		
 		
-//		if(entryQueue.size() < capacity){
-		if(entryQueue.size() < maxCapacity){
-			
-			return super.delivered(router, destination, route, message);
-			
-		}
-		else{
-			return false;
-		}
+
+		
+//	if(entryQueue.size() < capacity){
+	   if(entryQueue.size() < capacity){
+
+//			if(rand.nextDouble() <= acceptanceP){				
+				return super.delivered(router, destination, route, message);
+//			}
+		}		
+		return false;
+		
 	}
 
 		
+	public void setBackgroundLoad(Double load){
+		backgroundLoad = load;
+	}
 	
 	public void updateBackgroundLoad() {
-		backgroundLoad = loadStream.nextElement();
+		
+		for(ModelAgent n: model.getAgents()){
+			if(!n.getName().equals(getName())){
+				try {
+					Double load = (Double)n.getAttribute("BackgroundLoad");
+					if(Math.abs(getBackgroundLoad() - load) <= 0.1){
+						n.execute("setBackgroundLoad",new Object[]{getBackgroundLoad()});
+						setBackgroundLoad(load);
+						break;
+					}
+				} catch (ModelException e) {}
+			}
+		}
+		
+		//backgroundLoad = loadStream.nextElement();
 		
 	}
 	
@@ -237,6 +266,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 			serviceDemand = 0.0;
 			throughput = 0.0;
 		}
+
 		
 		//number of requests attended in the current dispatch cycle
 		serviceDemand = getAverageServiceDemand();
@@ -244,7 +274,9 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		//calculate throughput considering background load
 		throughput = (1.0-backgroundLoad)/serviceDemand;
 			
-		int servedRequests = (int) Math.min(Math.floor(throughput),entryQueue.size());
+		//int servedRequests = (int) Math.min(Math.floor(throughput),entryQueue.size());
+		
+		int servedRequests = entryQueue.size();
 		
 		offeredDemand = serviceDemand*servedRequests;
 		
@@ -254,19 +286,33 @@ public class WebServiceAgent extends ServiceProviderAgent {
 
 		responseTime = calculatetResponseTime();
 		
-		adjustWindow();
 		
 		overlay.getLocalNode().setAttribute("service.load", new Double(runQueue.size()));
-		overlay.getLocalNode().setAttribute("service.capacity", new Double(capacity));
 		overlay.getLocalNode().setAttribute("service.arrivals",new Double(entryQueue.size()));
 		overlay.getLocalNode().setAttribute("service.response",getResponseTime());
 		overlay.getLocalNode().setAttribute("utility",getUtility());
-		
+
+		adjustAcceptanceP();
+		overlay.getLocalNode().setAttribute("service.acceptanceP", new Double(acceptanceP));
+	
+		adjustCapacity();
+		overlay.getLocalNode().setAttribute("service.capacity", new Double(capacity));
+
 		
 	}
 
+	Double acceptanceP = 1.0;
+ 
 	
-	private void adjustWindow() {
+	
+	private void adjustAcceptanceP(){
+
+		Double newAcceptanceP = Math.min(1.0,Math.max(0,acceptanceP *(1.0+ (getUtility()-0.7))));
+			acceptanceP = 0.75*acceptanceP + 0.25*newAcceptanceP;
+	}
+	
+	
+	private void adjustCapacity() {
 		
 //		if(runQueue.size() == 0) {
 //			return;
@@ -288,9 +334,10 @@ public class WebServiceAgent extends ServiceProviderAgent {
 //			queueLimit++;
 //		}
 		
-	  capacity = (int)Math.ceil((1.0-getBackgroundLoad())*maxCapacity);
-	  
+	  //capacity = (int)Math.ceil((1.0-getBackgroundLoad())/serviceRate);
+	  capacity = (int)Math.ceil(maxCapacity*acceptanceP);
 	
+
 	}
 	
 	private void reportTerminations() {
@@ -421,7 +468,15 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		System.out.println();
 	}
 	
+		
 	
+	public Double getAcceptanceRate(){
+		return acceptanceP;
+		
+	}
 	
-	
+	public void updateAcceptanceRate(){
+		adjustAcceptanceP();
+		overlay.getLocalNode().setAttribute("service.acceptanceP", new Double(acceptanceP));
+	}
 }
