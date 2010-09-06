@@ -292,8 +292,8 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		overlay.getLocalNode().setAttribute("service.response",getResponseTime());
 		overlay.getLocalNode().setAttribute("utility",getUtility());
 
-		adjustAcceptanceP();
-		overlay.getLocalNode().setAttribute("service.acceptanceP", new Double(acceptanceP));
+		//adjustAcceptanceP();
+		//overlay.getLocalNode().setAttribute("service.acceptanceP", new Double(acceptanceP));
 	
 		adjustCapacity();
 		overlay.getLocalNode().setAttribute("service.capacity", new Double(capacity));
@@ -303,38 +303,77 @@ public class WebServiceAgent extends ServiceProviderAgent {
 
 	Double acceptanceP = 1.0;
  
-	
+	boolean initilized = false;
 	
 	private void adjustAcceptanceP(){
 
-		Double newAcceptanceP = Math.min(1.0,Math.max(0,acceptanceP *(1.0+ (getUtility()-0.7))));
-			acceptanceP = 0.75*acceptanceP + 0.25*newAcceptanceP;
+//		Double newAcceptanceP = Math.min(1.0,Math.max(0,acceptanceP *(1.0+ (getUtility()-0.7))));
+//			acceptanceP = 0.75*acceptanceP + 0.25*newAcceptanceP;
+
+		
+		if(!initilized) {
+			initAdaptation(acceptanceP, getUtility(), 0.7);
+			initilized = true;
+		}
+		else{
+			acceptanceP = adaptation(acceptanceP,getUtility());
+		}
+	}		
+		
+	
+	private void initAdaptation(Double X,Double F, Double A){
+		f[t] = F;
+		x[t] = X;
+		a[t+1] = A;
+		
+		
+	}
+	
+	static int t=1;
+	
+	Double beta = 0.4;
+	Double sigma = 0.3;
+	Double phi = 0.4;
+	Double gamma = 3*phi;
+	
+	Double[] f = {0.0,0.0,0.0};
+	Double[] f_aprox = {0.0,0.0,0.0};
+	Double[] x = {0.0,0.0,0.0};	
+	Double[] r = {0.0,0.0,0.0};
+	Double[] a = {0.0,0.0,0.0};
+	
+	private Double adaptation(Double X,Double F){	
+		f[t-1] = f[t];
+		x[t-1] = x[t];
+		
+		f[t] = F;
+		x[t] = X;
+		
+		r[t] = r[t+1];
+		a[t] = a[t+1];
+		
+		f_aprox[t] = f_aprox[t+1];
+					
+		f_aprox[t+1] = (1.0-beta)*f_aprox[t] + beta*f[t];
+	
+		r[t+1] = (1.0-sigma)*r[t] *sigma*(f[t]-f[t-1]);
+		
+		a[t+1] = (1.0-phi)*a[t] + phi*f_aprox[t+1] + gamma*r[t+1];
+		
+		Double c = (f[t]-f[t-1])/(x[t]-x[t-1]);
+		
+		Double d = c/Math.abs(c);
+				
+		Double delta_x = d*((a[t+1]-f[t])/Math.abs(c));
+		
+		x[t+1] = x[t] + delta_x;
+		
+		return x[t+1];
 	}
 	
 	
 	private void adjustCapacity() {
 		
-//		if(runQueue.size() == 0) {
-//			return;
-//		}
-//		
-//		Double serviceRatio = 0.0;
-//		Double utility = getUtility();
-//		
-//		for(ServiceRequest r : runQueue) {
-//			serviceRatio += utility/(r.getQoS()-r.getTolerance());
-//		}
-//		
-//		serviceRatio = serviceRatio/(double)runQueue.size();
-//		
-//		if(serviceRatio < 1.0) {
-//			queueLimit--;
-//		}
-//		else if (serviceRatio > 1.0) {
-//			queueLimit++;
-//		}
-		
-	  //capacity = (int)Math.ceil((1.0-getBackgroundLoad())/serviceRate);
 	  capacity = (int)Math.ceil(maxCapacity*acceptanceP);
 	
 
@@ -420,6 +459,9 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		Double responseTime = (Math.pow(u,capacity+1)*(capacity*u-capacity-1)+u)/ 
 		((double)runQueue.size()*(1.0-Math.pow(u, capacity))*(1.0-u));		
 
+		if(responseTime < 0.0){
+			System.out.print("");
+		}
  		return responseTime;
 	}
 
