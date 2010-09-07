@@ -1,5 +1,8 @@
 package edu.upc.cnds.collectivesim.overlay.webservices;
 
+import edu.upc.cnds.collectives.adaptation.AdaptationFunction;
+import edu.upc.cnds.collectives.adaptation.bounded.BoundedRationalityAdaptation;
+import edu.upc.cnds.collectives.adaptation.probabilistic.ProbabilisticAdaptation;
 import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.underlay.Underlay;
@@ -55,7 +58,7 @@ public class WebServiceAgentFactory extends OverlayAgentFactory {
 	protected OverlayAgent createOverlayAgent(OverlayModel model, Overlay overlay) {		
 		
 			return new WebServiceAgent(model,overlay,overlay.getLocalNode().getId(),
-					                   getUtilityFunction(),requestLimit,serviceRate,getLoadStream());
+					                   getUtilityFunction(),getTarget(),getAdaptationFunction(),requestLimit,serviceRate,getLoadStream());
 				
 	}
 
@@ -71,5 +74,15 @@ public class WebServiceAgentFactory extends OverlayAgentFactory {
 		
 		return new EmpiricalRandomStream("", minLoad, maxLoad, 
 				 CollectiveSim.getExperiment().getTable("distribution.skewed.1"));
+	}
+	
+	
+	private AdaptationFunction getAdaptationFunction(){
+		return new ProbabilisticAdaptation(0.0,1.0,0.1,0.05,0.25);
+		//return new BoundedRationalityAdaptation(0.0,1.0,0.1,0.05);
+	}
+	
+	private Double getTarget(){
+		return 0.7;
 	}
 }

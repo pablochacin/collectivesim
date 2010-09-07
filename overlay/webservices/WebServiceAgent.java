@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Random;
 
 
+import edu.upc.cnds.collectives.adaptation.AdaptationFunction;
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.node.Node;
@@ -81,9 +82,9 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	/**
 	 * Function used to calculate the utility offered by the server
 	 */
-	private UtilityFunction function;
+	private UtilityFunction utilityFuction;
 	
-	
+	private AdaptationFunction adaptationFunction;
 	
 	/**
 	 * Maximum number of requests accepted by the server on each cycle
@@ -101,6 +102,11 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 */
 	private Double serviceRate;
 	
+	
+	/**
+	 * Target utility for this service
+	 */
+	private Double targetUtility;
 		
 	/**
 	 * Response time offered during this cycle
@@ -116,17 +122,20 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	
 	private Double offeredDemand = 0.0;
 	
+
 	
 	public WebServiceAgent(OverlayModel model, Overlay overlay, Identifier id,
-			UtilityFunction function,Integer maxCapacity,Double serviceRate,Stream<Double> loadStream) {
-		super(model, overlay, id, function);	
+			UtilityFunction utilityFunction,Double targetUtility,AdaptationFunction adaptationFunction,Integer maxCapacity,Double serviceRate,Stream<Double> loadStream) {
+		super(model, overlay, id, utilityFunction);	
 	
+		this.targetUtility = targetUtility;
 		this.maxCapacity = maxCapacity;
 		this.capacity = maxCapacity;
 		this.serviceRate = serviceRate;
 		this.loadStream= loadStream;
 		this.backgroundLoad = loadStream.nextElement();		
-		this.function = function;
+		this.utilityFuction = utilityFunction;
+		this.adaptationFunction = adaptationFunction;
 		
 		entryQueue = new ArrayList<ServiceRequest>(maxCapacity);
 
@@ -301,75 +310,17 @@ public class WebServiceAgent extends ServiceProviderAgent {
 		
 	}
 
-	Double acceptanceP = 1.0;
- 
-	boolean initilized = false;
+	Double acceptanceP = 0.5;
 	
 	private void adjustAcceptanceP(){
 
-//		Double newAcceptanceP = Math.min(1.0,Math.max(0,acceptanceP *(1.0+ (getUtility()-0.7))));
-//			acceptanceP = 0.75*acceptanceP + 0.25*newAcceptanceP;
 
+		updateUtility();
 		
-		if(!initilized) {
-			initAdaptation(acceptanceP, getUtility(), 0.7);
-			initilized = true;
-		}
-		else{
-			acceptanceP = adaptation(acceptanceP,getUtility());
-		}
+		acceptanceP = adaptationFunction.adapt(acceptanceP,getUtility(),targetUtility);
 	}		
 		
 	
-	private void initAdaptation(Double X,Double F, Double A){
-		f[t] = F;
-		x[t] = X;
-		a[t+1] = A;
-		
-		
-	}
-	
-	static int t=1;
-	
-	Double beta = 0.4;
-	Double sigma = 0.3;
-	Double phi = 0.4;
-	Double gamma = 3*phi;
-	
-	Double[] f = {0.0,0.0,0.0};
-	Double[] f_aprox = {0.0,0.0,0.0};
-	Double[] x = {0.0,0.0,0.0};	
-	Double[] r = {0.0,0.0,0.0};
-	Double[] a = {0.0,0.0,0.0};
-	
-	private Double adaptation(Double X,Double F){	
-		f[t-1] = f[t];
-		x[t-1] = x[t];
-		
-		f[t] = F;
-		x[t] = X;
-		
-		r[t] = r[t+1];
-		a[t] = a[t+1];
-		
-		f_aprox[t] = f_aprox[t+1];
-					
-		f_aprox[t+1] = (1.0-beta)*f_aprox[t] + beta*f[t];
-	
-		r[t+1] = (1.0-sigma)*r[t] *sigma*(f[t]-f[t-1]);
-		
-		a[t+1] = (1.0-phi)*a[t] + phi*f_aprox[t+1] + gamma*r[t+1];
-		
-		Double c = (f[t]-f[t-1])/(x[t]-x[t-1]);
-		
-		Double d = c/Math.abs(c);
-				
-		Double delta_x = d*((a[t+1]-f[t])/Math.abs(c));
-		
-		x[t+1] = x[t] + delta_x;
-		
-		return x[t+1];
-	}
 	
 	
 	private void adjustCapacity() {
@@ -501,7 +452,7 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	
 	public Double getUtility(){
 	
-		return function.getUtility(overlay.getLocalNode());
+		return utilityFuction.getUtility(overlay.getLocalNode());
 		
 	}
 	
