@@ -1,6 +1,7 @@
 package edu.upc.cnds.collectivesim.scheduler.base;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -82,7 +83,8 @@ public class BasicScheduler extends AbstractScheduler {
 			}
 		}
 		
-
+		Collections.sort(ready);
+		
 		return ready;
 	}
 
