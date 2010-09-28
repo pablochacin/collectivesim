@@ -66,14 +66,17 @@ public class ServiceEntryAgent extends UtilityOverlayAgent {
 	 */
 	public void makeRequest(Double utility,Double serviceDemand) {
 
-		Map attributes = new HashMap();
-		attributes.put("utility", utility);
-		attributes.put("tolerance", tolerance);		
+		Map destinationAttributes = new HashMap();
+		destinationAttributes.put("utility", utility);
+		destinationAttributes.put("tolerance", tolerance);		
 		
-		Destination destination = new Destination(attributes);
+		Map requestAttributes = new HashMap();
+		requestAttributes.put("service.demand", serviceDemand);
+		
+		Destination destination = new Destination(destinationAttributes);
 		
 		
-		ServiceRequest request = new ServiceRequest(utility,tolerance,serviceDemand);
+		ServiceRequest request = new ServiceRequest(utility,requestAttributes);
 		
 		try {
 			overlay.route(destination, request);
