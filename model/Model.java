@@ -56,8 +56,11 @@ public interface Model <T extends ModelAgent> {
 	 *        behavior's method on each iteration
 	 */
 	public abstract void addBehavior(String name, String method,AgentSampler sampler,
-			boolean active, int iterations,long frequency, long delay, long endTime,
+			boolean active, int iterations,long frequency, long delay, long endTime,int priority,
 			Stream<? extends Object> ... args);
+
+	public abstract void addBehavior(String name, String method,
+			AgentSampler sampler, boolean active, int iterations, long frequency, long delay, long endTime,Stream<? extends Object> ... args);
 
 	/**
 	 * Convenience method, to add a behavior that starts immediately, has neither end time nor
@@ -98,6 +101,8 @@ public interface Model <T extends ModelAgent> {
 	 */
 	public abstract void addBehavior(String name, String method,
 			long frequency, long delay,long endTime,Stream<? extends Object>... args);
+
+	
 
 		
 	public abstract void addCompositeBehavior(String name, CompositeBehavior behavior,
@@ -233,4 +238,5 @@ public interface Model <T extends ModelAgent> {
 	 * @param debug
 	 */
 	public void setDebug(boolean debug);
+
 }

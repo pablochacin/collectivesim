@@ -179,6 +179,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	/* (non-Javadoc)
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, edu.upc.cnds.collectivesim.scheduler.Stream, int, long, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
+	
 	public final void addBehavior(String name, String method,AgentSampler sampler,
 			boolean active, int iterations,Stream<Long> frequency, long delay, long endTime, int priority,
 			Stream<? extends Object> ... args){
@@ -195,6 +196,13 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	}
 	
 	
+	public void addBehavior(String name, String method, AgentSampler sampler,
+			boolean active, int iterations, long frequency, long delay,
+			long endTime, int priority, Stream<? extends Object>... args) {
+		
+			addBehavior(name,method,sampler,active,iterations,new FixedValueStream<Long>("",frequency),
+					delay,endTime,priority,args);
+	}
 	public final void addBehavior(String name, String method,AgentSampler sampler,
 			boolean active, int iterations,Stream<Long> frequency, long delay, long endTime,
 			Stream<? extends Object> ... args){
@@ -262,7 +270,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	public final void addObserver(String name, AgentSampler sampler,String attribute,DataSeries values,boolean reset,long frequency,long delay) {
 	
 		String[] attributes = attribute.split(",");
-		addObserver(name,sampler, attributes,values,reset,frequency,delay,0);
+		addObserver(name,sampler, attributes,values,reset,frequency,delay,Integer.MAX_VALUE);
 	}
 	
 	public final void addObserver(String name, AgentSampler sampler,String[] attributes,DataSeries values,SeriesFunction function,boolean reset,long frequency,long delay,int priority) {
@@ -570,6 +578,10 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	protected void agentRemoved(T agent){
 		
 	}
+
+
+
+
 
 
 
