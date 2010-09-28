@@ -1,6 +1,10 @@
 package edu.upc.cnds.collectivesim.overlay.service;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
+import edu.upc.cnds.collectives.util.FormattingUtils;
 
 /**
  * Describes a service request
@@ -14,37 +18,40 @@ public class ServiceRequest implements Serializable {
 	 * Target utility for the request
 	 */
 	Double qos;
+	
+	/**
+	 * Map of attributes intended to be used by dispatching policies
+	 */
+	Map attributes;
+	
+	public ServiceRequest(Double qos, Map attributes) {
+		this.qos = qos;
+		this.attributes = attributes;
+
+	}
 
 	/**
-	 * Accepted tolerance
+	 * Convenience constructor without attributes
+	 * @param qos
+	 * @param attributes
 	 */
-	Double tolerance;
-
-	Double serviceDemand;
+	public ServiceRequest(Double qos) {
+		this(qos,new HashMap());
+	}	
 	
-	public ServiceRequest(Double qos,Double tolerance,Double serviceDemand) {
-		this.qos = qos;
-		this.tolerance = tolerance;
-		this.serviceDemand= serviceDemand;
 		
-
-	}
-
-	
-	public Double getServiceDemand() {
-		return serviceDemand;
-	}
-	
 	public Double getQoS() {
 		return qos;
 	}
-
-	public Double getTolerance(){
-		return tolerance;
+	
+	public Map getAttributes(){
+		return attributes;
 	}
 	
 	public String toString(){
-		return "[QoS="+qos + "][Tolerance="+tolerance +"][Service Demand="+serviceDemand+"]";
+		return "[QoS="+qos + "][attributes = " +
+		       FormattingUtils.mapToString(attributes) + "]";
 	}
-	
+
+
 }
