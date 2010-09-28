@@ -103,7 +103,7 @@ public abstract class ModelAction implements Runnable {
 		}
 
 		if(model.isDebugging()){
-			System.out.println("[" + model.getCurrentTime() + "] [" + getType() + "][" + name + "]");
+			System.out.println("[" + model.getCurrentTime() + "] [" + getType() + "][" + priority + "][" + name + "]");
 		}
 		
 		execute();
