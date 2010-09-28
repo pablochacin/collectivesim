@@ -371,6 +371,17 @@ public class Experiment implements Platform, ExecutionService {
 		stateValues.put(name,new CalculatedValue(name,values,function));
 	}
 
+	
+	/**
+	 * Convenience method, receiving arguments as a string of comma delimited names.
+	 * @param name
+	 * @param arguments
+	 * @param function
+	 */
+	public void addCalculatedValue(String name,String arguments,ValueFunction function){
+		addCalculatedValue(name,arguments.split(","),function);
+	}
+	
 	/**
 	 * Adds a table of values to the experiment
 	 * @param name
