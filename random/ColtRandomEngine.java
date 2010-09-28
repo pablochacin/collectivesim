@@ -18,7 +18,12 @@ public class ColtRandomEngine extends RandomEngine {
 	Random rand;
 	
 	public ColtRandomEngine() {
-		rand = CollectiveSim.getExperiment().getRandomGenerator();
+		if(CollectiveSim.getExperiment() != null){
+			rand = CollectiveSim.getExperiment().getRandomGenerator();
+		}
+		else{
+			rand = new MersenneRandom();
+		}
 	}
 	
 	@Override
