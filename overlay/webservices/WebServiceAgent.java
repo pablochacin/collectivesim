@@ -33,176 +33,109 @@ import edu.upc.cnds.collectivesim.stream.Stream;
 
 /**
  * 
- * Simulates a web server that process service requests using a PS discipline.
- * The simulation is based on the model for a M/G/k/PS, adapted to consider the
- * effect of a background load. 
- * 
- * The server operates in cycles, triggered by the dispatchRequests method. 
- * 
- * The requests received during a cycle are not directly processed, but are placed in a
- * waiting queue (entry queue). 
- * 
- * On each cycle, the server process the requests in its run queue using a PS discipline.
- * At the end, the requests from the entry queue are moved to the run queue.
- *  
- * The model considers a background load that influences the actual service time of the requests.
- * This load can vary on each cycle.
- *
- * This model makes the following assumptions:
- *  - the system is in steady state, that is, the service rate is greater or equal than the arrival 
- *    rate
- * 
- * @author Pablo Chacin
+ * Skeleton for a WebService provider 
  *
  */
-public class WebServiceAgent extends ServiceProviderAgent {
+public abstract class WebServiceAgent extends ServiceProviderAgent {
 
-	
+
 	/**
 	 * Requests being processed in the current simulation cycle
 	 */
-	private List<ServiceRequest> runQueue;
+	protected List<ServiceRequest> runQueue;
 
-	/**
-	 * Requests arrived in the current simulation cycle and waiting to enter the server
-	 */
-	private List<ServiceRequest> entryQueue;
 
 	/**
 	 * Percentage of the server's capacity occupied by an "external" workload 
 	 */
-	private Stream<Double> loadStream;
-	
-	
+	protected Stream<Double> loadStream;
+
+
 	/**
 	 * Load not related to the service requests
 	 */
-	private Double backgroundLoad;
-			
+	protected Double backgroundLoad;
+
 	/**
 	 * Function used to calculate the utility offered by the server
 	 */
-	private UtilityFunction utilityFuction;
-	
-	private AdaptationFunction adaptationFunction;
-	
+	protected UtilityFunction utilityFuction;
+
+	protected AdaptationFunction adaptationFunction;
+
 	/**
 	 * Maximum number of requests accepted by the server on each cycle
 	 */
-	private Integer capacity;
-	
-	
+	protected Integer capacity;
+
+
 	/**
 	 * Maximum capacity of the server
 	 */
-	private Integer maxCapacity;
-	
+	protected Integer maxCapacity;
+
 	/**
-	 * Nominal service capacity of the server (the inverse of its maximum throughput)
+	 * ratio of effective capacity (capacity/maxCapacity)
 	 */
-	private Double serviceRate;
-	
-	
+	protected Double capacityRatio = 0.75;
+
+
 	/**
 	 * Target utility for this service
 	 */
-	private Double targetUtility;
-		
-	/**
-	 * Response time offered during this cycle
-	 */
-	private Double responseTime = 0.0;
-	
-	/**
-	 * Throughput during the current cycle
-	 */
-	private Double throughput = 0.0;
-	
-	private Double serviceDemand = 0.0;
-	
-	private Double offeredDemand = 0.0;
-	
+	protected Double targetUtility;
 
 	
 	public WebServiceAgent(OverlayModel model, Overlay overlay, Identifier id,
-			UtilityFunction utilityFunction,Double targetUtility,AdaptationFunction adaptationFunction,Integer maxCapacity,Double serviceRate,Stream<Double> loadStream) {
+			UtilityFunction utilityFunction,Double targetUtility,AdaptationFunction adaptationFunction,Integer maxCapacity,Stream<Double> loadStream) {
 		super(model, overlay, id, utilityFunction);	
-	
+
 		this.targetUtility = targetUtility;
 		this.maxCapacity = maxCapacity;
 		this.capacity = maxCapacity;
-		this.serviceRate = serviceRate;
 		this.loadStream= loadStream;
 		this.backgroundLoad = loadStream.nextElement();		
 		this.utilityFuction = utilityFunction;
 		this.adaptationFunction = adaptationFunction;
-		
-		entryQueue = new ArrayList<ServiceRequest>(maxCapacity);
 
 		runQueue = new ArrayList<ServiceRequest>(maxCapacity);
 
 		adjustCapacity();
-		
+
 		overlay.getLocalNode().getAttributes().put("service.time", 0.0);
 		overlay.getLocalNode().getAttributes().put("service.capacity", new Double(capacity));
-		overlay.getLocalNode().setAttribute("service.acceptanceP", new Double(acceptanceP));
-		
-		
+		overlay.getLocalNode().getAttributes().put("service.capacity.ratio", new Double(capacityRatio));		
+		overlay.getLocalNode().getAttributes().put("service.acceptance.rate", new Double(acceptanceRate));
+
+
 	}
 
-	
-	
 
-	@Override
-	public void forwarded(Routing router, Destination destination, Route route,
-				Serializable message) {
-			super.forwarded(router, destination, route, message);
-		
-//		Double tolerance = (Double)destination.getAttributes().get("tolerance");
-//		tolerance = Math.pow((double)route.getNumHops()/8.0, 2.0);
-//		destination.getAttributes().put("tolerance",tolerance);
-//		
-//		ServiceRequest r = (ServiceRequest)message;
-//		r.setTolerance(tolerance);
-//		
-	}
-
-   
 
 	@Override
 	/**
-	 * Count the requests received in the current dispatch cycle
+	 * process incoming requests
+	 * 
 	 */
-	protected void processRequest(ServiceRequest request) {
-
-		
-		//count request
+	protected void processRequest(ServiceRequest request){
 		super.processRequest(request);
-		
-		entryQueue.add(request);
-			
-
 	}
-	
-	
+
 	public Double getCapacity(){
 		return new Double(capacity);
-		//return new Double(acceptanceP);
 	}
-	
+
 	public Double getLoad() {
 		return new Double(runQueue.size());		
-		
+
 	}
-	
-	
-	public Double getArrivals() {
-		return (double)entryQueue.size();
-	}
-	
-	
-	Random rand = new MersenneRandom();
-	
+
+	/**
+	 * 
+	 * @return the rate of arrivals in the last interval
+	 */
+	public abstract Double getArrivals();
+
 	@Override
 	/**
 	 * Check if the request must be rejected as the server has a fixed capacity
@@ -210,28 +143,22 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 */	
 	public boolean delivered(Routing router, Destination destination,
 			Route route, Serializable message) {
-		
-		
 
-		
-//	if(entryQueue.size() < capacity){
-	   if(entryQueue.size() < capacity){
+			return  super.delivered(router, destination, route, message);
 
-//			if(rand.nextDouble() <= acceptanceP){				
-				return super.delivered(router, destination, route, message);
-//			}
-		}		
-		return false;
-		
 	}
 
-		
+
 	public void setBackgroundLoad(Double load){
 		backgroundLoad = load;
 	}
-	
+
+	/**
+	 * Update backgroundLoad. To maintain the same total load distribution across the simulation, 
+	 * each node exchanges its load with another randomly choosen node
+	 */
 	public void updateBackgroundLoad() {
-		
+
 		for(ModelAgent n: model.getAgents()){
 			if(!n.getName().equals(getName())){
 				try {
@@ -244,15 +171,13 @@ public class WebServiceAgent extends ServiceProviderAgent {
 				} catch (ModelException e) {}
 			}
 		}
-		
-		//backgroundLoad = loadStream.nextElement();
-		
+
 	}
-	
+
 	public Double getBackgroundLoad(){
 		return backgroundLoad;
 	}
-	
+
 	/**
 	 * Attend requests in the queue. 
 	 * 
@@ -260,106 +185,70 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 * 
 	 *  This method is assumed to be executed at the beginning of the cycle!
 	 */
-	public void dispatchRequests(){
-			
-		//report terminations from the previous cycle
-		reportTerminations();
-			
-		runQueue.clear();
-		
-		//updateBackgroundLoad();
-		
-		if(entryQueue.size() == 0) {
-			responseTime = 0.0;
-			offeredDemand = 0.0;
-			serviceDemand = 0.0;
-			throughput = 0.0;
-		}
-
-		
-		//number of requests attended in the current dispatch cycle
-		serviceDemand = getAverageServiceDemand();
-		
-		//calculate throughput considering background load
-		throughput = (1.0-backgroundLoad)/serviceDemand;
-			
-		//int servedRequests = (int) Math.min(Math.floor(throughput),entryQueue.size());
-		
-		int servedRequests = entryQueue.size();
-		
-		offeredDemand = serviceDemand*servedRequests;
-		
-		for(int i=0;i<servedRequests;i++) {
-			runQueue.add(entryQueue.remove(0));
-		}
-
-		responseTime = calculatetResponseTime();
-		
-		
-		overlay.getLocalNode().setAttribute("service.load", new Double(runQueue.size()));
-		overlay.getLocalNode().setAttribute("service.arrivals",new Double(entryQueue.size()));
-		overlay.getLocalNode().setAttribute("service.response",getResponseTime());
-		overlay.getLocalNode().setAttribute("utility",getUtility());
-
-		//adjustAcceptanceP();
-		//overlay.getLocalNode().setAttribute("service.acceptanceP", new Double(acceptanceP));
+	public abstract void dispatchRequests();
 	
-		adjustCapacity();
-		overlay.getLocalNode().setAttribute("service.capacity", new Double(capacity));
-
-		
-	}
-
-	Double acceptanceP = 0.5;
-	
-	private void adjustAcceptanceP(){
-
+	protected  void adjustCapacityRatio(){
 
 		updateUtility();
-		
-		acceptanceP = adaptationFunction.adapt(acceptanceP,getUtility(),targetUtility);
+
+		capacityRatio = adaptationFunction.adapt(capacityRatio,getUtility(),targetUtility);
+
+		overlay.getLocalNode().setAttribute("service.capacity.ratio", new Double(capacityRatio));
+
+		adjustCapacity();
 	}		
-		
-	
-	
-	
-	private void adjustCapacity() {
-		
-	  capacity = (int)Math.ceil(maxCapacity*acceptanceP);
-	
+
+
+
+
+	protected  void adjustCapacity() {
+
+		capacity = (int)Math.ceil(maxCapacity*capacityRatio);
+
+		overlay.getLocalNode().setAttribute("service.capacity", new Double(capacity));
+
 
 	}
+
+
+	protected void reportRequestTermination(ServiceRequest request){
 	
-	private void reportTerminations() {
-		
 		Double utility = getUtility();
-		for(ServiceRequest request: runQueue) {
-			try {
-			
-				//ServiceRequest request = runQueue.remove(0);
-	
-			Map attributes = new HashMap();
-			attributes.put("request.qos",request.getQoS());
-			attributes.put("request.demand",request.getServiceDemand());			
-			attributes.put("node.utility",utility);
-			attributes.put("service.response",responseTime);	
-			attributes.put("service.utility.ratio",utility/request.getQoS());	
-			
-			
-			Event event = new ServiceEvent(overlay.getLocalNode(),model.getCurrentTime(),
-					attributes);
-
-			model.getExperiment().reportEvent(event);
-			} catch(IndexOutOfBoundsException e) {
-				log.severe("Error calculating the throughput in the service: IndexOutofbounds");
-			}
 		
+		Map attributes = new HashMap();
+		attributes.put("request.qos",request.getQoS());
+		attributes.put("node.utility",utility);
+		attributes.put("service.utility.ratio",utility/request.getQoS());	
+		attributes.putAll(request.getAttributes());
+		
+		Event event = new ServiceExecutionEvent(overlay.getLocalNode(),model.getCurrentTime(),
+				attributes);
 
-		}
+		model.getExperiment().reportEvent(event);
+
 	}
-	
-	
 
+	Double lastReceived=0.0;
+	Double lastDelivered=0.0;
+	Double acceptanceRate = 1.0;
+
+	public void updateAcceptanceRate(){
+
+		Double deliveredDelta = getDelivered()-lastDelivered;
+		Double recievedDelta =getReceived()-lastReceived;
+		if(recievedDelta > 0.0){
+			acceptanceRate = deliveredDelta/recievedDelta;
+		}
+
+		lastDelivered = getDelivered();
+		lastReceived = getReceived();
+
+		overlay.getLocalNode().getAttributes().put("service.acceptance.rate", new Double(acceptanceRate));
+	}
+
+	public Double getAcceptanceRate(){
+		return acceptanceRate;
+	}
 
 	/**
 	 * Calculates the current service rate based on the arrivals and the average service rate 
@@ -367,109 +256,40 @@ public class WebServiceAgent extends ServiceProviderAgent {
 	 * 
 	 * @return
 	 */
+	/**
+	 * Calculates the current service rate based on the arrivals and the average service rate 
+	 * adjusted with the background load.
+	 * 
+	 * @return
+	 */
 	public Double getUtilization(){
-	   
-		return offeredDemand+backgroundLoad;
+
+		return getOfferedDemand()+backgroundLoad;
 
 	}
-	
-	
+
 	/**
 	 * Returns the processor's utilization demanded for the tasks in the runQueue,
 	 * independently of any other background load.
 	 * 
 	 * @return
 	 */
-	public Double getOfferedDemand() {
-		
-		return offeredDemand;
-	}
-		
-	public Double getResponseTime() {
-		return responseTime;
-	}
-	
-	/**
-	 * 
-	 * Used the analytical formula for the response time, but substitutes the utilization
-	 * factor (offered demand) adding also the background load.
-	 * 
-	 * Returns the average response time using little's law
-	 * 
-	 * @return 
-	 */
-	public Double calculatetResponseTime(){
-            
-		if(runQueue.size() == 0) {
-			return 0.0;
-		}
-		
-		//return runQueue.size()/getThroughput();
-		
-		Double u = getUtilization();
-		Double responseTime = (Math.pow(u,capacity+1)*(capacity*u-capacity-1)+u)/ 
-		((double)runQueue.size()*(1.0-Math.pow(u, capacity))*(1.0-u));		
+	public abstract Double getOfferedDemand();
 
-		if(responseTime < 0.0){
-			System.out.print("");
-		}
- 		return responseTime;
-	}
-
-	
 	/**
-	 * Returns the throughput considering the backgroud load, using the
-	 * operational utilization law  U = X*S  and then
-	 *                              X = U/S
+	 * Returns the (average) response time 
 	 * @return
 	 */
-	public Double getThroughput() {
-		return throughput;
-	}
-	
-	
-	/**
-	 * Returns the total service demand from the requests currently in execution
-	 * 
-	 * @return
-	 */
-	public Double getAverageServiceDemand() {
+	public abstract Double getResponseTime();
 
-		if(entryQueue.size() == 0) {
-			return 0.0;
-		}
 
-		Double serviceDemand = 0.0;
-		for(ServiceRequest r: entryQueue) {
-			serviceDemand += r.getServiceDemand();
-		}
-		
-		return serviceDemand/(double)entryQueue.size();
-		
-	}
-	
 
-	
-	public Double getUtility(){
-	
-		return utilityFuction.getUtility(overlay.getLocalNode());
-		
+	public Double getCapacityRatio(){
+		return capacityRatio;
+
 	}
-	
-	
-	public void startDebug() {
-		System.out.println();
-	}
-	
-		
-	
-	public Double getAcceptanceRate(){
-		return acceptanceP;
-		
-	}
-	
-	public void updateAcceptanceRate(){
-		adjustAcceptanceP();
-		overlay.getLocalNode().setAttribute("service.acceptanceP", new Double(acceptanceP));
+
+	public void updateCapacityRatio(){
+		adjustCapacityRatio();
 	}
 }

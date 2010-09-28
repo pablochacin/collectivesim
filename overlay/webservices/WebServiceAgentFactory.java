@@ -57,9 +57,13 @@ public class WebServiceAgentFactory extends OverlayAgentFactory {
 	@Override
 	protected OverlayAgent createOverlayAgent(OverlayModel model, Overlay overlay) {		
 		
-			return new WebServiceAgent(model,overlay,overlay.getLocalNode().getId(),
-					                   getUtilityFunction(),getTarget(),getAdaptationFunction(),requestLimit,serviceRate,getLoadStream());
-				
+			//return new DiscreteTimeWebServiceAgent(model,overlay,overlay.getLocalNode().getId(),
+			//		                   getUtilityFunction(),getTarget(),getAdaptationFunction(),requestLimit,getLoadStream(),serviceRate);
+			
+			
+			return new DiscreteEventWebServiceAgent(model,overlay,overlay.getLocalNode().getId(),
+	                   getUtilityFunction(),getTarget(),getAdaptationFunction(),requestLimit,getLoadStream(),1000,100.0);
+
 	}
 
 
@@ -78,7 +82,7 @@ public class WebServiceAgentFactory extends OverlayAgentFactory {
 	
 	
 	private AdaptationFunction getAdaptationFunction(){
-		return new ProbabilisticAdaptation(0.0,1.0,0.1,0.05,0.25);
+		return new ProbabilisticAdaptation(0.0,1.0,0.5,0.05,0.25);
 		//return new BoundedRationalityAdaptation(0.0,1.0,0.1,0.05);
 	}
 	
