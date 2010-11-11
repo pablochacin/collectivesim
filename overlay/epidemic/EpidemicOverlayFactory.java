@@ -69,15 +69,15 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 		
 		//RankFunction ranking = new UtilityDistanceRankFunction();
 		//RankFunction ranking = new UtilityRankFunction();	
-		//RankFunction ranking = new AttributeRankFunction("service.acceptance.rate");
+		RankFunction ranking = new AttributeRankFunction("service.acceptance.rate");
 		//RankFunction ranking = new RealCapacityRankFunction();
-		RankFunction ranking = new CapacityRankFunction();
+		//RankFunction ranking = new CapacityRankFunction();
 		//RankFunction ranking = new AcceptanceRatioRankFunction();
 		
 		//RoutingAlgorithm algorithm = new GreedyRoutingAlgorithm(topology,ranking);
-		//RoutingAlgorithm algorithm = new ProbabilisticRoutingAlgorithm(topology,ranking);
+		RoutingAlgorithm algorithm = new ProbabilisticRoutingAlgorithm(topology,ranking);
 		//RoutingAlgorithm algorithm = new TwoChoicesRoutingAlgorithm(topology,ranking);
-		RoutingAlgorithm algorithm = new RoundRobinRoutingAlgorithm(topology);
+		//RoutingAlgorithm algorithm = new RoundRobinRoutingAlgorithm(topology);
 		//RoutingAlgorithm algorithm = new RandomRoutingAlgorithm(topology);
 
 		Router router = new GenericRouter("overlay.router",node,admission,algorithm,node.getTransport(),false,ttl);
