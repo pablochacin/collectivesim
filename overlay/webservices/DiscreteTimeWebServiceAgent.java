@@ -142,8 +142,8 @@ public class DiscreteTimeWebServiceAgent extends WebServiceAgent {
 
 
 
-		//if(entryQueue.size() < capacity){
-		if(entryQueue.size() < maxCapacity){
+		if(entryQueue.size() < capacity){
+		//if(entryQueue.size() < maxCapacity){
 
 			return  super.delivered(router, destination, route, message);
 		}		

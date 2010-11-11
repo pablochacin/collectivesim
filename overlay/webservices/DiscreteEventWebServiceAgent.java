@@ -73,6 +73,7 @@ public class DiscreteEventWebServiceAgent extends WebServiceAgent {
 	public boolean delivered(Routing router, Destination destination,
 			Route route, Serializable message) {
 
+	//	if(runQueue.size() < maxCapacity){
 		if(runQueue.size() < capacity){
 			return super.delivered(router, destination, route, message);
 		}
