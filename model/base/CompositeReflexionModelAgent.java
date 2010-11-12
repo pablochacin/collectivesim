@@ -75,7 +75,7 @@ public class CompositeReflexionModelAgent extends ReflexionModelAgent {
 
 	
 	@Override
-	public Object getAttribute(String attribute) throws ModelException {
+	public Object inquire(String attribute) throws ModelException {
 
 		String accessor = "get"+attribute;
 

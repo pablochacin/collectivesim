@@ -1,5 +1,10 @@
 package edu.upc.cnds.collectivesim.model.base;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectives.util.ReflectionUtils;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
@@ -7,7 +12,7 @@ import edu.upc.cnds.collectivesim.model.ModelException;
 
 /**
  * Implements a ModelAgent by delegating to a target object using 
- * reflexion.  This allows using any class as a Model Agent.
+ * reflection.  This allows using any class as a Model Agent.
  * 
  * The target must expose attributes by means of getter methods.
  * 
@@ -33,6 +38,12 @@ public class ReflexionModelAgent implements ModelAgent {
 	private String name;
 	
 	/**
+	 * Attributes exposed by this agent
+	 */
+	protected String[] attributes;
+
+	
+	/**
 	 * Constructor without parameters. Used for convenience.
 	 * Assumes the name of the class as the type and the object itself as
 	 * its own target. Useful for classes that extend this base class and don't
@@ -53,6 +64,7 @@ public class ReflexionModelAgent implements ModelAgent {
 	public ReflexionModelAgent(String name) {
 		this.name = name;
 		this.target = this;
+		this.attributes = getAttributeNames(this);
 
 	}
 	
@@ -64,8 +76,7 @@ public class ReflexionModelAgent implements ModelAgent {
 	 * @param target
 	 */
 	public ReflexionModelAgent(Object target) {
-		this.name = generateName(target);
-		this.target = target;
+		this(generateName(target),target);
 	}
 		
 	/**
@@ -77,10 +88,40 @@ public class ReflexionModelAgent implements ModelAgent {
 	 * @param name
 	 * @param target
 	 */
-	public ReflexionModelAgent(String name, Object target) {
+	public ReflexionModelAgent(String name, Object target,String ... attributes) {
 		this.name = name;
 		this.target = target;
+		
+		
+		if((attributes != null) && (attributes.length > 0)){
+			this.attributes = attributes;
+		}
+		else{			
+			attributes = getAttributeNames(this);
+		}
+		
 	}
+	
+	
+	/**
+	 * Retrieves the names of the attributes accessible by getter methods
+	 * 
+	 * @param object the Object from which the getters must be extracted
+	 * 
+	 * @return
+	 */
+	private static String[] getAttributeNames(Object object){
+		//if no attributes are defined, expose all attributes exposed by get methods		
+		List<Method>getters = ReflectionUtils.getGetters(object.getClass());
+		String[] names = new String[getters.size()];
+		for(int i=0;i<names.length;i++){
+			//get the name without the "get"
+			names[i] = getters.get(i).getName().substring(3);
+		}
+		
+		return names;
+	}
+	
 	
 	/**
 	 * Generates an agent name from the agent's classname and a correlative number.
@@ -90,7 +131,7 @@ public class ReflexionModelAgent implements ModelAgent {
 	 *  
 	 * @return a name composed of the class name and a correlative
 	 */
-	private String generateName(Object obj){
+	private static String generateName(Object obj){
 		return obj.getClass().getSimpleName()+"-"+agentCounter++;
 	}
 
@@ -111,7 +152,32 @@ public class ReflexionModelAgent implements ModelAgent {
 		
 	}
 
-	public Object getAttribute(String attribute) throws ModelException{
+	
+	@Override
+	public String[] getAttributeNames(){
+		return attributes;
+	}
+	
+	@Override
+	public Map<String,Object> inquire(){
+		
+		Map<String,Object> attributes = new HashMap<String,Object>();
+		for(String a: getAttributeNames()){
+			try {
+				attributes.put(a,inquire(a));
+			} catch (ModelException e) {
+				//ignore if an attribute is not available
+			}
+			
+		}
+		
+		return attributes;
+	}
+	
+	public Object inquire(String attribute) throws ModelException{
+		
+		//TODO: first should check if the attribute is accessible (is in the attributes array)
+		
 		String getter = "get"+ attribute;
 		try {
 			return ReflectionUtils.invoke(target, getter, new Object[0]);

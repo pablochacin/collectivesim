@@ -1,5 +1,7 @@
 package edu.upc.cnds.collectivesim.model;
 
+import java.util.Map;
+
 /**
  * Represent the interface to the model agent: an entity that exposes attributes
  * and methods to the simulation model.
@@ -15,6 +17,13 @@ public interface ModelAgent {
 	 */
 	public String getName();
 	
+	
+	/**
+	 * 
+	 * @return an array with the name of the attributes exposed by the agent.
+	 */
+	public String[] getAttributeNames();
+	
 	/**
 	 * 
 	 * Inquire an attribute of the agent.
@@ -25,8 +34,14 @@ public interface ModelAgent {
 	 * 
 	 * @throws AgentException if the attribute is not exposed by the agent
 	 */
-	public Object getAttribute(String attribute) throws ModelException;
+	public Object inquire(String attribute) throws ModelException;
 	
+	
+	/**
+	 * Returns all the attributes exposed by the agent
+	 * @return
+	 */
+	public Map<String,Object>inquire();
 	
 	/**
 	 * Handle the invocation of a method in the agent
@@ -58,6 +73,8 @@ public interface ModelAgent {
 	 * Finalize the Agent. Called after the Model has been stoped. 
 	 */
 	public void finish();
+
+
 	
 	
 }

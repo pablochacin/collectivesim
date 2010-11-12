@@ -72,7 +72,7 @@ public class ObserverVisitor extends AgentVisitor{
 		Map<String,Object>agentAttributes = new HashMap<String,Object>();
 		for(String attribute: attributes){
 			try {
-				agentAttributes.put(attribute,agent.getAttribute(attribute));
+				agentAttributes.put(attribute,agent.inquire(attribute));
 				
 			} catch (ModelException e) {
 				log.warning("Exception accessing attribute [" + attribute + "] from observer" + name + 
