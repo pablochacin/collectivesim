@@ -48,8 +48,8 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 	
 	protected boolean active = true;
 	
-	public UnderlayModelNode(UnderlayModel underlay,Identifier id, UnderlayAddress address,UnderlayModelTransportDynamicProxy transport,Map attributes) {
-		super(id,address,attributes);
+	public UnderlayModelNode(UnderlayModel underlay,UnderlayAddress address,UnderlayModelTransportDynamicProxy transport) {
+		super(address);
 		this.underlay= underlay;
 		this.transport = transport;
 		this.transport.install(this);
@@ -62,11 +62,10 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 	
 
 
-	public List<Node> getKnownNodes() {
-		List<Node> neighbors = new ArrayList<Node>();
-		for(UnderlayNode n: underlay.getKnownNodes(this)){
-			neighbors.add(n.getReference());
-		}
+	public List<UnderlayAddress> getKnownNodes() {
+		List<UnderlayAddress> neighbors = new ArrayList<UnderlayAddress>();
+		
+		neighbors.addAll(underlay.getKnownNodes(this));
 		
 		return neighbors;
 	}
@@ -151,9 +150,7 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 		UnderlayNode target = underlay.getNode(node.getId());
 		if(target == null)
 			return false;
-		
-		node.setAttributes(target.getAttributes());
-		
+				
 		return true;
 		
 	}
@@ -166,7 +163,6 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 		underlay.removeNode(this);
 		
 	}
-
 
 
 

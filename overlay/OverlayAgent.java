@@ -1,6 +1,7 @@
 package edu.upc.cnds.collectivesim.overlay;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.overlay.Overlay;
+import edu.upc.cnds.collectives.overlay.OverlayHandler;
 import edu.upc.cnds.collectives.overlay.epidemic.EpidemicOverlay;
 import edu.upc.cnds.collectives.routing.Destination;
 import edu.upc.cnds.collectives.routing.RouteObserver;
@@ -22,7 +24,9 @@ import edu.upc.cnds.collectives.routing.Routing;
 import edu.upc.cnds.collectives.routing.RoutingEvent;
 import edu.upc.cnds.collectives.routing.base.Route;
 import edu.upc.cnds.collectives.topology.TopologyObserver;
+import edu.upc.cnds.collectives.util.ReflectionUtils;
 import edu.upc.cnds.collectives.util.UniqueArrayList;
+import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.base.CompositeReflexionModelAgent;
 import edu.upc.cnds.collectivesim.state.Counter;
 
@@ -32,7 +36,7 @@ import edu.upc.cnds.collectivesim.state.Counter;
  * @author Pablo Chacin
  *
  */
-public class OverlayAgent extends CompositeReflexionModelAgent implements TopologyObserver, RouteObserver {
+public class OverlayAgent extends CompositeReflexionModelAgent implements TopologyObserver, RouteObserver,OverlayHandler {
 	
 	protected static Logger log = Logger.getLogger("colectivesim.overlay");
 		
@@ -46,8 +50,6 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	
 	protected Counter delivered;
 	
-
-	
 	protected Counter unreachable;
 	
 	protected Counter received;
@@ -58,6 +60,7 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	
 	protected boolean active = false;
 	
+
 	/**
 	 * 
 	 * @param model
@@ -79,7 +82,7 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 		this.unreachable= model.getExperiment().getCounter("routing.unreachable").getChild();
 		this.undeliverable= model.getExperiment().getCounter("routing.undeliverable").getChild();		
 		this.received= model.getExperiment().getCounter("routing.received").getChild();
-
+		
 	}
 	
 	
@@ -102,7 +105,7 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	 */
 	public void leave(){
 	
-		overlay.getLocalNode().leave();
+		overlay.getUnderlayNode().leave();
 		model.nodeLeave(this);
 		active = false;
 	}
@@ -460,6 +463,23 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	
 	public Double getOutDegree(){
 		return (double)getActiveNeighbors().size();
+	}
+
+
+	@Override
+	public Map<String, Object> getAttributes() {
+	 
+		return inquire();
+	}
+
+
+	@Override
+	public Object getAttribute(String attribute) {
+		try {
+			return inquire(attribute);
+		} catch (ModelException e) {
+			return null;
+		}
 	}
 	
 	

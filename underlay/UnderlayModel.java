@@ -2,19 +2,21 @@ package edu.upc.cnds.collectivesim.underlay;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.metrics.Metric;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.underlay.Underlay;
+import edu.upc.cnds.collectives.underlay.UnderlayAddress;
 import edu.upc.cnds.collectives.underlay.UnderlayEvent;
 import edu.upc.cnds.collectives.underlay.UnderlayException;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
 import edu.upc.cnds.collectives.util.FormattingUtils;
+import edu.upc.cnds.collectivesim.CollectiveSim;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.AgentFactory;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
@@ -26,7 +28,8 @@ import edu.upc.cnds.collectivesim.underlay.Grid2D.UnderlayModelException;
 
 /**
  * Implements a simulated Underlay. Nodes of the underlay are modeled as {@link ModelAgent}s to allow 
- * the implementation of behaviors and observers.
+ * the implementation of behaviors (Like mobility, for instance) and observers to analyze its
+ * behavior (e.g. network traffict).
  * 
  * @author Pablo Chacin
  *
@@ -87,42 +90,37 @@ public class UnderlayModel extends BasicModel implements Underlay {
 
 		
 		//Inform all neighbors of the lost node
-		for(Node n : getKnownNodes(node)) {
-			((UnderlayModelNode)n).notifyNodeLost(node);
+		for(UnderlayAddress a : getKnownNodes(node)) {
+			UnderlayModelNode neighbor= (UnderlayModelNode) getAgent(a.toString());
+			neighbor.notifyNodeLost(node.getAddress());
 		}
 	
 
 		topology.removeNode(node);
 
-		nodes.remove(node.getId().toString());
+		nodes.remove(node.getAddress().toString());
 		
-		super.removeAgent(node.getId().toString());
+		super.removeAgent(node.getAddress().toString());
 
 	}
 
 	
+		
 	@Override
-	public UnderlayNode createNode(Identifier id) throws UnderlayException {
-		return createNode(id,Collections.EMPTY_MAP);
-	}
-	
-	
-	@Override
-	public UnderlayNode createNode(Identifier id,Map attributes) throws UnderlayException {
+	public UnderlayNode createNode() throws UnderlayException {
 		
 		UnderlayModelTransportDynamicProxy transport = new UnderlayModelTransportDynamicProxy(this);
 		
-		UnderlayModelNode node = new UnderlayModelNode(this,id,new UnderlayModelNodeAddress(""),transport,attributes);
-
-		node.getAttributes().put("id", id);
 		
-		addAgent(id.toString(),node);
+		UnderlayModelNode node =new UnderlayModelNode(this,new UnderlayModelNodeAddress(),transport);
+		
+		addAgent(node.getAddress().toString(),node);
 		
 		try {
 
 			topology.addNode(node);
 			
-			nodes.put(id.toString(), node);
+			nodes.put(node.getAddress().toString(), node);
 
 			return node;
 		} catch (UnderlayModelException e) {
@@ -139,9 +137,12 @@ public class UnderlayModel extends BasicModel implements Underlay {
 		UnderlayModelNode node = nodes.get(agent.getName());
 
 		//Inform all neighbors of the new node
-		for(Node n : topology.getKnownNodes(node)) {
-			((UnderlayModelNode)n).notifyNodeDiscovered(node);
+		for(UnderlayAddress a : getKnownNodes(node)) {
+			UnderlayModelNode neighbor= (UnderlayModelNode) getAgent(a.toString());
+			neighbor.notifyNodeDiscovered(node.getAddress());
 		}
+	
+	
 
 		//report the creation of a new node in the underlay
 
@@ -168,8 +169,14 @@ public class UnderlayModel extends BasicModel implements Underlay {
 	 * @param topology
 	 * @return
 	 */
-	public List<UnderlayNode> getKnownNodes(UnderlayNode node){
-		return topology.getKnownNodes(node);
+	public List<UnderlayAddress> getKnownNodes(UnderlayNode node){
+		List<UnderlayAddress> nodes = new ArrayList<UnderlayAddress>();
+		
+		for(UnderlayNode n: topology.getKnownNodes(node)){
+			nodes.add(n.getAddress());
+		}
+		
+		return nodes;
 	}
 
 	@Override
@@ -178,8 +185,8 @@ public class UnderlayModel extends BasicModel implements Underlay {
 	}
 
 	
-	public UnderlayNode getNode(Identifier id){
-		return nodes.get(id.toString());
+	public UnderlayNode getNode(String location){
+		return nodes.get(location);
 	}
 
 	@Override
@@ -191,6 +198,7 @@ public class UnderlayModel extends BasicModel implements Underlay {
 		
 		topology.reset();
 	}
+
 
 	
 	

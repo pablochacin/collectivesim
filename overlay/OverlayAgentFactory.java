@@ -4,6 +4,7 @@ import java.util.Map;
 
 import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.overlay.Overlay;
+import edu.upc.cnds.collectives.overlay.OverlayException;
 import edu.upc.cnds.collectives.underlay.Underlay;
 import edu.upc.cnds.collectives.underlay.UnderlayException;
 import edu.upc.cnds.collectivesim.model.AgentFactory;
@@ -29,8 +30,6 @@ public class OverlayAgentFactory implements AgentFactory<Model<? extends Overlay
 
 	protected OverlayFactory factory;
 	
-	protected Underlay underlay;
-	
 	protected Stream<Identifier> ids;
 	
 	
@@ -40,10 +39,9 @@ public class OverlayAgentFactory implements AgentFactory<Model<? extends Overlay
 	 * @param factory
 	 * @param underlay
 	 */
-	public OverlayAgentFactory(OverlayFactory factory, Underlay underlay,Stream<Identifier> ids) {
+	public OverlayAgentFactory(OverlayFactory factory, Stream<Identifier> ids) {
 		super();
 		this.factory = factory;
-		this.underlay = underlay;
 		this.ids = ids;
 	}
 
@@ -54,14 +52,15 @@ public class OverlayAgentFactory implements AgentFactory<Model<? extends Overlay
 		Overlay overlay;
 		try {
 			Identifier id = ids.nextElement();
-			overlay = factory.getOverlay(underlay.createNode(id));
+			overlay = factory.getOverlay(id);
 	
 		
 			OverlayAgent agent = createOverlayAgent((OverlayModel)model,overlay);
+			overlay.setHandler(agent);
 			
 			return agent;
-		} catch (UnderlayException e) {
-			throw new ModelException("Exception creating underlay node",e);
+		}catch (OverlayException e) {
+			throw new ModelException("Exception creating overlay node",e);
 		}
 	}
 	

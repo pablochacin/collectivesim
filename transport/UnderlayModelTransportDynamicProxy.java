@@ -10,6 +10,7 @@ import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.protocol.Protocol;
 import edu.upc.cnds.collectives.transport.TransportException;
 import edu.upc.cnds.collectives.transport.base.DynamicProxyTransport;
+import edu.upc.cnds.collectives.underlay.UnderlayAddress;
 import edu.upc.cnds.collectives.util.ReflectionUtils;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModel;
 import edu.upc.cnds.collectivesim.underlay.UnderlayModelNode;
@@ -67,20 +68,20 @@ public class UnderlayModelTransportDynamicProxy extends DynamicProxyTransport {
 	 * This method is invoked by the protocol proxy to actually invoke a method in a remote
 	 * node. 
 	 */
-	protected void invoke(Node target, Protocol protocol,Method method, Object[] args) throws TransportException {
+	protected void invoke(UnderlayAddress target, Protocol protocol,Method method, Object[] args) throws TransportException {
 		
 		 // get the destination Node
-		 UnderlayModelNode targetNode = (UnderlayModelNode)underlay.getNode(target.getId());
+		 UnderlayModelNode targetNode = (UnderlayModelNode)underlay.getNode(target.getLocation());
 		
 		 if(targetNode == null){
-			 throw new TransportException("Target Node not found [" + target.getId()+"]");
+			 throw new TransportException("Target Node not found [" + target.getLocation()+"]");
 		 }
 		 
 		 if(deliveryFails(node, targetNode)){
-			notifyUndeliverable(node, targetNode, protocol.getName(), new Exception("Delivery failed")); 
+			notifyUndeliverable(node, target, protocol.getName(), new Exception("Delivery failed")); 
 		 }
 		 else{
-			Long delay = getDelay(node,targetNode);
+			Long delay = getDelay(node,target);
 	
 					 
 			 //node.sendTransportMessage(targetNode,delay,protocol.getName(),method.getName(),args);
@@ -102,7 +103,7 @@ public class UnderlayModelTransportDynamicProxy extends DynamicProxyTransport {
 	 *
 	 * @return the delivery time for the invocation
 	 */
-	protected long getDelay(UnderlayModelNode source,UnderlayModelNode target){
+	protected long getDelay(UnderlayModelNode source,UnderlayAddress target){
 		return 1;
 	}
 
@@ -119,4 +120,5 @@ public class UnderlayModelTransportDynamicProxy extends DynamicProxyTransport {
 	protected boolean deliveryFails(UnderlayModelNode source, UnderlayModelNode target){
 		return false;
 	}
+
 }

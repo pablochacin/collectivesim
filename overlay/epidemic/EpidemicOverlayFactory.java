@@ -1,6 +1,12 @@
 package edu.upc.cnds.collectivesim.overlay.epidemic;
 
+import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.overlay.Overlay;
+import edu.upc.cnds.collectives.overlay.OverlayException;
+import edu.upc.cnds.collectives.overlay.OverlayHandler;
+import edu.upc.cnds.collectives.overlay.base.BasicDiscoveryProtocol;
+import edu.upc.cnds.collectives.overlay.base.DiscoveryProtocol;
+import edu.upc.cnds.collectives.overlay.base.OverlayNode;
 import edu.upc.cnds.collectives.overlay.epidemic.EpidemicOverlay;
 import edu.upc.cnds.collectives.routing.AdmissionFunction;
 import edu.upc.cnds.collectives.routing.RankFunction;
@@ -21,7 +27,10 @@ import edu.upc.cnds.collectives.routing.utility.ToleranceRestrictedAdmissionFunc
 import edu.upc.cnds.collectives.topology.Topology;
 import edu.upc.cnds.collectives.topology.distance.DistanceSpace;
 import edu.upc.cnds.collectives.topology.distance.DistanceTopology;
+import edu.upc.cnds.collectives.underlay.Underlay;
+import edu.upc.cnds.collectives.underlay.UnderlayException;
 import edu.upc.cnds.collectives.underlay.UnderlayNode;
+import edu.upc.cnds.collectives.util.RandomSelector;
 import edu.upc.cnds.collectivesim.overlay.OverlayFactory;
 /**
  * Encapsulates the general algorithm to create an Epidemic Overlay formed by a Distance based topology
@@ -32,38 +41,51 @@ import edu.upc.cnds.collectivesim.overlay.OverlayFactory;
  */
 public class EpidemicOverlayFactory implements OverlayFactory {
 
-	int distanceViewSize;
+	int viewSize;
 		
-	int distanceViewExchangeSize;
+	int exchangeSize;
 	
 	int ttl;
 	
 	DistanceSpace space;
 	
+	String name;
 	
-	public EpidemicOverlayFactory(int distanceViewSize, int distanceViewExchangeSize, int ttl,
+	Underlay underlay;
+	
+	public EpidemicOverlayFactory(String name,Underlay underlay, int viewSize, int exchangeSize, int ttl,
 			DistanceSpace space) {
 		super();
-		this.distanceViewSize = distanceViewSize;
-		this.distanceViewExchangeSize = distanceViewExchangeSize;
+		this.name = name;
+		this.viewSize = viewSize;
+		this.exchangeSize = exchangeSize;
 		this.ttl = ttl;
 		this.space = space;
+		this.underlay =underlay;
 
 	}
 
 
 
 	@Override
-	public Overlay getOverlay(UnderlayNode node) {
+	public Overlay getOverlay(Identifier id) throws OverlayException {
 		
 		
-				
-		Topology topology = new DistanceTopology(node,null,distanceViewSize,false,space);	
+		UnderlayNode underlayNode;
+		try {
+			underlayNode = underlay.createNode();
+		} catch (UnderlayException e) {
+			throw new OverlayException("Unable to create Underlay node",e);
+		}
+		
+		OverlayNode node = new OverlayNode(id,underlayNode);
+		
+		Topology topology = new DistanceTopology(node,null,viewSize,false,space);	
 		//Topology topology = new AdaptiveDistanceTopology(node,null,distanceViewSize,false,space);
 		
 		
-		RoutingAlgorithm epidemicRouting = new EpidemicRoutingAlgorithm(topology,distanceViewExchangeSize);
-		Routing updateRouter = new GenericRouter("TopologyUpdateRouter",node,epidemicRouting,node.getTransport(),1);
+		RoutingAlgorithm epidemicRouting = new EpidemicRoutingAlgorithm(topology,exchangeSize);
+		Routing updateRouter = new GenericRouter("TopologyUpdateRouter",node,epidemicRouting,1);
 				
 		AdmissionFunction admission = new ToleranceRestrictedAdmissionFunction();
 		
@@ -80,13 +102,24 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 		//RoutingAlgorithm algorithm = new RoundRobinRoutingAlgorithm(topology);
 		//RoutingAlgorithm algorithm = new RandomRoutingAlgorithm(topology);
 
-		Router router = new GenericRouter("overlay.router",node,admission,algorithm,node.getTransport(),false,ttl);
+		Router router = new GenericRouter(name+".router",node,admission,algorithm,false,ttl);
 		//Router router = new AdativeRouter("overlay.router",node,admission,algorithm,node.getTransport(),false,ttl,(AdaptiveTopology) topology);
 		
-		Overlay overlay = new EpidemicOverlay(node,topology,updateRouter,router);
+		DiscoveryProtocol discovery = new BasicDiscoveryProtocol(name+".discovery", topology, new RandomSelector());
+		
+		Overlay overlay = new EpidemicOverlay(name, node,topology,updateRouter,discovery, router);
 					
 		return overlay;
 
+	}
+
+
+
+	@Override
+	public Overlay getOverlay(Identifier id,OverlayHandler handler) throws OverlayException {
+		Overlay overlay = getOverlay(id);
+		overlay.setHandler(handler);
+		return overlay;
 	}
 	
 	
