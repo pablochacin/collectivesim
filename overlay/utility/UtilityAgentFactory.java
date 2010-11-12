@@ -34,11 +34,11 @@ public class UtilityAgentFactory extends OverlayAgentFactory {
 	protected Stream<Double>trend;
 	
 	
-	public UtilityAgentFactory(OverlayFactory factory, Underlay underlay,
+	public UtilityAgentFactory(OverlayFactory factory, 
 			                   Stream<Identifier>ids,Stream<Double>utility,Stream<Double>initialTrend,
 			                   Stream<Double>drift,Stream<Double>variation,Stream<Double>trend) {
 		
-		super(factory, underlay,ids);
+		super(factory, ids);
 		
 		this.utility = utility;
 		this.initialTrend = initialTrend;
