@@ -41,7 +41,7 @@ public class WebServiceAgentFactory extends OverlayAgentFactory {
 			Stream<Identifier> ids,Integer requestLimit,Double serviceRate,
 			Double targetServiceTime,Double alpha,Double minLoad,Double maxLoad,Double variation,Double trend,Double drift) {
 		
-		super(factory, underlay, ids);
+		super(factory, ids);
 		this.requestLimit = requestLimit;
 		this.serviceRate = serviceRate;
 		this.targetServiceTime = targetServiceTime;

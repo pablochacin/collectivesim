@@ -24,12 +24,12 @@ public class ServiceEntryAgentFactory extends OverlayAgentFactory {
 	
 	protected Stream<Double>tolerance;
 
-	public ServiceEntryAgentFactory(OverlayFactory factory, Underlay underlay,
+	public ServiceEntryAgentFactory(OverlayFactory factory, 
 			                   Stream<Identifier>ids,
 			                   Stream<Double> preference,
 			                   Stream<Double> tolerance) {
 		
-			super(factory, underlay,ids);
+			super(factory, ids);
 							   
 			this.preference = preference;
 			this.tolerance = tolerance;

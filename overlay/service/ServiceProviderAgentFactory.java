@@ -25,7 +25,7 @@ public class ServiceProviderAgentFactory extends UtilityAgentFactory {
 			                   Stream<Double>utility,Stream<Double>initialTrend,
 			                   Stream<Double>drift,Stream<Double>variation,Stream<Double>trend) {
 		
-		super(factory, underlay,ids,utility,initialTrend,drift,variation,trend);
+		super(factory, ids,utility,initialTrend,drift,variation,trend);
 	}
 
 	
