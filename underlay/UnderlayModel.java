@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
-import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.metrics.Metric;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.underlay.Underlay;
@@ -40,13 +38,13 @@ public class UnderlayModel extends BasicModel implements Underlay {
 	/**
 	 * Maintains a mapping of agent names to UndelayModelNodes.
 	 */
-	protected Map<String,UnderlayModelNode> nodes;
+	protected Map<UnderlayAddress,UnderlayModelNode> nodes;
 	
 	protected NetworkTopology topology;
 
 	public UnderlayModel(String name,Experiment experiment, NetworkTopology topology,AgentFactory factory,int numNodes,Stream...attributeStreams) {
 		super(name,experiment,factory, numNodes);
-		this.nodes = new HashMap<String,UnderlayModelNode>();
+		this.nodes = new HashMap<UnderlayAddress,UnderlayModelNode>();
 		this.topology = topology;
 
 	}
@@ -120,7 +118,7 @@ public class UnderlayModel extends BasicModel implements Underlay {
 
 			topology.addNode(node);
 			
-			nodes.put(node.getAddress().toString(), node);
+			nodes.put(node.getAddress(), node);
 
 			return node;
 		} catch (UnderlayModelException e) {
@@ -185,8 +183,8 @@ public class UnderlayModel extends BasicModel implements Underlay {
 	}
 
 	
-	public UnderlayNode getNode(String location){
-		return nodes.get(location);
+	public UnderlayNode getNode(UnderlayAddress address){
+		return nodes.get(address);
 	}
 
 	@Override

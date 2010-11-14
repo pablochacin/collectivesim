@@ -86,9 +86,9 @@ public abstract class WebServiceAgent extends ServiceProviderAgent {
 	protected Double targetUtility;
 
 	
-	public WebServiceAgent(OverlayModel model, Overlay overlay, Identifier id,
+	public WebServiceAgent(OverlayModel model, Overlay overlay, Identifier id,String attributes[],
 			UtilityFunction utilityFunction,Double targetUtility,AdaptationFunction adaptationFunction,Integer maxCapacity,Stream<Double> loadStream) {
-		super(model, overlay, id, utilityFunction);	
+		super(model, overlay, id, attributes,utilityFunction);	
 
 		this.targetUtility = targetUtility;
 		this.maxCapacity = maxCapacity;
@@ -101,12 +101,6 @@ public abstract class WebServiceAgent extends ServiceProviderAgent {
 		runQueue = new ArrayList<ServiceRequest>(maxCapacity);
 
 		adjustCapacity();
-
-		overlay.getLocalNode().getAttributes().put("service.time", 0.0);
-		overlay.getLocalNode().getAttributes().put("service.capacity", new Double(capacity));
-		overlay.getLocalNode().getAttributes().put("service.capacity.ratio", new Double(capacityRatio));		
-		overlay.getLocalNode().getAttributes().put("service.acceptance.rate", new Double(acceptanceRate));
-
 
 	}
 
@@ -162,7 +156,7 @@ public abstract class WebServiceAgent extends ServiceProviderAgent {
 		for(ModelAgent n: model.getAgents()){
 			if(!n.getName().equals(getName())){
 				try {
-					Double load = (Double)n.getAttribute("BackgroundLoad");
+					Double load = (Double)n.inquire("BackgroundLoad");
 					if(Math.abs(getBackgroundLoad() - load) <= 0.1){
 						n.execute("setBackgroundLoad",new Object[]{getBackgroundLoad()});
 						setBackgroundLoad(load);
@@ -193,8 +187,6 @@ public abstract class WebServiceAgent extends ServiceProviderAgent {
 
 		capacityRatio = adaptationFunction.adapt(capacityRatio,getUtility(),targetUtility);
 
-		overlay.getLocalNode().setAttribute("service.capacity.ratio", new Double(capacityRatio));
-
 		adjustCapacity();
 	}		
 
@@ -205,8 +197,6 @@ public abstract class WebServiceAgent extends ServiceProviderAgent {
 
 		capacity = (int)Math.ceil(maxCapacity*capacityRatio);
 
-		overlay.getLocalNode().setAttribute("service.capacity", new Double(capacity));
-
 
 	}
 
@@ -216,12 +206,12 @@ public abstract class WebServiceAgent extends ServiceProviderAgent {
 		Double utility = getUtility();
 		
 		Map attributes = new HashMap();
-		attributes.put("request.qos",request.getQoS());
-		attributes.put("node.utility",utility);
-		attributes.put("service.utility.ratio",utility/request.getQoS());	
+		attributes.put("QoS",request.getQoS());
+		attributes.put("Utility",utility);
+		attributes.put("UtilityRatio",utility/request.getQoS());	
 		attributes.putAll(request.getAttributes());
 		
-		Event event = new ServiceExecutionEvent(overlay.getLocalNode(),model.getCurrentTime(),
+		Event event = new ServiceExecutionEvent(this,model.getCurrentTime(),
 				attributes);
 
 		model.getExperiment().reportEvent(event);
@@ -292,4 +282,6 @@ public abstract class WebServiceAgent extends ServiceProviderAgent {
 	public void updateCapacityRatio(){
 		adjustCapacityRatio();
 	}
+	
+	
 }

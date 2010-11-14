@@ -48,11 +48,11 @@ public class DiscreteEventWebServiceAgent extends WebServiceAgent {
 	protected Double[] offeredDemand;
 
 	public DiscreteEventWebServiceAgent(OverlayModel model, Overlay overlay,
-			Identifier id, UtilityFunction utilityFunction,
+			Identifier id, String[] attributes,UtilityFunction utilityFunction,
 			Double targetUtility, AdaptationFunction adaptationFunction,
 			Integer maxCapacity, Stream<Double> loadStream,long interval,Double quantum) {
 
-		super(model, overlay, id, utilityFunction, targetUtility,
+		super(model, overlay, id, attributes,utilityFunction, targetUtility,
 				adaptationFunction, maxCapacity, loadStream);
 
 		this.interval = interval;
@@ -93,7 +93,7 @@ public class DiscreteEventWebServiceAgent extends WebServiceAgent {
 
 		arrivals.add(request);
 
-		request.getAttributes().put("dispatcher.remaining", (Double)request.getAttributes().get("service.demand")*interval);
+		request.getAttributes().put("dispatcher.remaining", (Double)request.getAttributes().get("ServiceDemand")*interval);
 		runQueue.add(request);
 	}
 
@@ -154,9 +154,6 @@ public class DiscreteEventWebServiceAgent extends WebServiceAgent {
 		
 		offeredDemand[(int) (model.getCurrentTime() % offeredDemand.length)] = rho/quantum;
 		
-		overlay.getLocalNode().getAttributes().put("service.response",getResponseTime());
-		overlay.getLocalNode().setAttribute("service.load", new Double(runQueue.size()));
-		overlay.getLocalNode().setAttribute("utility",getUtility());
 	}
 
 	@Override

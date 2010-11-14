@@ -57,11 +57,15 @@ public class WebServiceAgentFactory extends OverlayAgentFactory {
 	@Override
 	protected OverlayAgent createOverlayAgent(OverlayModel model, Overlay overlay) {		
 		
+	    String[] attributes = {"Id","Capacity","Utility","ResponseTime",
+				"AcceptanceRate","BackgroudLoad","Utilization"};
+
+		
 		//	return new DiscreteTimeWebServiceAgent(model,overlay,overlay.getLocalNode().getId(),
 		//			                   getUtilityFunction(),getTarget(),getAdaptationFunction(),requestLimit,getLoadStream(),serviceRate);
 			
 			
-			return new DiscreteEventWebServiceAgent(model,overlay,overlay.getLocalNode().getId(),
+			return new DiscreteEventWebServiceAgent(model,overlay,overlay.getLocalNode().getId(),attributes,
 	                   getUtilityFunction(),getTarget(),getAdaptationFunction(),requestLimit,getLoadStream(),1000,100.0);
 
 	}

@@ -82,12 +82,13 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 	 * @param args
 	 * @throws Exception
 	 */
-	public void handleTransportMessage(UnderlayModelNode source,String protocolName,String methodName,Object[] args) throws TransportException{
+	public Object handleTransportMessage(UnderlayModelNode source,String protocolName,String methodName,Object[] args) throws TransportException{
 		
 		if(!active){
 			throw new IllegalStateException("Node is inactive");
 		}
-		transport.handleMessage(source,protocolName,methodName,args);
+		
+		return transport.handleMessage(source,protocolName,methodName,args);
 
 	}
 
@@ -115,7 +116,7 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 
 
 	@Override
-	public void delivered(Node source, Node target, String protocol, int size) {
+	public void delivered(UnderlayNode source, UnderlayAddress target, String protocol, int size) {
 		delivered++;
 	}
 
@@ -125,7 +126,7 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 	}
 
 	@Override
-	public void received(Node source, Node target, String protocol, int size) {
+	public void received(UnderlayNode source, UnderlayAddress target, String protocol, int size) {
 		received++;
 	}
 
@@ -135,7 +136,7 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 
 
 	@Override
-	public void undeliverable(Node Source, Node target, String protocol,
+	public void undeliverable(UnderlayNode source, UnderlayAddress target, String protocol,
 			Exception cause) {
 		undelivered++;
 	}
@@ -146,9 +147,9 @@ public class UnderlayModelNode extends AbstractUnderlayNode implements Transport
 	}
 	
 	
-	public boolean ping(Node node){
-		UnderlayNode target = underlay.getNode(node.getId());
-		if(target == null)
+	public boolean ping(UnderlayAddress target){
+		UnderlayNode node = underlay.getNode(target);
+		if(node == null)
 			return false;
 				
 		return true;
