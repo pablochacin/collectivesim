@@ -28,8 +28,8 @@ public class CompositeReflexionModelAgent extends ReflexionModelAgent {
 	protected List<Object> targets;
 
 
-	public CompositeReflexionModelAgent(String name,Object ...targets){
-		super(name);
+	public CompositeReflexionModelAgent(String name,String[] attributes,Object ...targets){
+		super(name,attributes);
 		this.targets = new ArrayList<Object>();
 		this.targets.add(this);
 		setTargets(targets);

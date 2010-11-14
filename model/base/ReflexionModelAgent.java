@@ -40,7 +40,7 @@ public class ReflexionModelAgent implements ModelAgent {
 	/**
 	 * Attributes exposed by this agent
 	 */
-	protected String[] attributes;
+	protected String[] attributeNames;
 
 	
 	/**
@@ -64,8 +64,15 @@ public class ReflexionModelAgent implements ModelAgent {
 	public ReflexionModelAgent(String name) {
 		this.name = name;
 		this.target = this;
-		this.attributes = getAttributeNames(this);
+		this.attributeNames = getAttributeNames(this);
 
+	}
+
+	public ReflexionModelAgent(String name,String[] attributeNames) {
+		this.name = name;
+		this.target = this;
+		this.attributeNames = attributeNames;
+		
 	}
 	
 	
@@ -76,7 +83,7 @@ public class ReflexionModelAgent implements ModelAgent {
 	 * @param target
 	 */
 	public ReflexionModelAgent(Object target) {
-		this(generateName(target),target);
+		this(generateName(target),target,new String[0]);
 	}
 		
 	/**
@@ -88,16 +95,16 @@ public class ReflexionModelAgent implements ModelAgent {
 	 * @param name
 	 * @param target
 	 */
-	public ReflexionModelAgent(String name, Object target,String ... attributes) {
+	public ReflexionModelAgent(String name, Object target,String... attributeNames) {
 		this.name = name;
 		this.target = target;
 		
 		
-		if((attributes != null) && (attributes.length > 0)){
-			this.attributes = attributes;
+		if((attributeNames != null) && (attributeNames.length > 0)){
+			this.attributeNames = attributeNames;
 		}
 		else{			
-			attributes = getAttributeNames(this);
+			attributeNames = getAttributeNames(target);
 		}
 		
 	}
@@ -111,9 +118,18 @@ public class ReflexionModelAgent implements ModelAgent {
 	 * @return
 	 */
 	private static String[] getAttributeNames(Object object){
+		
+		String[] names;
+		try {
+			names = (String[])ReflectionUtils.invoke(object, "getAttributeNames", new Object[0]);
+			return names;
+		} catch (Exception e) {
+			//ignore exceptions
+		}
+		
 		//if no attributes are defined, expose all attributes exposed by get methods		
 		List<Method>getters = ReflectionUtils.getGetters(object.getClass());
-		String[] names = new String[getters.size()];
+		names = new String[getters.size()];
 		for(int i=0;i<names.length;i++){
 			//get the name without the "get"
 			names[i] = getters.get(i).getName().substring(3);
@@ -155,14 +171,19 @@ public class ReflexionModelAgent implements ModelAgent {
 	
 	@Override
 	public String[] getAttributeNames(){
-		return attributes;
+		return attributeNames;
 	}
 	
 	@Override
 	public Map<String,Object> inquire(){
 		
+		return inquire(getAttributeNames());
+	}
+	
+	@Override
+	public Map<String,Object> inquire(String[] attributeNames){
 		Map<String,Object> attributes = new HashMap<String,Object>();
-		for(String a: getAttributeNames()){
+		for(String a: attributeNames){
 			try {
 				attributes.put(a,inquire(a));
 			} catch (ModelException e) {
@@ -173,7 +194,7 @@ public class ReflexionModelAgent implements ModelAgent {
 		
 		return attributes;
 	}
-	
+ 	
 	public Object inquire(String attribute) throws ModelException{
 		
 		//TODO: first should check if the attribute is accessible (is in the attributes array)
