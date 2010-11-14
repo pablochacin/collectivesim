@@ -50,7 +50,6 @@ public class DumpOverlayToPajek implements Runnable {
 		this.fileName = fileName;
 		this.nodeAttributes = nodeAttributes;
 		
-
 	}
 
 	public DumpOverlayToPajek(Experiment experiment,OverlayModel model,String fileName) {
@@ -99,7 +98,7 @@ public class DumpOverlayToPajek implements Runnable {
 		    int i =0;
 		    for(ModelAgent a: model.getAgents()){
 		    	i++;
-		    	Node node = ((OverlayAgent)a).getOverlay().getLocalNode();
+		    	Node node = ((OverlayAgent)a).getLocalNode();
 		    
 		    	vertices.put(node.getId().toString(), String.valueOf(i));
 		    	
@@ -118,11 +117,11 @@ public class DumpOverlayToPajek implements Runnable {
 		    
 		    for(ModelAgent a: model.getAgents()){
 
-		    	Node node = ((OverlayAgent)a).getOverlay().getLocalNode();
+		    	Node node = ((OverlayAgent)a).getLocalNode();
 
 		    	String vertice = vertices.get(node.getId().toString());
 		    	
-		    	List<Node> links = ((OverlayAgent)a).getOverlay().getNodes();
+		    	List<Node> links = ((OverlayAgent)a).getNeighbors();
 		    	
 		    	for(Node n: links){
 		    		//check that end of edge exists
