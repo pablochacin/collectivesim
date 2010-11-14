@@ -48,15 +48,15 @@ public class UnderlayModelTransportDynamicProxy extends DynamicProxyTransport {
 	 * @param method
 	 * @param args
 	 */
-	public void handleMessage(UnderlayModelNode source,String protocolName,String methodName,Object[] args) throws TransportException{
+	public Object handleMessage(UnderlayModelNode source,String protocolName,String methodName,Object[] args) throws TransportException{
 				
 		Protocol protocol = getProtocol(protocolName);
 		if(protocol == null){
-			throw new TransportException("Protocol not registered: ["+protocol +"]");
+			throw new TransportException("Protocol not registered: ["+protocolName +"]");
 		}
 		
 		try {
-			ReflectionUtils.invoke(protocol,methodName,args);
+			return ReflectionUtils.invoke(protocol,methodName,args);
 		} catch (Exception e) {
 			throw new TransportException("Exception invoking method " + methodName + " in protocol " + protocolName,e);
 		}
@@ -68,10 +68,10 @@ public class UnderlayModelTransportDynamicProxy extends DynamicProxyTransport {
 	 * This method is invoked by the protocol proxy to actually invoke a method in a remote
 	 * node. 
 	 */
-	protected void invoke(UnderlayAddress target, Protocol protocol,Method method, Object[] args) throws TransportException {
+	protected Object invoke(UnderlayAddress target, Protocol protocol,Method method, Object[] args) throws TransportException {
 		
 		 // get the destination Node
-		 UnderlayModelNode targetNode = (UnderlayModelNode)underlay.getNode(target.getLocation());
+		 UnderlayModelNode targetNode = (UnderlayModelNode)underlay.getNode(target);
 		
 		 if(targetNode == null){
 			 throw new TransportException("Target Node not found [" + target.getLocation()+"]");
@@ -79,13 +79,14 @@ public class UnderlayModelTransportDynamicProxy extends DynamicProxyTransport {
 		 
 		 if(deliveryFails(node, targetNode)){
 			notifyUndeliverable(node, target, protocol.getName(), new Exception("Delivery failed")); 
+			throw new TransportException("Simulation-generated failure to deliver to [" + target.getLocation()+"]");
 		 }
 		 else{
 			Long delay = getDelay(node,target);
 	
 					 
 			 //node.sendTransportMessage(targetNode,delay,protocol.getName(),method.getName(),args);
-			 targetNode.handleTransportMessage(this.node, protocol.getName(), method.getName(),args);
+			 return targetNode.handleTransportMessage(this.node, protocol.getName(), method.getName(),args);
 
 		 }
 		 
