@@ -74,6 +74,15 @@ public interface ModelAgent {
 	 */
 	public void finish();
 
+	
+	/**
+	 * Convenience method, retrieves the values for a given list of attribute Names.
+	 * 
+	 * @param attributeNames
+	 * @return
+	 */
+	Map<String, Object> inquire(String[] attributeNames);
+
 
 	
 	
