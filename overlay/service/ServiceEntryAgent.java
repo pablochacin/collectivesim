@@ -44,9 +44,9 @@ public class ServiceEntryAgent extends UtilityOverlayAgent {
 	 * @param role
 	 * @param preference
 	 */
-	public ServiceEntryAgent(OverlayModel model, Overlay overlay,Identifier id,Double preference,Double tolerance) {
+	public ServiceEntryAgent(OverlayModel model, Overlay overlay,Identifier id,String[] attributes,Double preference,Double tolerance) {
 
-			super(model, overlay,id, new FixedUtilityFunction(preference));
+			super(model, overlay,id, attributes,new FixedUtilityFunction(preference));
 						
 			this.preference = preference;
 			
@@ -67,11 +67,11 @@ public class ServiceEntryAgent extends UtilityOverlayAgent {
 	public void makeRequest(Double utility,Double serviceDemand) {
 
 		Map destinationAttributes = new HashMap();
-		destinationAttributes.put("utility", utility);
-		destinationAttributes.put("tolerance", tolerance);		
+		destinationAttributes.put("Utility", utility);
+		destinationAttributes.put("Tolerance", tolerance);		
 		
 		Map requestAttributes = new HashMap();
-		requestAttributes.put("service.demand", serviceDemand);
+		requestAttributes.put("ServiceDemand", serviceDemand);
 		
 		Destination destination = new Destination(destinationAttributes);
 		
@@ -145,10 +145,10 @@ public Double getStaleness(){
 			//get the actual utility of the node,not the local value 
 			ModelAgent neighbor = services.getAgent(n.getId().toString());
 			if(neighbor != null){
-				Double neighborUtility = (Double)n.getAttributes().get("service.capacity");
+				Double neighborUtility = (Double)n.getAttributes().get("Capacity");
 				Double difference;
 				try {
-					difference = + Math.abs(neighborUtility-(Double)(neighbor.getAttribute("Capacity")));
+					difference = + Math.abs(neighborUtility-(Double)(neighbor.inquire("Capacity")));
 					error+= difference;
 				} catch (ModelException e) {;}
 

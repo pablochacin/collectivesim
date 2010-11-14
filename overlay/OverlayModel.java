@@ -39,7 +39,7 @@ public class OverlayModel extends BasicModel<OverlayAgent>  {
 	public void nodeLink(Node localNode, Node node) {
         //Report that the node is part of the topology
         Event event = new TopologyEvent(localNode,TopologyEvent.TOPOLOGY_LINK,
-        		                        getCurrentTime(),node);
+        		                        getCurrentTime());
         experiment.reportEvent(event);
         
         OverlayAgent agent = (OverlayAgent)getAgent(node.getId().toString());
@@ -55,8 +55,8 @@ public class OverlayModel extends BasicModel<OverlayAgent>  {
 	 */
 	public void nodeUnlink(Node localNode, Node node) {
         //Report that the node is part of the topology
-        Event event = new TopologyEvent(localNode,TopologyEvent.TOPOLOGY_UNLINK,
-        								getCurrentTime(),node);
+        Event event = new TopologyEvent(localNode,getCurrentTime(),
+        								TopologyEvent.TOPOLOGY_UNLINK,node);
         experiment.reportEvent(event);
 		
         OverlayAgent agent = (OverlayAgent)getAgent(node.getId().toString());

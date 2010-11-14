@@ -91,7 +91,7 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 		
 		//RankFunction ranking = new UtilityDistanceRankFunction();
 		//RankFunction ranking = new UtilityRankFunction();	
-		RankFunction ranking = new AttributeRankFunction("service.acceptance.rate");
+		RankFunction ranking = new AttributeRankFunction("AcceptanceRate");
 		//RankFunction ranking = new RealCapacityRankFunction();
 		//RankFunction ranking = new CapacityRankFunction();
 		//RankFunction ranking = new AcceptanceRatioRankFunction();
@@ -107,7 +107,7 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 		
 		DiscoveryProtocol discovery = new BasicDiscoveryProtocol(name+".discovery", topology, new RandomSelector());
 		
-		Overlay overlay = new EpidemicOverlay(name, node,topology,updateRouter,discovery, router);
+		Overlay overlay = new EpidemicOverlay(name, node,topology, router,discovery,updateRouter);
 					
 		return overlay;
 

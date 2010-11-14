@@ -22,9 +22,9 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 	
 	protected Double utility;
 	
-	public UtilityOverlayAgent(OverlayModel model, Overlay overlay,Identifier id,UtilityFunction function) {
+	public UtilityOverlayAgent(OverlayModel model, Overlay overlay,Identifier id,String[] attributes,UtilityFunction function) {
 			
-			super(model, overlay,id);
+			super(model, overlay,id,attributes);
 			
 			this.function = function;
 						
@@ -92,7 +92,7 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 			//get the actual utility of the node,not the local value 
 			UtilityOverlayAgent neighbor = (UtilityOverlayAgent)model.getAgent(n.getId().toString());
 			if(neighbor != null){
-				Double neighborUtility = (Double)n.getAttributes().get("utility");
+				Double neighborUtility = (Double)n.getAttributes().get("Utility");
 				Double difference = + Math.abs(neighborUtility-neighbor.getUtility());
 				error+= difference;
 			}

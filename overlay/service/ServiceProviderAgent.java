@@ -28,9 +28,9 @@ public class ServiceProviderAgent extends UtilityOverlayAgent implements Routing
 	 * @param attributes
 	 */
 	public ServiceProviderAgent(OverlayModel model, Overlay overlay,
-							   Identifier id,UtilityFunction function) {
+							   Identifier id,String[] attributes,UtilityFunction function) {
 		
-		super(model, overlay,id,function);
+		super(model, overlay,id,attributes,function);
 						
 		overlay.addRoutingHandler(this);
 		
@@ -67,5 +67,6 @@ public class ServiceProviderAgent extends UtilityOverlayAgent implements Routing
 		processRequest((ServiceRequest)message);
 		
 	}
+
 	
 }

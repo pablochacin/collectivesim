@@ -28,6 +28,7 @@ import edu.upc.cnds.collectives.util.ReflectionUtils;
 import edu.upc.cnds.collectives.util.UniqueArrayList;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.base.CompositeReflexionModelAgent;
+import edu.upc.cnds.collectivesim.model.base.ReflexionModelAgent;
 import edu.upc.cnds.collectivesim.state.Counter;
 
 /**
@@ -36,7 +37,7 @@ import edu.upc.cnds.collectivesim.state.Counter;
  * @author Pablo Chacin
  *
  */
-public class OverlayAgent extends CompositeReflexionModelAgent implements TopologyObserver, RouteObserver,OverlayHandler {
+public class OverlayAgent extends ReflexionModelAgent implements TopologyObserver, RouteObserver,OverlayHandler {
 	
 	protected static Logger log = Logger.getLogger("colectivesim.overlay");
 		
@@ -60,15 +61,15 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	
 	protected boolean active = false;
 	
-
+	
 	/**
 	 * 
 	 * @param model
 	 * @param overlay
 	 */
-	public OverlayAgent(OverlayModel model,Overlay overlay,Identifier id){
+	public OverlayAgent(OverlayModel model,Overlay overlay,Identifier id,String[] attributes){
 		
-		super(id.toString(),overlay);
+		super(id.toString(),attributes);
 		
 		this.model = model;
 		this.overlay = overlay;
@@ -372,7 +373,7 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 		indegree--;
 	}
 	
-	public Overlay getOverlay(){
+	protected Overlay getOverlay(){
 		return overlay;
 	}
 	
@@ -465,14 +466,24 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 		return (double)getActiveNeighbors().size();
 	}
 
+	
+	@Override
+	public String[] getAttributeNames(){
+		return attributeNames;		
+	}
 
 	@Override
 	public Map<String, Object> getAttributes() {
 	 
-		return inquire();
+		return inquire(getAttributeNames());
 	}
 
 
+	public Map<String, Object> getAttributes(String[] attributes) {
+		 
+		return inquire(attributes);
+	}
+	
 	@Override
 	public Object getAttribute(String attribute) {
 		try {
@@ -483,7 +494,13 @@ public class OverlayAgent extends CompositeReflexionModelAgent implements Topolo
 	}
 	
 	
+	public List<Node> getNeighbors(){
+		return getOverlay().getNodes();
+	}
 	
+	public Node getLocalNode(){
+		return getOverlay().getLocalNode().getReference();
+	}
 }
 
 

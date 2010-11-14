@@ -20,7 +20,7 @@ public class ResponseTimeUtilityFunction implements UtilityFunction {
 	@Override
 	public Double getUtility(Node node) {
 		
-		Double serviceTime = (Double)node.getAttributes().get("service.response");
+		Double serviceTime = (Double)node.getAttributes().get("ResponseTime");
 		
 		if((serviceTime == null) || (serviceTime.equals(Double.NaN))) {
 			serviceTime = 0.0;
