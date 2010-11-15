@@ -436,7 +436,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	  * @param target an Object to be exposed as a {@link ModelAgent}
 	  */
 	 protected final void addAgent(Object target){
-		 addAgent((T)(new ReflexionModelAgent(target)));
+		 addAgent((T)(new ReflexionModelAgent(this,target)));
 	 }
 
 	 /**
@@ -446,7 +446,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	  * @param target an Object to be exposed as a {@link ModelAgent}
 	  */
 	 protected final void addAgent(String name,Object target){
-		 addAgent(new ReflexionModelAgent(name,target));
+		 addAgent(new ReflexionModelAgent(this,name,target));
 	 }
 	 
 	 

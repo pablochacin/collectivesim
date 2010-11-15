@@ -84,6 +84,12 @@ public interface ModelAgent {
 	Map<String, Object> inquire(String[] attributeNames);
 
 
+	/**
+	 * Returns the model on which this agent lives
+	 * 
+	 * @return
+	 */
+	public Model getModel();
 	
 	
 }
