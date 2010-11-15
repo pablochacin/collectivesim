@@ -7,6 +7,7 @@ import java.util.Map;
 
 import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectives.util.ReflectionUtils;
+import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
 import edu.upc.cnds.collectivesim.model.ModelException;
 
@@ -27,6 +28,12 @@ public class ReflexionModelAgent implements ModelAgent {
 	 */
 	private static int agentCounter = 0;
 	
+	
+	/**
+	 * 
+	 */
+	protected Model<? extends ModelAgent> model;
+	
 	/**
 	 * target object that will handle requests
 	 */
@@ -41,7 +48,6 @@ public class ReflexionModelAgent implements ModelAgent {
 	 * Attributes exposed by this agent
 	 */
 	protected String[] attributeNames;
-
 	
 	/**
 	 * Constructor without parameters. Used for convenience.
@@ -49,9 +55,10 @@ public class ReflexionModelAgent implements ModelAgent {
 	 * its own target. Useful for classes that extend this base class and don't
 	 * need an specific name. 
 	 */
-	public ReflexionModelAgent() {
+	public ReflexionModelAgent(Model model) {
 		this.name = generateName(this);
 		this.target = this;
+		this.model = model;
 	}
 	
 	
@@ -61,31 +68,14 @@ public class ReflexionModelAgent implements ModelAgent {
 	 * 
 	 * @param name
 	 */
-	public ReflexionModelAgent(String name) {
+	public ReflexionModelAgent(Model model,String name) {
 		this.name = name;
 		this.target = this;
-		this.attributeNames = getAttributeNames(this);
-
+		this.model = model;
+		attributeNames = getAttributeNames(target);
 	}
 
-	public ReflexionModelAgent(String name,String[] attributeNames) {
-		this.name = name;
-		this.target = this;
-		this.attributeNames = attributeNames;
-		
-	}
 	
-	
-	/**
-	 * Constructor with an "external" target. Uses target's class name plus a correlative
-	 * as the agent's name. 
-	 *  
-	 * @param target
-	 */
-	public ReflexionModelAgent(Object target) {
-		this(generateName(target),target,new String[0]);
-	}
-		
 	/**
 	 * Constructor with an "external" target. The agent will redirect all 
 	 * attribute inquires and method invocations to the target using reflexion.
@@ -95,20 +85,29 @@ public class ReflexionModelAgent implements ModelAgent {
 	 * @param name
 	 * @param target
 	 */
-	public ReflexionModelAgent(String name, Object target,String... attributeNames) {
+	public ReflexionModelAgent(Model model,String name, Object target) {
+		this.model= model; 
 		this.name = name;
-		this.target = target;
-		
-		
-		if((attributeNames != null) && (attributeNames.length > 0)){
-			this.attributeNames = attributeNames;
-		}
-		else{			
-			attributeNames = getAttributeNames(target);
-		}
+		this.target = target;			
+		attributeNames = getAttributeNames(target);
 		
 	}
 	
+	/**
+	 * Constructor with an "external" target. Uses target's class name plus a correlative
+	 * as the agent's name. 
+	 *  
+	 * @param target
+	 */
+	public ReflexionModelAgent(Model model,Object target) {
+		this(model,generateName(target),target);
+	}
+		
+	
+	@Override
+	public Model getModel(){
+		return model;
+	}
 	
 	/**
 	 * Retrieves the names of the attributes accessible by getter methods
