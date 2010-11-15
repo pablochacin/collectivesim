@@ -44,16 +44,14 @@ public class ServiceEntryAgent extends UtilityOverlayAgent {
 	 * @param role
 	 * @param preference
 	 */
-	public ServiceEntryAgent(OverlayModel model, Overlay overlay,Identifier id,String[] attributes,Double preference,Double tolerance) {
+	public ServiceEntryAgent(OverlayModel model, Overlay overlay,Double preference,Double tolerance) {
 
-			super(model, overlay,id, attributes,new FixedUtilityFunction(preference));
+			super(model, overlay,new FixedUtilityFunction(preference));
 						
 			this.preference = preference;
 			
 			this.tolerance = tolerance;
-			
-			overlay.getLocalNode().getAttributes().put("role", "entry");
-			
+						
 			setUtility(0.0);
 	}
 

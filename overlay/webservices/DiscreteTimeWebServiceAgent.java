@@ -83,9 +83,8 @@ public class DiscreteTimeWebServiceAgent extends WebServiceAgent {
 	protected Double offeredDemand = 0.0;
 
 	
-	public DiscreteTimeWebServiceAgent(OverlayModel model, Overlay overlay, Identifier id,
-			UtilityFunction utilityFunction,Double targetUtility,AdaptationFunction adaptationFunction,Integer maxCapacity,Stream<Double> loadStream,Double serviceRate) {
-		super(model, overlay, id, utilityFunction,targetUtility,adaptationFunction,maxCapacity,loadStream);	
+	public DiscreteTimeWebServiceAgent(OverlayModel model, Overlay overlay, UtilityFunction utilityFunction,Double targetUtility,AdaptationFunction adaptationFunction,Integer maxCapacity,Stream<Double> loadStream,Double serviceRate) {
+		super(model, overlay, utilityFunction,targetUtility,adaptationFunction,maxCapacity,loadStream);	
 
 		this.serviceRate = serviceRate;
 		entryQueue = new ArrayList<ServiceRequest>(maxCapacity);
@@ -111,18 +110,6 @@ public class DiscreteTimeWebServiceAgent extends WebServiceAgent {
 		
 		entryQueue.add(request);
 
-		Map attributes = new HashMap();
-
-		attributes.put("timestamp",model.getCurrentTime());
-		attributes.put("service.capacity",capacity);		
-		attributes.put("service.avail.capacity",capacity-entryQueue.size());
-		attributes.put("request.qos",request.getQoS());
-		attributes.put("service.node",overlay.getLocalNode().getId().toString());
-		attributes.put("service.utilty", getUtility());
-
-		Event event = new ServiceReceptionEvent(overlay. getLocalNode(), model.getCurrentTime(),attributes);
-
-		model.getExperiment().reportEvent(event);
 	}
 
 
@@ -166,8 +153,6 @@ public class DiscreteTimeWebServiceAgent extends WebServiceAgent {
 		reportTerminations();
 
 		runQueue.clear();
-
-		overlay.getLocalNode().setAttribute("service.arrivals",new Double(entryQueue.size()));
 		
 		if(entryQueue.size() == 0) {
 			responseTime = 0.0;
@@ -204,10 +189,6 @@ public class DiscreteTimeWebServiceAgent extends WebServiceAgent {
 			adjustCapacity();
 
 		}
-
-		overlay.getLocalNode().setAttribute("service.load", new Double(runQueue.size()));
-		overlay.getLocalNode().setAttribute("service.response",getResponseTime());
-		overlay.getLocalNode().setAttribute("utility",getUtility());
 
 	}
 

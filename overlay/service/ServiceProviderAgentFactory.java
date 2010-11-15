@@ -35,7 +35,7 @@ public class ServiceProviderAgentFactory extends UtilityAgentFactory {
 	@Override	
 	protected OverlayAgent createOverlayAgent(OverlayModel model, Overlay overlay) {		
 						
-		return new ServiceProviderAgent(model,overlay,overlay.getLocalNode().getId(),getUtilityFunction());
+		return new ServiceProviderAgent(model,overlay,getUtilityFunction());
 				
 	}
 

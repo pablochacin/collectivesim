@@ -65,7 +65,7 @@ public class WebServiceAgentFactory extends OverlayAgentFactory {
 		//			                   getUtilityFunction(),getTarget(),getAdaptationFunction(),requestLimit,getLoadStream(),serviceRate);
 			
 			
-			return new DiscreteEventWebServiceAgent(model,overlay,overlay.getLocalNode().getId(),attributes,
+			return new DiscreteEventWebServiceAgent(model,overlay,
 	                   getUtilityFunction(),getTarget(),getAdaptationFunction(),requestLimit,getLoadStream(),1000,100.0);
 
 	}

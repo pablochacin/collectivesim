@@ -2,7 +2,6 @@ package edu.upc.cnds.collectivesim.overlay.service;
 
 import java.io.Serializable;
 
-import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.routing.Destination;
@@ -27,10 +26,9 @@ public class ServiceProviderAgent extends UtilityOverlayAgent implements Routing
 	 * @param overlay
 	 * @param attributes
 	 */
-	public ServiceProviderAgent(OverlayModel model, Overlay overlay,
-							   Identifier id,String[] attributes,UtilityFunction function) {
+	public ServiceProviderAgent(OverlayModel model, Overlay overlay,UtilityFunction function) {
 		
-		super(model, overlay,id,attributes,function);
+		super(model, overlay,function);
 						
 		overlay.addRoutingHandler(this);
 		
@@ -69,4 +67,11 @@ public class ServiceProviderAgent extends UtilityOverlayAgent implements Routing
 	}
 
 	
+	public Double getLoad(){
+		return null;
+	}
+	
+	public Double getCapacity(){
+		return null;
+	}
 }

@@ -86,9 +86,9 @@ public abstract class WebServiceAgent extends ServiceProviderAgent {
 	protected Double targetUtility;
 
 	
-	public WebServiceAgent(OverlayModel model, Overlay overlay, Identifier id,String attributes[],
-			UtilityFunction utilityFunction,Double targetUtility,AdaptationFunction adaptationFunction,Integer maxCapacity,Stream<Double> loadStream) {
-		super(model, overlay, id, attributes,utilityFunction);	
+	public WebServiceAgent(OverlayModel model, Overlay overlay, UtilityFunction utilityFunction,
+			  Double targetUtility,AdaptationFunction adaptationFunction,Integer maxCapacity,Stream<Double> loadStream) {
+		super(model, overlay, utilityFunction);	
 
 		this.targetUtility = targetUtility;
 		this.maxCapacity = maxCapacity;
@@ -113,6 +113,10 @@ public abstract class WebServiceAgent extends ServiceProviderAgent {
 	 */
 	protected void processRequest(ServiceRequest request){
 		super.processRequest(request);
+		
+		Event event = new ServiceReceptionEvent(this, model.getCurrentTime());
+
+		model.getExperiment().reportEvent(event);
 	}
 
 	public Double getCapacity(){
@@ -233,7 +237,6 @@ public abstract class WebServiceAgent extends ServiceProviderAgent {
 		lastDelivered = getDelivered();
 		lastReceived = getReceived();
 
-		overlay.getLocalNode().getAttributes().put("service.acceptance.rate", new Double(acceptanceRate));
 	}
 
 	public Double getAcceptanceRate(){

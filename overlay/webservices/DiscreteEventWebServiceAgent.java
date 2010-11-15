@@ -47,12 +47,11 @@ public class DiscreteEventWebServiceAgent extends WebServiceAgent {
 	 */
 	protected Double[] offeredDemand;
 
-	public DiscreteEventWebServiceAgent(OverlayModel model, Overlay overlay,
-			Identifier id, String[] attributes,UtilityFunction utilityFunction,
+	public DiscreteEventWebServiceAgent(OverlayModel model, Overlay overlay,UtilityFunction utilityFunction,
 			Double targetUtility, AdaptationFunction adaptationFunction,
 			Integer maxCapacity, Stream<Double> loadStream,long interval,Double quantum) {
 
-		super(model, overlay, id, attributes,utilityFunction, targetUtility,
+		super(model, overlay, utilityFunction, targetUtility,
 				adaptationFunction, maxCapacity, loadStream);
 
 		this.interval = interval;

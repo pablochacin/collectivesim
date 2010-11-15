@@ -47,10 +47,9 @@ public class ServiceEntryAgentFactory extends OverlayAgentFactory {
 	@Override
 	protected OverlayAgent createOverlayAgent(OverlayModel model, Overlay overlay) {		
 		
-		    String[] attributes = {"Id"};
+		    String[] attributes = {"Id","Utility"};
 		    	
-			return new ServiceEntryAgent(model,overlay, overlay.getLocalNode().getId(),attributes,
-					         preference.nextElement(),tolerance.nextElement());
+			return new ServiceEntryAgent(model,overlay,preference.nextElement(),tolerance.nextElement());
 				
 	}
 
