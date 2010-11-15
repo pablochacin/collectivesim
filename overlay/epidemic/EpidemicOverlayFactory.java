@@ -51,17 +51,20 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 	
 	String name;
 	
+	String[] attributes;
+	
 	Underlay underlay;
 	
-	public EpidemicOverlayFactory(String name,Underlay underlay, int viewSize, int exchangeSize, int ttl,
+	public EpidemicOverlayFactory(String name,Underlay underlay,String[] attributes, int viewSize, int exchangeSize, int ttl,
 			DistanceSpace space) {
 		super();
 		this.name = name;
+		this.underlay =underlay;
+		this.attributes = attributes;
 		this.viewSize = viewSize;
 		this.exchangeSize = exchangeSize;
 		this.ttl = ttl;
 		this.space = space;
-		this.underlay =underlay;
 
 	}
 
@@ -78,14 +81,14 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 			throw new OverlayException("Unable to create Underlay node",e);
 		}
 		
-		OverlayNode node = new OverlayNode(id,underlayNode);
+		OverlayNode node = new OverlayNode(id,underlayNode,attributes);
 		
 		Topology topology = new DistanceTopology(node,null,viewSize,false,space);	
 		//Topology topology = new AdaptiveDistanceTopology(node,null,distanceViewSize,false,space);
 		
 		
 		RoutingAlgorithm epidemicRouting = new EpidemicRoutingAlgorithm(topology,exchangeSize);
-		Routing updateRouter = new GenericRouter("TopologyUpdateRouter",node,epidemicRouting,1);
+		Routing updateRouter = new GenericRouter(name+".updater",node,epidemicRouting,1);
 				
 		AdmissionFunction admission = new ToleranceRestrictedAdmissionFunction();
 		
