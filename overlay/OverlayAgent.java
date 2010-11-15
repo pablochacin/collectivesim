@@ -1,7 +1,6 @@
 package edu.upc.cnds.collectivesim.overlay;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,7 +9,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 import java.util.logging.Logger;
-
 
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.identifier.Identifier;
@@ -24,10 +22,8 @@ import edu.upc.cnds.collectives.routing.Routing;
 import edu.upc.cnds.collectives.routing.RoutingEvent;
 import edu.upc.cnds.collectives.routing.base.Route;
 import edu.upc.cnds.collectives.topology.TopologyObserver;
-import edu.upc.cnds.collectives.util.ReflectionUtils;
 import edu.upc.cnds.collectives.util.UniqueArrayList;
 import edu.upc.cnds.collectivesim.model.ModelException;
-import edu.upc.cnds.collectivesim.model.base.CompositeReflexionModelAgent;
 import edu.upc.cnds.collectivesim.model.base.ReflexionModelAgent;
 import edu.upc.cnds.collectivesim.state.Counter;
 
@@ -40,9 +36,7 @@ import edu.upc.cnds.collectivesim.state.Counter;
 public class OverlayAgent extends ReflexionModelAgent implements TopologyObserver, RouteObserver,OverlayHandler {
 	
 	protected static Logger log = Logger.getLogger("colectivesim.overlay");
-		
-	protected OverlayModel model;
-	
+			
 	protected Overlay overlay;
 	
 	protected Counter dropped;
@@ -67,11 +61,10 @@ public class OverlayAgent extends ReflexionModelAgent implements TopologyObserve
 	 * @param model
 	 * @param overlay
 	 */
-	public OverlayAgent(OverlayModel model,Overlay overlay,Identifier id,String[] attributes){
+	public OverlayAgent(OverlayModel model,Overlay overlay){
 		
-		super(id.toString(),attributes);
+		super(model,overlay.getLocalNode().getId().toString());
 		
-		this.model = model;
 		this.overlay = overlay;
 		this.overlay.addViewObserver(this);
 		this.overlay.addObserver(this);
@@ -97,7 +90,7 @@ public class OverlayAgent extends ReflexionModelAgent implements TopologyObserve
 	public void join(){
 		active = true;
 		overlay.join();
-		model.nodeJoin(this);
+		((OverlayModel)model).nodeJoin(this);
 	}
 	
 	
@@ -107,19 +100,19 @@ public class OverlayAgent extends ReflexionModelAgent implements TopologyObserve
 	public void leave(){
 	
 		overlay.getUnderlayNode().leave();
-		model.nodeLeave(this);
+		((OverlayModel)model).nodeLeave(this);
 		active = false;
 	}
 	
 	@Override
 	public void nodeAdded(Node node) {
-		model.nodeLink(overlay.getLocalNode(),node);
+		((OverlayModel)model).nodeLink(overlay.getLocalNode(),node);
 		
 	}
 
 	@Override
 	public void nodeRemoved(Node node) {
-		model.nodeUnlink(overlay.getLocalNode(),node);; 
+		((OverlayModel)model).nodeUnlink(overlay.getLocalNode(),node);; 
 		
 	}
 	
@@ -220,7 +213,7 @@ public class OverlayAgent extends ReflexionModelAgent implements TopologyObserve
 		try{
 			Vector<Long> ages = new Vector<Long>();
 			for	(Node n: overlay.getNodes()){
-				ages.add(model.getCurrentTime()-n.getKnowSince());
+				ages.add(model.getCurrentTime()-n.getLastTouch());
 			}
 		
 		
@@ -452,7 +445,7 @@ public class OverlayAgent extends ReflexionModelAgent implements TopologyObserve
 		List<OverlayAgent>activeNeighbors = new ArrayList<OverlayAgent>();
 		
 		for(Node n: overlay.getNodes()){
-			OverlayAgent agent = model.getAgent(n.getId().toString()); 
+			OverlayAgent agent = (OverlayAgent) model.getAgent(n.getId().toString()); 
 			if(agent != null){
 				activeNeighbors.add(agent);
 			}
