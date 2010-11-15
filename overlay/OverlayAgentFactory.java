@@ -76,7 +76,7 @@ public class OverlayAgentFactory implements AgentFactory<Model<? extends Overlay
 	 */
 	protected OverlayAgent createOverlayAgent(OverlayModel model,Overlay overlay){
 	
-		return new OverlayAgent(model,overlay,overlay.getLocalNode().getId());
+		return new OverlayAgent(model,overlay);
 	}
 
 
