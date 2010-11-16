@@ -94,9 +94,9 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 		
 		//RankFunction ranking = new UtilityDistanceRankFunction();
 		//RankFunction ranking = new UtilityRankFunction();	
-		RankFunction ranking = new AttributeRankFunction("AcceptanceRate");
+		//RankFunction ranking = new AttributeRankFunction("AcceptanceRate");
 		//RankFunction ranking = new RealCapacityRankFunction();
-		//RankFunction ranking = new CapacityRankFunction();
+		RankFunction ranking = new CapacityRankFunction();
 		//RankFunction ranking = new AcceptanceRatioRankFunction();
 		
 		//RoutingAlgorithm algorithm = new GreedyRoutingAlgorithm(topology,ranking);
