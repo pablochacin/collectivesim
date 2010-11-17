@@ -120,12 +120,12 @@ public class OverlayAgent extends ReflexionModelAgent implements TopologyObserve
 	
 
 	@Override
-	public void forwarded(Routing router, Destination destination, Route route, Serializable message) {
+	public boolean forwarded(Routing router, Destination destination, Route route, Node next,Serializable message) {
 		
 		forwarded.increment();
 		
-		//TODO: why this is done?
-		//route.getLastHop().touch(model.getCurrentTime());
+		return true;
+		
 	}
 
 	@Override
@@ -374,7 +374,7 @@ public class OverlayAgent extends ReflexionModelAgent implements TopologyObserve
 	List<Node> acquiances = new UniqueArrayList<Node>();
 	
 	public void update(){
-		((EpidemicOverlay)overlay).update();
+		overlay.update();
 		acquiances.addAll(overlay.getNodes());
 	}
 	
@@ -494,6 +494,9 @@ public class OverlayAgent extends ReflexionModelAgent implements TopologyObserve
 	public Node getLocalNode(){
 		return getOverlay().getLocalNode().getReference();
 	}
+
+
+
 }
 
 

@@ -55,7 +55,8 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 	
 	Underlay underlay;
 	
-	public EpidemicOverlayFactory(String name,Underlay underlay,String[] attributes, int viewSize, int exchangeSize, int ttl,
+	public EpidemicOverlayFactory(String name,Underlay underlay,String[] attributes, 
+			int viewSize, int exchangeSize, int ttl,
 			DistanceSpace space) {
 		super();
 		this.name = name;
@@ -88,7 +89,7 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 		
 		
 		RoutingAlgorithm epidemicRouting = new EpidemicRoutingAlgorithm(topology,exchangeSize);
-		Routing updateRouter = new GenericRouter(name+".updater",node,epidemicRouting,1);
+		Router updateRouter = new GenericRouter(name+".updater",node,epidemicRouting,1);
 				
 		AdmissionFunction admission = new ToleranceRestrictedAdmissionFunction();
 		
@@ -100,9 +101,9 @@ public class EpidemicOverlayFactory implements OverlayFactory {
 		//RankFunction ranking = new AcceptanceRatioRankFunction();
 		
 		//RoutingAlgorithm algorithm = new GreedyRoutingAlgorithm(topology,ranking);
-		RoutingAlgorithm algorithm = new ProbabilisticRoutingAlgorithm(topology,ranking);
+		//RoutingAlgorithm algorithm = new ProbabilisticRoutingAlgorithm(topology,ranking);
 		//RoutingAlgorithm algorithm = new TwoChoicesRoutingAlgorithm(topology,ranking);
-		//RoutingAlgorithm algorithm = new RoundRobinRoutingAlgorithm(topology);
+		RoutingAlgorithm algorithm = new RoundRobinRoutingAlgorithm(topology);
 		//RoutingAlgorithm algorithm = new RandomRoutingAlgorithm(topology);
 
 		Router router = new GenericRouter(name+".router",node,admission,algorithm,false,ttl);
