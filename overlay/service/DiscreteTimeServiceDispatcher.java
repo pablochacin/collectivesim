@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.overlay.webservices;
+package edu.upc.cnds.collectivesim.overlay.service;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -55,18 +55,31 @@ import edu.upc.cnds.collectivesim.stream.Stream;
  * @author Pablo Chacin
  *
  */
-public class DiscreteTimeWebServiceAgent extends WebServiceAgent {
+public class DiscreteTimeServiceDispatcher implements ServiceDispatcher {
 
 
 	/**
 	 * Requests arrived in the current simulation cycle and waiting to enter the server
 	 */
 	protected List<ServiceRequest> entryQueue;
+	
+	/**
+	 * Requests being processed in the current simulation cycle
+	 */
+	protected List<ServiceRequest> runQueue;
 
 	/**
 	 * Nominal service capacity of the server (the inverse of its maximum throughput)
 	 */
 	protected Double serviceRate;
+	
+	
+	protected ServiceContainer container;
+	
+	
+	protected Double serviceDemand = 0.0;
+	
+	protected Integer capacity;
 	
 	/**
 	 * Response time offered during this cycle
@@ -78,16 +91,14 @@ public class DiscreteTimeWebServiceAgent extends WebServiceAgent {
 	 */
 	protected Double throughput = 0.0;
 
-	protected Double serviceDemand = 0.0;
-
 	protected Double offeredDemand = 0.0;
 
 	
-	public DiscreteTimeWebServiceAgent(OverlayModel model, Overlay overlay, UtilityFunction utilityFunction,Double targetUtility,AdaptationFunction adaptationFunction,Integer maxCapacity,Stream<Double> loadStream,Double serviceRate) {
-		super(model, overlay, utilityFunction,targetUtility,adaptationFunction,maxCapacity,loadStream);	
+	public DiscreteTimeServiceDispatcher(Integer capacity,Double serviceRate) {
 
 		this.serviceRate = serviceRate;
-		entryQueue = new ArrayList<ServiceRequest>(maxCapacity);
+		this.runQueue = new ArrayList<ServiceRequest>();
+		entryQueue = new ArrayList<ServiceRequest>();
 
 
 	}
@@ -96,14 +107,7 @@ public class DiscreteTimeWebServiceAgent extends WebServiceAgent {
 
 
 	@Override
-	/**
-	 * Count the requests received in the current dispatch cycle
-	 */
-	protected void processRequest(ServiceRequest request) {
-
-
-		//count request
-		super.processRequest(request);
+	public void processRequest(ServiceRequest request) {
 
 		//initialize the waiting time for this request
 		request.getAttributes().put("dispatcher.waiting",0.0);
@@ -118,26 +122,6 @@ public class DiscreteTimeWebServiceAgent extends WebServiceAgent {
 		return new Double(entryQueue.size());
 	}
 
-
-	@Override
-	/**
-	 * Check if the request must be rejected as the server has a fixed capacity
-	 * 
-	 */	
-	public boolean delivered(Routing router, Destination destination,
-			Route route, Serializable message) {
-
-
-
-		if(entryQueue.size() < capacity){
-		//if(entryQueue.size() < maxCapacity){
-
-			return  super.delivered(router, destination, route, message);
-		}		
-
-		return false;
-
-	}
 
 
 	/**
@@ -166,7 +150,7 @@ public class DiscreteTimeWebServiceAgent extends WebServiceAgent {
 			serviceDemand = getAverageServiceDemand();
 
 			//calculate throughput considering background load
-			throughput = (1.0-backgroundLoad)/serviceDemand;
+			throughput = container.getAvailableCpu()/serviceDemand;
 
 			int servedRequests = (int) Math.min(Math.floor(throughput),entryQueue.size());
 
@@ -185,8 +169,7 @@ public class DiscreteTimeWebServiceAgent extends WebServiceAgent {
 				Double wt = (Double)r.getAttributes().get("dispatcher.waiting");
 				r.getAttributes().put("waiting",wt+1.0);
 			}
-			
-			adjustCapacity();
+	
 
 		}
 
@@ -198,7 +181,7 @@ public class DiscreteTimeWebServiceAgent extends WebServiceAgent {
 
 		for(ServiceRequest request: runQueue) {
 
-			reportRequestTermination(request);
+			container.handleCompletion(request);
 		}
 	}
 
@@ -237,7 +220,7 @@ public class DiscreteTimeWebServiceAgent extends WebServiceAgent {
 
 		//return runQueue.size()/getThroughput();
 
-		Double u = getUtilization();
+		Double u = (1.0-container.getAvailableCpu()) + getOfferedDemand();
 		Double responseTime = (Math.pow(u,capacity+1)*(capacity*u-capacity-1)+u)/ 
 		((double)runQueue.size()*(1.0-Math.pow(u, capacity))*(1.0-u));		
 
@@ -277,6 +260,21 @@ public class DiscreteTimeWebServiceAgent extends WebServiceAgent {
 
 		return serviceDemand/(double)entryQueue.size();
 
+	}
+
+
+	@Override
+	public Double getLoad() {
+		return new Double(this.runQueue.size());
+	}
+
+
+
+
+	@Override
+	public void setContainer(ServiceContainer container) {
+		this.container  = container;
+		
 	}
 
 

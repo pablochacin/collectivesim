@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.overlay.webservices;
+package edu.upc.cnds.collectivesim.overlay.service;
 
 import java.util.Map;
 

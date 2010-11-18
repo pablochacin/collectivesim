@@ -12,6 +12,10 @@ import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgentFactory;
 import edu.upc.cnds.collectivesim.overlay.OverlayFactory;
 import edu.upc.cnds.collectivesim.overlay.OverlayModel;
+import edu.upc.cnds.collectivesim.overlay.service.AdaptiveServiceProviderAgent;
+import edu.upc.cnds.collectivesim.overlay.service.DiscreteEventServiceDispatcher;
+import edu.upc.cnds.collectivesim.overlay.service.ServiceDispatcher;
+import edu.upc.cnds.collectivesim.overlay.service.ServiceProviderAgent;
 import edu.upc.cnds.collectivesim.overlay.utility.ResponseTimeUtilityFunction;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityFunction;
 import edu.upc.cnds.collectivesim.stream.Stream;
@@ -64,10 +68,14 @@ public class WebServiceAgentFactory extends OverlayAgentFactory {
 		//	return new DiscreteTimeWebServiceAgent(model,overlay,overlay.getLocalNode().getId(),
 		//			                   getUtilityFunction(),getTarget(),getAdaptationFunction(),requestLimit,getLoadStream(),serviceRate);
 			
+			ServiceDispatcher dispatcher = new DiscreteEventServiceDispatcher(1000, 100.0);
 			
-			return new DiscreteEventWebServiceAgent(model,overlay,
-	                   getUtilityFunction(),getTarget(),getAdaptationFunction(),requestLimit,getLoadStream(),1000,100.0);
-
+			ServiceProviderAgent agent =  new AdaptiveServiceProviderAgent(model,overlay,
+	                   getUtilityFunction(),dispatcher,getTarget(),getAdaptationFunction(),
+	                               requestLimit,getLoadStream());
+			
+			dispatcher.setContainer(agent);
+			return agent;
 	}
 
 

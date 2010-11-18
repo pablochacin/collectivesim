@@ -1,4 +1,4 @@
-package edu.upc.cnds.collectivesim.overlay.webservices;
+package edu.upc.cnds.collectivesim.overlay.service;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,9 +17,7 @@ public class ServiceReceptionEvent extends BasicEvent {
 		
 		Map serviceAttr = new HashMap();
 
-		attributes.put("request.qos",request.getQoS());
-		attributes.put("service.capacity",agent.getCapacity());	
-		attributes.put("service.load",agent.getLoad());		
+		attributes.put("request.qos",request.getQoS());	
 		attributes.put("service.node",agent.getLocalNode().getId().toString());
 		attributes.put("service.utilty", agent.getUtility());
 		

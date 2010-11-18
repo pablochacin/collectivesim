@@ -1,21 +1,12 @@
-package edu.upc.cnds.collectivesim.overlay.webservices;
+package edu.upc.cnds.collectivesim.overlay.service;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
-import edu.upc.cnds.collectives.adaptation.AdaptationFunction;
-import edu.upc.cnds.collectives.identifier.Identifier;
-import edu.upc.cnds.collectives.overlay.Overlay;
-import edu.upc.cnds.collectives.routing.Destination;
-import edu.upc.cnds.collectives.routing.Routing;
-import edu.upc.cnds.collectives.routing.base.Route;
-import edu.upc.cnds.collectivesim.overlay.OverlayModel;
+import edu.upc.cnds.collectivesim.overlay.service.ServiceContainer;
+import edu.upc.cnds.collectivesim.overlay.service.ServiceDispatcher;
 import edu.upc.cnds.collectivesim.overlay.service.ServiceRequest;
-import edu.upc.cnds.collectivesim.overlay.utility.UtilityFunction;
-import edu.upc.cnds.collectivesim.stream.Stream;
 
 /**
  * Implements a web server using a discrete event simulation of the dispatching
@@ -23,13 +14,23 @@ import edu.upc.cnds.collectivesim.stream.Stream;
  * @author Pablo Chacin
  *
  */
-public class DiscreteEventWebServiceAgent extends WebServiceAgent {
+public class DiscreteEventServiceDispatcher implements ServiceDispatcher {
+	
+	protected ServiceContainer container;
+	
+	/**
+	 * Requests being processed in the current simulation cycle
+	 */
+	protected List<ServiceRequest> runQueue;
 
 	/**
 	 * List of requests received in the last interval
 	 */
 	protected List<ServiceRequest> arrivals;
 
+	/**
+	 * List of requests finished during the last interval
+	 */
 	protected List<ServiceRequest> departures;
 
 	/**
@@ -47,15 +48,12 @@ public class DiscreteEventWebServiceAgent extends WebServiceAgent {
 	 */
 	protected Double[] offeredDemand;
 
-	public DiscreteEventWebServiceAgent(OverlayModel model, Overlay overlay,UtilityFunction utilityFunction,
-			Double targetUtility, AdaptationFunction adaptationFunction,
-			Integer maxCapacity, Stream<Double> loadStream,long interval,Double quantum) {
+	public DiscreteEventServiceDispatcher(ServiceContainer container,long interval,Double quantum) {
 
-		super(model, overlay, utilityFunction, targetUtility,
-				adaptationFunction, maxCapacity, loadStream);
-
+		this.container = container;
 		this.interval = interval;
 		this.quantum = quantum;
+		this.runQueue = new ArrayList<ServiceRequest>();
 		this.arrivals = new ArrayList<ServiceRequest>();
 		this.departures= new ArrayList<ServiceRequest>();
 		this.offeredDemand = new Double[(int)Math.ceil(interval/quantum)];
@@ -65,30 +63,17 @@ public class DiscreteEventWebServiceAgent extends WebServiceAgent {
 		
 	}
 
-
-
-
-	@Override
-	public boolean delivered(Routing router, Destination destination,
-			Route route, Serializable message) {
-
-	//	if(runQueue.size() < maxCapacity){
-		if(runQueue.size() < capacity){
-			return super.delivered(router, destination, route, message);
-		}
-
-		return false;
+	public DiscreteEventServiceDispatcher(long interval,Double quantum) {
+		this(null,interval,quantum);
 	}
 
 
 
-
 	@Override
-	protected void processRequest(ServiceRequest request) {
+	public void processRequest(ServiceRequest request) {
 
-		super.processRequest(request);
 
-		request.getAttributes().put("dispatcher.arrival", model.getCurrentTime()*quantum);
+		request.getAttributes().put("dispatcher.arrival", container.getCurrentTime()*quantum);
 
 		arrivals.add(request);
 
@@ -108,7 +93,7 @@ public class DiscreteEventWebServiceAgent extends WebServiceAgent {
 		while(requests.hasNext()){
 			ServiceRequest r = requests.next();
 			Double time = (Double)r.getAttributes().get(attribute);
-			if((model.getCurrentTime()*quantum-time)>interval){
+			if((container.getCurrentTime()*quantum-time)>interval){
 				requests.remove();
 			}
 		}
@@ -125,7 +110,7 @@ public class DiscreteEventWebServiceAgent extends WebServiceAgent {
 		if(!runQueue.isEmpty()){
 
 			//adjust quantum assigned to requests considering the background load
-			Double q = (quantum*(1-getBackgroundLoad()))/(double)runQueue.size();
+			Double q = (quantum*(container.getAvailableCpu()))/(double)runQueue.size();
 
 			Iterator<ServiceRequest> requests = runQueue.iterator();
 			while(requests.hasNext()){
@@ -136,12 +121,12 @@ public class DiscreteEventWebServiceAgent extends WebServiceAgent {
 				remaining = Math.max(0.0, remaining -q);
 				if(remaining == 0){
 					requests.remove();
-					Double departure = (double)model.getCurrentTime()*quantum;
+					Double departure = (double)container.getCurrentTime()*quantum;
 					r.getAttributes().put("dispatcher.departure", departure);
 					Double response =  (departure- (Double)r.getAttributes().get("dispatcher.arrival"))/(double)interval;				
 					r.getAttributes().put("service.response",response);
 					departures.add(r);
-					reportRequestTermination(r);
+					container.handleCompletion(r);
 				}
 
 				r.getAttributes().put("dispatcher.remaining",remaining);
@@ -151,7 +136,7 @@ public class DiscreteEventWebServiceAgent extends WebServiceAgent {
 		
 		updateList(departures,"dispatcher.departure");
 		
-		offeredDemand[(int) (model.getCurrentTime() % offeredDemand.length)] = rho/quantum;
+		offeredDemand[(int) (container.getCurrentTime() % offeredDemand.length)] = rho/quantum;
 		
 	}
 
@@ -164,10 +149,6 @@ public class DiscreteEventWebServiceAgent extends WebServiceAgent {
 	public Double getOfferedDemand() {
 		
 		Double demand = 0.0;
-
-	//	for(ServiceRequest r: runQueue){
-	//		demand += (Double)r.getAttributes().get("dispatcher.remaining");
-	//	}
 		
 		for(Double d: offeredDemand){
 			demand+= d;
@@ -194,5 +175,14 @@ public class DiscreteEventWebServiceAgent extends WebServiceAgent {
 	}
 
 
+	@Override
+	public void setContainer(ServiceContainer container){
+		this.container = container;
+	}
 
+
+	@Override
+	public Double getLoad() {
+		return new Double(runQueue.size());
+	}
 }
