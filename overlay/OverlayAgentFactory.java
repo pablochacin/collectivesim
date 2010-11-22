@@ -2,15 +2,12 @@ package edu.upc.cnds.collectivesim.overlay;
 
 import java.util.Map;
 
-import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.overlay.OverlayException;
-import edu.upc.cnds.collectives.underlay.Underlay;
-import edu.upc.cnds.collectives.underlay.UnderlayException;
+import edu.upc.cnds.collectives.overlay.OverlayFactory;
 import edu.upc.cnds.collectivesim.model.AgentFactory;
 import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelException;
-import edu.upc.cnds.collectivesim.stream.Stream;
 
 /**
  * Offers the basic functionality to implement OverlayAgent factories. Uses two provided 
@@ -29,20 +26,15 @@ import edu.upc.cnds.collectivesim.stream.Stream;
 public class OverlayAgentFactory implements AgentFactory<Model<? extends OverlayAgent>,OverlayAgent> {
 
 	protected OverlayFactory factory;
-	
-	protected Stream<Identifier> ids;
-	
-	
+			
 	/**
 	 * Constructor 
 	 * 
 	 * @param factory
 	 * @param underlay
 	 */
-	public OverlayAgentFactory(OverlayFactory factory, Stream<Identifier> ids) {
-		super();
+	public OverlayAgentFactory(OverlayFactory factory) {
 		this.factory = factory;
-		this.ids = ids;
 	}
 
 
@@ -51,11 +43,10 @@ public class OverlayAgentFactory implements AgentFactory<Model<? extends Overlay
 		
 		Overlay overlay;
 		try {
-			Identifier id = ids.nextElement();
-			overlay = factory.getOverlay(id);
+			overlay = factory.getOverlay();
 	
 		
-			OverlayAgent agent = createOverlayAgent((OverlayModel)model,overlay);
+			OverlayAgent agent = createOverlayAgent(overlay);
 			overlay.setHandler(agent);
 			
 			return agent;
@@ -74,9 +65,10 @@ public class OverlayAgentFactory implements AgentFactory<Model<? extends Overlay
 	 * @param args
 	 * @return
 	 */
-	protected OverlayAgent createOverlayAgent(OverlayModel model,Overlay overlay){
 	
-		return new OverlayAgent(model,overlay);
+	protected OverlayAgent createOverlayAgent(Overlay overlay){
+	
+		return new OverlayAgent(overlay);
 	}
 
 
