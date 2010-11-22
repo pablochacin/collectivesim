@@ -2,7 +2,7 @@ package edu.upc.cnds.collectivesim.stream;
 
 import java.util.Enumeration;
 
-import edu.upc.cnds.collectivesim.factory.Factory;
+import edu.upc.cnds.collectives.factory.Factory;
 
 /**
  * A stream of values that can feed the simulation.
