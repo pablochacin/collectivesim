@@ -1,16 +1,10 @@
 package edu.upc.cnds.collectivesim.overlay.utility;
 
-import com.sun.org.apache.xpath.internal.functions.Function;
-
-import edu.upc.cnds.collectives.identifier.Identifier;
+import edu.upc.cnds.collectives.factory.Factory;
 import edu.upc.cnds.collectives.overlay.Overlay;
-import edu.upc.cnds.collectives.underlay.Underlay;
-import edu.upc.cnds.collectivesim.model.ModelException;
+import edu.upc.cnds.collectives.overlay.OverlayFactory;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgentFactory;
-import edu.upc.cnds.collectivesim.overlay.OverlayFactory;
-import edu.upc.cnds.collectivesim.overlay.OverlayModel;
-import edu.upc.cnds.collectivesim.stream.Stream;
 
 /**
  * 
@@ -21,55 +15,33 @@ import edu.upc.cnds.collectivesim.stream.Stream;
  */
 public class UtilityAgentFactory extends OverlayAgentFactory {
 
-	
-	
-	protected Stream<Double>utility;
-	
-	protected Stream<Double>initialTrend;
-    
-	protected Stream<Double> drift;
-	
-	protected Stream<Double>variation;
-	
-	protected Stream<Double>trend;
-	
-	
-	public UtilityAgentFactory(OverlayFactory factory, Stream<Identifier>ids,
-			                   Stream<Double>utility,Stream<Double>initialTrend,
-			                   Stream<Double>drift,Stream<Double>variation,Stream<Double>trend) {
-		
-		super(factory, ids);
-		
-		this.utility = utility;
-		this.initialTrend = initialTrend;
-		this.drift =drift;
-		this.variation = variation;
-		this.trend = trend;
-		
+
+
+	protected Factory<UtilityFunction> utilityFunctionFactory;
+
+	/**
+	 * Constructor 
+	 * 
+	 * @param overlayFactory
+	 * @param utilityFunctionFactory
+	 */
+	public UtilityAgentFactory(OverlayFactory overlayFactory,
+			Factory<UtilityFunction> utilityFunctionFactory){		
+
+		super(overlayFactory);
+
+		this.utilityFunctionFactory = utilityFunctionFactory;
 	}
 
 	@Override
 	/**
 	 * Creates an OverlayAgent from the overlay components
 	 */
-	protected OverlayAgent createOverlayAgent(OverlayModel model,Overlay overlay) {			
-		
-			
-			
-		return new UtilityOverlayAgent(model,overlay,overlay.getLocalNode().getId(),getUtilityFunction());
-	}
-	
+	protected OverlayAgent createOverlayAgent(Overlay overlay) {			
 
-	protected UtilityFunction getUtilityFunction() {
-		
-		UtilityFunction function = new RandomWalkUtilityFunction(utility.nextElement(), 
-                initialTrend.nextElement(),
-                variation, drift.nextElement(), 
-                trend);
-		
-//		UtilityFunction function = new WhiteNoiseUtilityFunction(utility.nextElement(), 
-//										variation);
-
-		return function;
+		return new UtilityOverlayAgent(overlay,utilityFunctionFactory.nextElement());
 	}
+
+
+
 }

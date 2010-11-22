@@ -22,9 +22,9 @@ public class UtilityOverlayAgent extends OverlayAgent  {
 	
 	protected Double utility;
 	
-	public UtilityOverlayAgent(OverlayModel model, Overlay overlay,UtilityFunction function) {
+	public UtilityOverlayAgent(Overlay overlay,UtilityFunction function) {
 			
-			super(model, overlay);
+			super(overlay);
 			
 			this.function = function;
 						
