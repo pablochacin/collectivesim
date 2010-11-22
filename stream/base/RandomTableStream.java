@@ -21,7 +21,6 @@ import edu.upc.cnds.collectivesim.table.Table;
 public class RandomTableStream<T> implements Stream<T> {
 
 
-	private String name;
 	
 	private Table<T>values;
 	
@@ -29,8 +28,7 @@ public class RandomTableStream<T> implements Stream<T> {
 	
 	private EmpiricalWalker rand;
 	
-	public RandomTableStream(String name,Table<T> values,Table<Double>distribution) {
-		this.name = name;
+	public RandomTableStream(Table<T> values,Table<Double>distribution) {
 		this.values= values;
 		this.distribution = distribution;
 		
@@ -43,14 +41,6 @@ public class RandomTableStream<T> implements Stream<T> {
 				                  new ColtRandomEngine());
 
 	}
-
-
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
 
 
 	@Override

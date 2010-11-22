@@ -1,5 +1,6 @@
 package edu.upc.cnds.collectivesim.stream.base;
 
+import edu.upc.cnds.collectivesim.factory.Factory;
 import edu.upc.cnds.collectivesim.stream.Stream;
 
 
@@ -10,21 +11,16 @@ import edu.upc.cnds.collectivesim.stream.Stream;
  * @param <T>
  *
  */
-public class FixedValueStream<T> implements Stream<T> {
+public class FixedValueStream<T> implements Stream<T>{
 
-	private String name;
 	
 	private T value;
 	
-	public FixedValueStream(String name, T value) {
-		this.name = name;
+	public FixedValueStream( T value) {
 		this.value = value;		
 	}
 	
 	
-	public String getName() {
-		return name;
-	}
 
 	public T nextElement() {
 	

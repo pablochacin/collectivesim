@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
@@ -71,8 +72,8 @@ public class DumpExperimentTask implements Runnable {
 		Map<String,Stream> streamMap = new TreeMap();
 		streamMap.putAll(experiment.getStreams());
 		
-		for(Stream s: streamMap.values()){
-			out.println(s.getName() + ": " + s.toString());
+		for(Entry<String, Stream> s: streamMap.entrySet()){
+			out.println(s.getKey() + ": " + s.getValue().toString());
 		}
 	}
 	

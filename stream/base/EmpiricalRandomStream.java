@@ -30,14 +30,13 @@ public class EmpiricalRandomStream implements Stream<Double> {
 	
 	private Empirical rand;
 
-	private String name;
 		
-	public EmpiricalRandomStream(String name, Double min, Double max,Table<Double> distribution) {
+	public EmpiricalRandomStream(Double min, Double max,Table<Double> distribution) {
 		
 		if(distribution == null){
 			throw new IllegalArgumentException("Distribution can't be null");
 		}
-		this.name = name;
+
 		this.distribution =distribution;
 		this.min = min;
 		this.max = max;
@@ -51,10 +50,6 @@ public class EmpiricalRandomStream implements Stream<Double> {
 		
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
 
 	@Override
 	public Double nextElement() {		

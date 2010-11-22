@@ -17,19 +17,13 @@ import edu.upc.cnds.collectivesim.stream.Stream;
  */
 public class RandomStream implements Stream<Double>{
 
-	private String name;
 	
 	private AbstractDistribution distribution;
 	
-	public RandomStream(String name,AbstractDistribution distribution){
-		this.name = name;
+	public RandomStream(AbstractDistribution distribution){
 		this.distribution = distribution;
 	}
 	
-	@Override
-	public String getName() {
-		return name;
-	}
 
 	@Override
 	public Double nextElement() {
@@ -62,7 +56,7 @@ public class RandomStream implements Stream<Double>{
 		double alpha = mean*mean/stdev;
 		double beta = mean/stdev;
 		
-		RandomStream stream = new RandomStream("",new Gamma(alpha,beta,new MersenneTwister64()));
+		RandomStream stream = new RandomStream(new Gamma(alpha,beta,new MersenneTwister64()));
 		
 		Double value = 0.0;
 		for(int i = 0;i < 1000;i++){

@@ -14,10 +14,6 @@ import edu.upc.cnds.collectivesim.stream.StreamException;
  */
 public class ObjectStream  implements Stream<Object> {
 
-	/**
-	 * Name of the stream
-	 */
-	private String name;
 
 	/**
 	 * Name of the class to instantiate
@@ -33,17 +29,12 @@ public class ObjectStream  implements Stream<Object> {
 	 */
 	private Stream[] argumentStreams;
 	
-	public ObjectStream(String name, String className, Stream ... argumentStreams) {
+	public ObjectStream(String className, Stream ... argumentStreams) {
 		super();
-		this.name = name;
 		this.className = className;
 		this.argumentStreams = argumentStreams;
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
 
 	@Override
 	public boolean hasMoreElements() {

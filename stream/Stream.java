@@ -2,6 +2,8 @@ package edu.upc.cnds.collectivesim.stream;
 
 import java.util.Enumeration;
 
+import edu.upc.cnds.collectivesim.factory.Factory;
+
 /**
  * A stream of values that can feed the simulation.
  * The objects can be obtained from any external source
@@ -10,13 +12,13 @@ import java.util.Enumeration;
  * @author Pablo Chacin
  *
  */
-public interface Stream<T> extends Enumeration<T> {
+public interface Stream<T> extends Enumeration<T>, Factory<T> {
 
 	/**
 	 * 
 	 * @return the name of the Stream
 	 */
-	public String getName();
+	//public String getName();
 	
 	/**
 	 * Initiates the access to the Stream. Useful when accessing external resources like files or data bases.

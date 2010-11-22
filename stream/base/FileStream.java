@@ -12,8 +12,6 @@ import edu.upc.cnds.collectivesim.stream.StreamException;
  * Reads  a series of objects from a file stream
  */
 public class FileStream<T> implements Stream<T> {
-
-	private String name;
 	
 	
 	private RandomAccessFile input;
@@ -29,8 +27,7 @@ public class FileStream<T> implements Stream<T> {
 	 * @param name a String with the  name of the stream
 	 * @param file a String with the path to the input Stream
 	 */
-	public FileStream(String name, String file,Class type){
-			this.name = name;
+	public FileStream(String file,Class type){
 			this.file = file;
 			this.type = type;
 	}
@@ -44,11 +41,6 @@ public class FileStream<T> implements Stream<T> {
 		}
 	}
 	
-	@Override
-	public String getName() {
-		return name;
-	}
-
 	@Override
 	public T nextElement() {
 
