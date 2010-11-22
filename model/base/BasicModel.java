@@ -200,7 +200,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 			boolean active, int iterations, long frequency, long delay,
 			long endTime, int priority, Stream<? extends Object>... args) {
 		
-			addBehavior(name,method,sampler,active,iterations,new FixedValueStream<Long>("",frequency),
+			addBehavior(name,method,sampler,active,iterations,new FixedValueStream<Long>(frequency),
 					delay,endTime,priority,args);
 	}
 	public final void addBehavior(String name, String method,AgentSampler sampler,
@@ -216,7 +216,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 			boolean active, int iterations,long frequency, long delay, long endTime,
 			Stream<? extends Object> ... args){
 		
-		addBehavior(name, method,sampler, active, iterations,new FixedValueStream<Long>("",frequency), 
+		addBehavior(name, method,sampler, active, iterations,new FixedValueStream<Long>(frequency), 
 				delay, endTime,args);
 		
 	}
@@ -224,19 +224,19 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addBehavior(java.lang.String, java.lang.String, boolean, long, edu.upc.cnds.collectivesim.scheduler.Stream[])
 	 */
 	public final void addBehavior(String name,String method,int iterations,long frequency,Stream<? extends Object> ...args){
-		addBehavior(name, method,new DummySampler(),true, iterations,new FixedValueStream<Long>(name,frequency),0,0, args);
+		addBehavior(name, method,new DummySampler(),true, iterations,new FixedValueStream<Long>(frequency),0,0, args);
 	}
 
 
 	public final void addBehavior(String name, String method,	long frequency, long delay,long endTime,Stream<? extends Object>... args){
-		addBehavior(name, method,new DummySampler(),true, 0,new FixedValueStream<Long>(name,frequency),delay,endTime, args);
+		addBehavior(name, method,new DummySampler(),true, 0,new FixedValueStream<Long>(frequency),delay,endTime, args);
 		
 	}
 	
 	
 	@Override
 	public final void addBehavior(String name, String method, long frequency, Stream<? extends Object>... args) {
-		addBehavior(name, method,new DummySampler(),true, 0,new FixedValueStream<Long>(name,frequency),0,0, args);
+		addBehavior(name, method,new DummySampler(),true, 0,new FixedValueStream<Long>(frequency),0,0, args);
 		
 	}
 
@@ -260,7 +260,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 			sampler = new DummySampler();
 		}
 		
-		ObserverVisitor visitor = new ObserverVisitor(this,name,sampler,attributes,values,reset,0,new FixedValueStream<Long>("",frequency),delay,(long)0,priority);
+		ObserverVisitor visitor = new ObserverVisitor(this,name,sampler,attributes,values,reset,0,new FixedValueStream<Long>(frequency),delay,(long)0,priority);
 		
 		observers.put(name,visitor);
 		
@@ -280,7 +280,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 			sampler = new DummySampler();
 		}
 		
-		ObserverVisitor visitor = new CalculatingObserverVisitor(this,name,sampler,attributes,values,function,reset,0,new FixedValueStream<Long>("",frequency),delay,(long)0,priority);
+		ObserverVisitor visitor = new CalculatingObserverVisitor(this,name,sampler,attributes,values,function,reset,0,new FixedValueStream<Long>(frequency),delay,(long)0,priority);
 		
 		observers.put(name,visitor);
 	}
@@ -390,10 +390,8 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 		 	agentCounter.increment();
 		 	agentMap.put(agent.getName(), (T) agent);
 		 	if(status == Status.STARTED)
-		 		agent.init();
-		 	
-		 
-		 	
+		 		agent.init(this);
+		 			 		 	
 	 }
 
 	 
@@ -436,7 +434,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	  * @param target an Object to be exposed as a {@link ModelAgent}
 	  */
 	 protected final void addAgent(Object target){
-		 addAgent((T)(new ReflexionModelAgent(this,target)));
+		 addAgent((T)(new ReflexionModelAgent(target)));
 	 }
 
 	 /**
@@ -446,7 +444,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	  * @param target an Object to be exposed as a {@link ModelAgent}
 	  */
 	 protected final void addAgent(String name,Object target){
-		 addAgent(new ReflexionModelAgent(this,name,target));
+		 addAgent(new ReflexionModelAgent(name,target));
 	 }
 	 
 	 
@@ -515,7 +513,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 		
 		//Initialize every Agent
 		for(ModelAgent a: getAgents()){
-				a.init();
+				a.init(this);
 		}
 	}
 		
