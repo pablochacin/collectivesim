@@ -1,6 +1,5 @@
 package edu.upc.cnds.collectivesim.stream.base;
 
-import edu.upc.cnds.collectivesim.factory.Factory;
 import edu.upc.cnds.collectivesim.stream.Stream;
 
 
