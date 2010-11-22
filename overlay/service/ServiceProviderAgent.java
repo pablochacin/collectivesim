@@ -13,6 +13,9 @@ import edu.upc.cnds.collectives.routing.Destination;
 import edu.upc.cnds.collectives.routing.Routing;
 import edu.upc.cnds.collectives.routing.RoutingHandler;
 import edu.upc.cnds.collectives.routing.base.Route;
+import edu.upc.cnds.collectivesim.model.Model;
+import edu.upc.cnds.collectivesim.model.ModelAgent;
+import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.overlay.OverlayModel;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityFunction;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityOverlayAgent;
@@ -55,10 +58,10 @@ public class ServiceProviderAgent extends UtilityOverlayAgent implements Routing
 	 * @param overlay
 	 * @param attributes
 	 */
-	public ServiceProviderAgent(OverlayModel model, Overlay overlay,UtilityFunction function,
+	public ServiceProviderAgent(Overlay overlay,UtilityFunction function,
 								Integer capacity,ServiceDispatcher dispatcher,Stream<Double> loadStream) {
 		
-		super(model, overlay,function);
+		super(overlay,function);
 		
 		this.capacity = capacity;
 		this.dispatcher = dispatcher;
@@ -70,10 +73,14 @@ public class ServiceProviderAgent extends UtilityOverlayAgent implements Routing
 						
 		overlay.addRoutingHandler(this);
 		
-		requests = model.getExperiment().getCounter("service.requests").getChild();
+
 	}
 	
-	
+	@Override
+	public void init(Model model){
+		super.init(model);
+		requests = model.getExperiment().getCounter("service.requests").getChild();
+	}
 	/**
 	 * Processes a service request
 	 * 
@@ -190,10 +197,53 @@ public class ServiceProviderAgent extends UtilityOverlayAgent implements Routing
 	}
 
 
+	Double lastReceived=0.0;
+	Double lastDelivered=0.0;
+	Double acceptanceRate = 1.0;
+
+	public void updateAcceptanceRate(){
+
+		Double deliveredDelta = getDelivered()-lastDelivered;
+		Double recievedDelta =getReceived()-lastReceived;
+		if(recievedDelta > 0.0){
+			acceptanceRate = deliveredDelta/recievedDelta;
+		}
+
+		lastDelivered = getDelivered();
+		lastReceived = getReceived();
+
+	}
+
+	public Double getAcceptanceRate(){
+		return acceptanceRate;
+	}
+
+	
 	public void setBackgroundLoad(Double load){
 		backgroundLoad = load;
 	}
 	
+	
+	/**
+	 * Update backgroundLoad. To maintain the same total load distribution across the simulation, 
+	 * each node exchanges its load with another randomly chosen node
+	 */
+	public void updateBackgroundLoad() {
+
+		for(ModelAgent n: model.getAgents()){
+			if(!n.getName().equals(getName())){
+				try {
+					Double load = (Double)n.inquire("BackgroundLoad");
+					if(Math.abs(getBackgroundLoad() - load) <= 0.1){
+						n.execute("setBackgroundLoad",new Object[]{getBackgroundLoad()});
+						setBackgroundLoad(load);
+						break;
+					}
+				} catch (ModelException e) {}
+			}
+		}
+
+	}
 	
 	protected void reportRequestTermination(ServiceRequest request){
 		

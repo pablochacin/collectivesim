@@ -48,7 +48,7 @@ public class DiscreteEventServiceDispatcher implements ServiceDispatcher {
 	 */
 	protected Double[] offeredDemand;
 
-	public DiscreteEventServiceDispatcher(ServiceContainer container,long interval,Double quantum) {
+	public DiscreteEventServiceDispatcher(ServiceContainer container,Long interval,Double quantum) {
 
 		this.container = container;
 		this.interval = interval;
@@ -63,7 +63,7 @@ public class DiscreteEventServiceDispatcher implements ServiceDispatcher {
 		
 	}
 
-	public DiscreteEventServiceDispatcher(long interval,Double quantum) {
+	public DiscreteEventServiceDispatcher(Long interval,Double quantum) {
 		this(null,interval,quantum);
 	}
 

@@ -1,13 +1,10 @@
 package edu.upc.cnds.collectivesim.overlay.service;
 
-import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.overlay.Overlay;
-import edu.upc.cnds.collectives.underlay.Underlay;
+import edu.upc.cnds.collectives.overlay.OverlayFactory;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgentFactory;
-import edu.upc.cnds.collectivesim.overlay.OverlayFactory;
-import edu.upc.cnds.collectivesim.overlay.OverlayModel;
 import edu.upc.cnds.collectivesim.stream.Stream;
 
 /**
@@ -25,11 +22,10 @@ public class ServiceEntryAgentFactory extends OverlayAgentFactory {
 	protected Stream<Double>tolerance;
 
 	public ServiceEntryAgentFactory(OverlayFactory factory, 
-			                   Stream<Identifier>ids,
 			                   Stream<Double> preference,
 			                   Stream<Double> tolerance) {
 		
-			super(factory, ids);
+			super(factory);
 							   
 			this.preference = preference;
 			this.tolerance = tolerance;
@@ -45,11 +41,11 @@ public class ServiceEntryAgentFactory extends OverlayAgentFactory {
 	 * @throws ModelException 
 	 */
 	@Override
-	protected OverlayAgent createOverlayAgent(OverlayModel model, Overlay overlay) {		
+	protected OverlayAgent createOverlayAgent(Overlay overlay) {		
 		
 		    String[] attributes = {"Id","Utility"};
 		    	
-			return new ServiceEntryAgent(model,overlay,preference.nextElement(),tolerance.nextElement());
+			return new ServiceEntryAgent(overlay,preference.nextElement(),tolerance.nextElement());
 				
 	}
 

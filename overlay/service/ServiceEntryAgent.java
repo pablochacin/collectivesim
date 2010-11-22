@@ -44,9 +44,9 @@ public class ServiceEntryAgent extends UtilityOverlayAgent {
 	 * @param role
 	 * @param preference
 	 */
-	public ServiceEntryAgent(OverlayModel model, Overlay overlay,Double preference,Double tolerance) {
+	public ServiceEntryAgent(Overlay overlay,Double preference,Double tolerance) {
 
-			super(model, overlay,new FixedUtilityFunction(preference));
+			super(overlay,new FixedUtilityFunction(preference));
 						
 			this.preference = preference;
 			

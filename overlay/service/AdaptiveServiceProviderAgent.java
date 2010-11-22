@@ -1,6 +1,9 @@
 package edu.upc.cnds.collectivesim.overlay.service;
 
-import edu.upc.cnds.collectives.adaptation.AdaptationFunction;
+import java.util.HashMap;
+
+import edu.upc.cnds.collectives.adaptation.action.AdaptationAction;
+import edu.upc.cnds.collectives.adaptation.function.AdaptationFunction;
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
@@ -21,7 +24,10 @@ public class AdaptiveServiceProviderAgent extends ServiceProviderAgent {
 	 */
 	protected UtilityFunction utilityFuction;
 
-	protected AdaptationFunction adaptationFunction;
+	/**
+	 * Adaptation function used to adapt the capacity
+	 */
+	protected AdaptationFunction capacityAdaptation;
 
 
 	/**
@@ -32,18 +38,15 @@ public class AdaptiveServiceProviderAgent extends ServiceProviderAgent {
 	
 	protected Integer maxCapacity;
 
-	/**
-	 * Target utility for this service
-	 */
-	protected Double targetUtility;
+
 
 	
-	public AdaptiveServiceProviderAgent(OverlayModel model, Overlay overlay, UtilityFunction utilityFunction,
-			ServiceDispatcher dispatcher,Double targetUtility,AdaptationFunction adaptationFunction,Integer capacity,Stream<Double> loadStream) {
-		super(model, overlay, utilityFunction,capacity,dispatcher,loadStream);	
+	public AdaptiveServiceProviderAgent(Overlay overlay, UtilityFunction utilityFunction,
+			ServiceDispatcher dispatcher,AdaptationFunction capacityAdaptation,
+			Integer capacity,Stream<Double> loadStream) {
+		super(overlay, utilityFunction,capacity,dispatcher,loadStream);	
 
-		this.targetUtility = targetUtility;
-		this.adaptationFunction = adaptationFunction;
+		this.capacityAdaptation = capacityAdaptation;
 		this.maxCapacity = capacity;
 	}
 
@@ -62,36 +65,12 @@ public class AdaptiveServiceProviderAgent extends ServiceProviderAgent {
 		model.getExperiment().reportEvent(event);
 	}
 
-
-
-	/**
-	 * Update backgroundLoad. To maintain the same total load distribution across the simulation, 
-	 * each node exchanges its load with another randomly choosen node
-	 */
-	public void updateBackgroundLoad() {
-
-		for(ModelAgent n: model.getAgents()){
-			if(!n.getName().equals(getName())){
-				try {
-					Double load = (Double)n.inquire("BackgroundLoad");
-					if(Math.abs(getBackgroundLoad() - load) <= 0.1){
-						n.execute("setBackgroundLoad",new Object[]{getBackgroundLoad()});
-						setBackgroundLoad(load);
-						break;
-					}
-				} catch (ModelException e) {}
-			}
-		}
-
-	}
-
-
 	
 	protected  void adjustCapacityRatio(){
 
 		updateUtility();
 
-		capacityRatio = adaptationFunction.adapt(capacityRatio,getUtility(),targetUtility);
+		capacityRatio = capacityAdaptation.adapt(capacityRatio,getUtility());
 
 		super.setCapacity((int)Math.ceil(maxCapacity*capacityRatio));
 	}		
@@ -103,28 +82,6 @@ public class AdaptiveServiceProviderAgent extends ServiceProviderAgent {
 		super.setCapacity(capacity);
 	}
 	
-	Double lastReceived=0.0;
-	Double lastDelivered=0.0;
-	Double acceptanceRate = 1.0;
-
-	public void updateAcceptanceRate(){
-
-		Double deliveredDelta = getDelivered()-lastDelivered;
-		Double recievedDelta =getReceived()-lastReceived;
-		if(recievedDelta > 0.0){
-			acceptanceRate = deliveredDelta/recievedDelta;
-		}
-
-		lastDelivered = getDelivered();
-		lastReceived = getReceived();
-
-	}
-
-	public Double getAcceptanceRate(){
-		return acceptanceRate;
-	}
-
-
 
 	/**
 	 * Returns the processor's utilization demanded for the tasks in the runQueue,
@@ -142,6 +99,9 @@ public class AdaptiveServiceProviderAgent extends ServiceProviderAgent {
 	public void updateCapacityRatio(){
 		adjustCapacityRatio();
 	}
-	
+
+
+
+
 	
 }

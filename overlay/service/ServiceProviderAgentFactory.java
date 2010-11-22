@@ -1,31 +1,54 @@
 package edu.upc.cnds.collectivesim.overlay.service;
 
-import edu.upc.cnds.collectives.identifier.Identifier;
+import edu.upc.cnds.collectives.factory.CloningFactory;
+import edu.upc.cnds.collectives.factory.Factory;
 import edu.upc.cnds.collectives.overlay.Overlay;
-import edu.upc.cnds.collectives.underlay.Underlay;
+import edu.upc.cnds.collectives.overlay.OverlayFactory;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
-import edu.upc.cnds.collectivesim.overlay.OverlayFactory;
-import edu.upc.cnds.collectivesim.overlay.OverlayModel;
+import edu.upc.cnds.collectivesim.overlay.OverlayAgentFactory;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityAgentFactory;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityFunction;
 import edu.upc.cnds.collectivesim.stream.Stream;
 
 /**
  * 
- * Factory for GradientTopologyAgents that maintains a gradient topology.
+ * Factory for ServiceProviderAgent.
+ * 
  * 
  * @author Pablo Chacin
  *
  */
-public class ServiceProviderAgentFactory extends UtilityAgentFactory {
-					
+public class ServiceProviderAgentFactory extends OverlayAgentFactory{
 	
-	public ServiceProviderAgentFactory(OverlayFactory factory, Underlay underlay,
-			                   Stream<Identifier>ids,
-			                   Stream<Double>utility,Stream<Double>initialTrend,
-			                   Stream<Double>drift,Stream<Double>variation,Stream<Double>trend) {
+	protected Factory<UtilityFunction> utilityFunctionFactory;
+					
+	protected Factory<ServiceDispatcher> serviceDispatcherFactory;
+	
+	protected Factory<Stream<Double>> loadStreamFactory;
+	
+	protected Stream<Integer>capacityStream;
+	
+	/**
+	 * 
+	 * @param overlayFactory
+	 * @param utilityFunctionFactory
+	 * @param serviceDispatcherFactory
+	 * @param loadStream Stream to generate the background load. Is clonned to give a copy
+	 *        to each agent
+	 * @param capacityStream
+	 */
+	public ServiceProviderAgentFactory(OverlayFactory overlayFactory,
+			                           Factory<UtilityFunction> utilityFunctionFactory,
+			                           Factory<ServiceDispatcher> serviceDispatcherFactory,
+			                           Factory<Stream<Double>> loadStreamFactory,
+			                           Stream<Integer>capacityStream) {
 		
-		super(factory, ids,utility,initialTrend,drift,variation,trend);
+		super(overlayFactory);
+		
+		this.utilityFunctionFactory = utilityFunctionFactory;
+		this.serviceDispatcherFactory = serviceDispatcherFactory;
+		this.capacityStream = capacityStream;
+		this.loadStreamFactory = loadStreamFactory;
 	}
 
 	
@@ -33,9 +56,12 @@ public class ServiceProviderAgentFactory extends UtilityAgentFactory {
 	 * Creates a ServiceProviderAgent from the overlay components
 	 */
 	@Override	
-	protected OverlayAgent createOverlayAgent(OverlayModel model, Overlay overlay) {		
+	protected OverlayAgent createOverlayAgent(Overlay overlay) {		
 						
-		return new ServiceProviderAgent(model,overlay,getUtilityFunction());
+		return new ServiceProviderAgent(overlay,utilityFunctionFactory.nextElement(),
+				                        capacityStream.nextElement(), 
+				                        serviceDispatcherFactory.nextElement(),
+				                        loadStreamFactory.nextElement());
 				
 	}
 
