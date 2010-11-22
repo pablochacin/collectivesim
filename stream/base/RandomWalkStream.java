@@ -4,51 +4,20 @@ import java.util.Random;
 
 import edu.upc.cnds.collectives.Collectives;
 import edu.upc.cnds.collectivesim.CollectiveSim;
+import edu.upc.cnds.collectivesim.random.RandomWalk;
 import edu.upc.cnds.collectivesim.stream.Stream;
 import edu.upc.cnds.collectivesim.stream.StreamException;
 
-public class RandomWalkStream implements Stream<Double> {
+public class RandomWalkStream extends RandomWalk implements Stream<Double> {
 	
-	private String name; 
 	
-	private Double minLoad;
-	
-	private Double maxLoad;
-	
-	private Double variation;
-	
-	private Double drift;
-	
-	private Double trend;
 
-	private Double value;
-	
-	private Random rand;
-	
-	public RandomWalkStream(String name, Double minLoad, Double maxLoad, Double variation, Double drift, Double trend){
-
-		this.name = name; 
-		
-		this.minLoad = minLoad;
-		
-		this.maxLoad = maxLoad;
-		
-		this.variation = variation;
-		
-		this.drift = drift;
-		
-		this.trend = trend;
-
-		this.rand = CollectiveSim.getExperiment().getRandomGenerator();
-		
-		this.value = minLoad + (maxLoad-minLoad)*rand.nextDouble();
-
+	public RandomWalkStream(Double minLoad, Double maxLoad, Double variation,
+			Double drift, Double trend) {
+		super(minLoad, maxLoad, variation, drift, trend);
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
+	
 
 	@Override
 	public boolean hasMoreElements() {
@@ -58,18 +27,8 @@ public class RandomWalkStream implements Stream<Double> {
 	@Override
 	public Double nextElement() {
 		
-		Double nextValue = value + variation*rand.nextDouble() + drift*trend;
+		return nextValue();
 		
-		if(nextValue > 1.0){
-			nextValue = 1.0;
-		}
-		else if(nextValue < 0.0){
-			nextValue = 0.0;
-		}
-		
-		value = nextValue;
-		
-		return value;
 	}
 
 	@Override
