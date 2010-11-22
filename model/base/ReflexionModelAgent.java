@@ -55,10 +55,9 @@ public class ReflexionModelAgent implements ModelAgent {
 	 * its own target. Useful for classes that extend this base class and don't
 	 * need an specific name. 
 	 */
-	public ReflexionModelAgent(Model model) {
+	public ReflexionModelAgent() {
 		this.name = generateName(this);
 		this.target = this;
-		this.model = model;
 	}
 	
 	
@@ -68,10 +67,9 @@ public class ReflexionModelAgent implements ModelAgent {
 	 * 
 	 * @param name
 	 */
-	public ReflexionModelAgent(Model model,String name) {
+	public ReflexionModelAgent(String name) {
 		this.name = name;
 		this.target = this;
-		this.model = model;
 		attributeNames = getAttributeNames(target);
 	}
 
@@ -85,8 +83,7 @@ public class ReflexionModelAgent implements ModelAgent {
 	 * @param name
 	 * @param target
 	 */
-	public ReflexionModelAgent(Model model,String name, Object target) {
-		this.model= model; 
+	public ReflexionModelAgent(String name, Object target) {
 		this.name = name;
 		this.target = target;			
 		attributeNames = getAttributeNames(target);
@@ -99,8 +96,8 @@ public class ReflexionModelAgent implements ModelAgent {
 	 *  
 	 * @param target
 	 */
-	public ReflexionModelAgent(Model model,Object target) {
-		this(model,generateName(target),target);
+	public ReflexionModelAgent(Object target) {
+		this(generateName(target),target);
 	}
 		
 	
@@ -222,8 +219,8 @@ public class ReflexionModelAgent implements ModelAgent {
 
 
 	@Override
-	public void init() {
-		
+	public void init(Model model) {
+		this.model = model;
 	}
 
 }
