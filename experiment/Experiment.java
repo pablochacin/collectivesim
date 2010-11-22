@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -309,8 +310,8 @@ public class Experiment implements Platform, ExecutionService {
 	 * @param name
 	 * @param stream
 	 */
-	public void addStream(Stream stream){
-		streams.put(stream.getName(), stream);
+	public void addStream(String name,Stream stream){
+		streams.put(name, stream);
 	}
 
 	
@@ -540,11 +541,11 @@ public class Experiment implements Platform, ExecutionService {
 			}
 		}
 
-		for(Stream s: streams.values()){
+		for(Entry<String, Stream> s: streams.entrySet()){
 			try {
-				s.open();
+				s.getValue().open();
 			} catch (StreamException e) {
-				throw new ExperimentException("Exception initialization stream "+s.getName(),e);
+				throw new ExperimentException("Exception initialization stream "+s.getKey(),e);
 			}
 		}
 
