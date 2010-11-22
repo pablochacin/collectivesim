@@ -11,11 +11,9 @@ import java.util.Vector;
 import java.util.logging.Logger;
 
 import edu.upc.cnds.collectives.events.Event;
-import edu.upc.cnds.collectives.identifier.Identifier;
 import edu.upc.cnds.collectives.node.Node;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.overlay.OverlayHandler;
-import edu.upc.cnds.collectives.overlay.epidemic.EpidemicOverlay;
 import edu.upc.cnds.collectives.routing.Destination;
 import edu.upc.cnds.collectives.routing.RouteObserver;
 import edu.upc.cnds.collectives.routing.Routing;
@@ -23,8 +21,8 @@ import edu.upc.cnds.collectives.routing.RoutingEvent;
 import edu.upc.cnds.collectives.routing.base.Route;
 import edu.upc.cnds.collectives.topology.TopologyObserver;
 import edu.upc.cnds.collectives.util.UniqueArrayList;
-import edu.upc.cnds.collectivesim.model.ModelException;
-import edu.upc.cnds.collectivesim.model.base.ReflexionModelAgent;
+import edu.upc.cnds.collectivesim.adaptation.AdaptiveModelAgent;
+import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.state.Counter;
 
 /**
@@ -33,7 +31,7 @@ import edu.upc.cnds.collectivesim.state.Counter;
  * @author Pablo Chacin
  *
  */
-public class OverlayAgent extends ReflexionModelAgent implements TopologyObserver, RouteObserver,OverlayHandler {
+public class OverlayAgent extends AdaptiveModelAgent implements TopologyObserver, RouteObserver,OverlayHandler {
 	
 	protected static Logger log = Logger.getLogger("colectivesim.overlay");
 			
@@ -61,13 +59,19 @@ public class OverlayAgent extends ReflexionModelAgent implements TopologyObserve
 	 * @param model
 	 * @param overlay
 	 */
-	public OverlayAgent(OverlayModel model,Overlay overlay){
+	public OverlayAgent(Overlay overlay){
 		
-		super(model,overlay.getLocalNode().getId().toString());
+		super(overlay.getLocalNode().getId().toString());
 		
 		this.overlay = overlay;
 		this.overlay.addViewObserver(this);
 		this.overlay.addObserver(this);
+				
+	}
+		
+	@Override
+	public void init(Model model) {
+		super.init(model);
 		
 		this.dropped = model.getExperiment().getCounter("routing.dropped").getChild();
 		this.routed = model.getExperiment().getCounter("routing.routed").getChild();
@@ -77,10 +81,6 @@ public class OverlayAgent extends ReflexionModelAgent implements TopologyObserve
 		this.undeliverable= model.getExperiment().getCounter("routing.undeliverable").getChild();		
 		this.received= model.getExperiment().getCounter("routing.received").getChild();
 		
-	}
-	
-	
-	public void init() {
 		join();
 	}
 	
@@ -354,9 +354,6 @@ public class OverlayAgent extends ReflexionModelAgent implements TopologyObserve
 		return indegree;
 	}
 	
-	
-
-
 		
 	void incIndegree(){
 		indegree++;
@@ -457,33 +454,6 @@ public class OverlayAgent extends ReflexionModelAgent implements TopologyObserve
 	
 	public Double getOutDegree(){
 		return (double)getActiveNeighbors().size();
-	}
-
-	
-	@Override
-	public String[] getAttributeNames(){
-		return attributeNames;		
-	}
-
-	@Override
-	public Map<String, Object> getAttributes() {
-	 
-		return inquire(getAttributeNames());
-	}
-
-
-	public Map<String, Object> getAttributes(String[] attributes) {
-		 
-		return inquire(attributes);
-	}
-	
-	@Override
-	public Object getAttribute(String attribute) {
-		try {
-			return inquire(attribute);
-		} catch (ModelException e) {
-			return null;
-		}
 	}
 	
 	
