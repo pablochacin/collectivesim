@@ -6,7 +6,6 @@ import java.util.Map;
 import edu.upc.cnds.collectives.adaptation.AdaptationEnvironment;
 import edu.upc.cnds.collectives.adaptation.AdaptationManager;
 import edu.upc.cnds.collectives.adaptation.action.AdaptationAction;
-import edu.upc.cnds.collectivesim.model.Model;
 import edu.upc.cnds.collectivesim.model.ModelException;
 import edu.upc.cnds.collectivesim.model.base.ReflexionModelAgent;
 
@@ -78,4 +77,25 @@ public class AdaptiveModelAgent extends ReflexionModelAgent implements
 	}
 
 	
+	@Override
+	public void setAttribute(String attribute,Object value){
+		try {
+			execute("set"+attribute, new Object[]{value});
+		} catch (ModelException e) {
+			throw new IllegalAccessError("Exception accessing attribute " + " : " +
+					                     attribute + e.getClass().getName());
+		}
+	}
+	
+	
+	/**
+	 * Triggers all the adaptation rules
+	 * 
+	 * @throws Exception
+	 */
+	public void triggerAdaptation() throws Exception{
+		for(AdaptationAction a: actions.values()){
+			a.trigger(this);
+		}
+	}
 }
