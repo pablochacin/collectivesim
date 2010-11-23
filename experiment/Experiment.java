@@ -902,14 +902,6 @@ public class Experiment implements Platform, ExecutionService {
 	}
 
 
-
-	@Override
-	public Configuration getConfiguration() {
-		throw new UnsupportedOperationException();
-	}
-
-
-
 	@Override
 	public ExecutionService getExecutionService() {
 		return this;
