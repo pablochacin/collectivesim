@@ -5,36 +5,34 @@ import edu.upc.cnds.collectives.adaptation.AdaptationEnvironment;
 import edu.upc.cnds.collectives.adaptation.function.AdaptationFunction;
 import edu.upc.cnds.collectives.overlay.elastic.ElasticOverlay;
 import edu.upc.cnds.collectivesim.model.Model;
-import edu.upc.cnds.collectivesim.overlay.service.AdaptiveServiceProviderAgent;
 import edu.upc.cnds.collectivesim.overlay.service.ServiceDispatcher;
+import edu.upc.cnds.collectivesim.overlay.service.ServiceProviderAgent;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityFunction;
 import edu.upc.cnds.collectivesim.stream.Stream;
 
-public class ElasticServiceProviderAgent extends AdaptiveServiceProviderAgent {
+public class ElasticServiceProviderAgent extends ServiceProviderAgent {
 
-	/**
-	 * Probability of joining the service overlay
-	 */
-	protected Double joinProbability;
-	
-	protected AdaptationEnvironment adaptation;
+
 	
 	public ElasticServiceProviderAgent(ElasticOverlay overlay,
 			UtilityFunction utilityFunction, ServiceDispatcher dispatcher,
-			Double targetUtility, AdaptationFunction adaptationFunction,
-			Integer capacity, Stream<Double> loadStream,AdaptationEnvironment adaptation) {
+			Integer capacity, Double capacityWindow,
+			Stream<Double> loadStream) {
 	
 		super(overlay, utilityFunction, dispatcher, 
-				adaptationFunction, capacity, loadStream);
+				capacity, capacityWindow,loadStream);
 		
-		this.adaptation = adaptation;
 	}
 
 	
 	@Override
 	public void init(Model model){
 		super.init(model);	
-		//TODO: join the serviceRouting overlay!
+		try {
+			trigger("join.service.overlay");
+		} catch (Exception e) {
+			
+		}
 	}
 	
 	/**
