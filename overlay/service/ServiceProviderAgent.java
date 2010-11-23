@@ -23,8 +23,7 @@ import edu.upc.cnds.collectivesim.state.Counter;
 import edu.upc.cnds.collectivesim.stream.Stream;
 
 public class ServiceProviderAgent extends UtilityOverlayAgent implements RoutingHandler,ServiceContainer{
-	
-		
+			
 	
 	/**
 	 * Counts the number of requests received by this agent
@@ -53,17 +52,29 @@ public class ServiceProviderAgent extends UtilityOverlayAgent implements Routing
 	protected Integer capacity;
 	
 	/**
+	 * Fraction of the capacity which is available
+	 */
+	protected Double capacityWindow;
+	
+
+	/**
 	 * 
-	 * @param model
 	 * @param overlay
-	 * @param attributes
+	 * @param function
+	 * @param dispatcher
+	 * @param capacity
+	 * @param capacityWindow
+	 * @param loadStream
 	 */
 	public ServiceProviderAgent(Overlay overlay,UtilityFunction function,
-								Integer capacity,ServiceDispatcher dispatcher,Stream<Double> loadStream) {
+								ServiceDispatcher dispatcher,
+								Integer capacity,Double capacityWindow,
+								Stream<Double> loadStream) {
 		
 		super(overlay,function);
 		
 		this.capacity = capacity;
+		this.capacityWindow = capacityWindow;
 		this.dispatcher = dispatcher;
 		this.loadStream= loadStream;
 		this.backgroundLoad = loadStream.nextElement();		
@@ -74,6 +85,15 @@ public class ServiceProviderAgent extends UtilityOverlayAgent implements Routing
 		overlay.addRoutingHandler(this);
 		
 
+	}
+	
+	
+	public ServiceProviderAgent(Overlay overlay,UtilityFunction function,
+			ServiceDispatcher dispatcher,
+			Integer capacity,
+			Stream<Double> loadStream) {
+	
+		this(overlay,function,dispatcher,capacity,1.0,loadStream);
 	}
 	
 	@Override
@@ -95,6 +115,10 @@ public class ServiceProviderAgent extends UtilityOverlayAgent implements Routing
 			
 		}
 		requests.increment();
+		
+		Event event = new ServiceReceptionEvent(this, model.getCurrentTime());
+
+		model.getExperiment().reportEvent(event);
 	}
 	
 	
@@ -116,8 +140,18 @@ public class ServiceProviderAgent extends UtilityOverlayAgent implements Routing
 	}
 	
 	public Double getCapacity(){
-		return new Double(capacity);
+		return Math.floor((double)capacity*capacityWindow);
 	}
+	
+	public Double getCapacityWindow(){
+		return capacityWindow;
+	}
+	
+	
+	public void setCapacityWindow(Double window){
+		this.capacityWindow = window;
+	}
+	
 	public Double getRequests(){
 		return requests.getValue();
 	}
@@ -146,7 +180,6 @@ public class ServiceProviderAgent extends UtilityOverlayAgent implements Routing
 		return dispatcher.getOfferedDemand()+backgroundLoad;
 
 	}
-
 	
 	/**
 	 * Attend requests in the queue. 

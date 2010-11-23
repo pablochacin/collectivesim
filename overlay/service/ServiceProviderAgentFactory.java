@@ -1,70 +1,55 @@
 package edu.upc.cnds.collectivesim.overlay.service;
 
-import edu.upc.cnds.collectives.factory.CloningFactory;
+import edu.upc.cnds.collectives.adaptation.function.AdaptationFunction;
 import edu.upc.cnds.collectives.factory.Factory;
 import edu.upc.cnds.collectives.overlay.Overlay;
 import edu.upc.cnds.collectives.overlay.OverlayFactory;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
 import edu.upc.cnds.collectivesim.overlay.OverlayAgentFactory;
-import edu.upc.cnds.collectivesim.overlay.utility.UtilityAgentFactory;
 import edu.upc.cnds.collectivesim.overlay.utility.UtilityFunction;
 import edu.upc.cnds.collectivesim.stream.Stream;
 
-/**
- * 
- * Factory for ServiceProviderAgent.
- * 
- * 
- * @author Pablo Chacin
- *
- */
-public class ServiceProviderAgentFactory extends OverlayAgentFactory{
-	
+public class ServiceProviderAgentFactory extends OverlayAgentFactory {
+
 	protected Factory<UtilityFunction> utilityFunctionFactory;
-					
+	
 	protected Factory<ServiceDispatcher> serviceDispatcherFactory;
 	
-	protected Factory<Stream<Double>> loadStreamFactory;
+	protected Factory<Stream<Double>>loadStreamFactory;
 	
-	protected Stream<Integer>capacityStream;
+	protected Factory<Integer>capacityFactory;
 	
-	/**
-	 * 
-	 * @param overlayFactory
-	 * @param utilityFunctionFactory
-	 * @param serviceDispatcherFactory
-	 * @param loadStream Stream to generate the background load. Is clonned to give a copy
-	 *        to each agent
-	 * @param capacityStream
-	 */
+	private Factory<Double> windowFactory;
+    
+    
 	public ServiceProviderAgentFactory(OverlayFactory overlayFactory,
-			                           Factory<UtilityFunction> utilityFunctionFactory,
-			                           Factory<ServiceDispatcher> serviceDispatcherFactory,
-			                           Factory<Stream<Double>> loadStreamFactory,
-			                           Stream<Integer>capacityStream) {
-		
+					Factory<UtilityFunction> utilityFunctionFactory, 
+					Factory<ServiceDispatcher> serviceDispatcherFactory,
+					Factory<Integer>capacityFactory,
+					Factory<Double>windowFactory,
+					Factory<Stream<Double>>loadStreamFactory) {		
+
 		super(overlayFactory);
 		
 		this.utilityFunctionFactory = utilityFunctionFactory;
 		this.serviceDispatcherFactory = serviceDispatcherFactory;
-		this.capacityStream = capacityStream;
 		this.loadStreamFactory = loadStreamFactory;
+		this.capacityFactory = capacityFactory;
+		this.windowFactory = windowFactory;
+		
 	}
-
 	
-	/**
-	 * Creates a ServiceProviderAgent from the overlay components
-	 */
-	@Override	
-	protected OverlayAgent createOverlayAgent(Overlay overlay) {		
-						
-		return new ServiceProviderAgent(overlay,utilityFunctionFactory.nextElement(),
-				                        capacityStream.nextElement(), 
-				                        serviceDispatcherFactory.nextElement(),
-				                        loadStreamFactory.nextElement());
-				
+	@Override
+	protected ServiceProviderAgent createOverlayAgent(Overlay overlay) {		
+					
+		return new ServiceProviderAgent(overlay,
+				utilityFunctionFactory.nextElement(),
+                serviceDispatcherFactory.nextElement(),
+                capacityFactory.nextElement(), 
+                windowFactory.nextElement(),
+                loadStreamFactory.nextElement());
+
+		
+		//ADD adaptation actions
 	}
-
-
-
 }
