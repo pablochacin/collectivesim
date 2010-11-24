@@ -16,6 +16,9 @@ public class FixedValueStream<T> implements Stream<T>{
 	private T value;
 	
 	public FixedValueStream( T value) {
+		if(value == null){
+			throw new IllegalArgumentException("Value cannot be null");
+		}
 		this.value = value;		
 	}
 	
