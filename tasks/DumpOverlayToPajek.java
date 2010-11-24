@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 import edu.upc.cnds.collectives.node.Node;
+import edu.upc.cnds.collectives.simulation.overlay.OverlayAgent;
+import edu.upc.cnds.collectives.simulation.overlay.OverlayModel;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
-import edu.upc.cnds.collectivesim.overlay.OverlayAgent;
-import edu.upc.cnds.collectivesim.overlay.OverlayModel;
 
 /**
  * 
