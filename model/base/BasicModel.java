@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import edu.upc.cnds.collectives.factory.Factory;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
@@ -94,7 +95,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	/**
 	 * Agent factory for initial population
 	 */
-	protected AgentFactory factory;
+	protected Factory<T> factory;
 
 	/**
 	 * Map of {@link AgentStreamAction} used to drive the agent arrival process
@@ -126,7 +127,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	 * Constructor
 	 * @param name 
 	 */
-	public BasicModel(String name, Experiment experiment,AgentFactory factory,int numAgents){
+	public BasicModel(String name, Experiment experiment,Factory<T> factory,int numAgents){
 		this.experiment = experiment;
 		this.name = name;
 		this.status = Status.STOPED;
@@ -521,11 +522,14 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	/**
 	 * Creates an agent from a factory. 
 	 */
-	public ModelAgent createAgent(AgentFactory factory) throws ModelException{
+	@Override
+	public ModelAgent createAgent(Factory<T> factory) throws ModelException{
 		
 	
 		
-		ModelAgent agent = factory.createAgent(this);
+		//ModelAgent agent = factory.createAgent(this);
+
+		ModelAgent agent = factory.nextElement();
 
 		addAgent((ModelAgent)agent);
 		
@@ -545,7 +549,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	 * @param factory
 	 * @param args
 	 */
-	public void addAgentStream(String name,long delay,long endTime,Stream<Long>frequency,Stream<Integer> rate,AgentFactory factory){
+	public void addAgentStream(String name,long delay,long endTime,Stream<Long>frequency,Stream<Integer> rate,Factory<T> factory){
 		
 		AgentStream action = new AgentStream(this,name,factory,rate,true,frequency,delay,endTime);
 		
@@ -576,9 +580,6 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	protected void agentRemoved(T agent){
 		
 	}
-
-
-
 
 
 

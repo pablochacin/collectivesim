@@ -2,6 +2,7 @@ package edu.upc.cnds.collectivesim.model.base;
 
 import java.util.logging.Logger;
 
+import edu.upc.cnds.collectives.factory.Factory;
 import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectivesim.model.AgentFactory;
 import edu.upc.cnds.collectivesim.model.ModelAgent;
@@ -13,11 +14,11 @@ public class AgentStream extends ModelAction {
 
 	private static final String MODEL_ACTION_TYPE = "Agent Stream";
 
-	protected AgentFactory factory;
+	protected Factory<? extends ModelAgent> factory;
 
 	protected Stream<Integer>rate;
 
-	public AgentStream(BasicModel model,String name,AgentFactory factory, Stream<Integer>rate, 
+	public AgentStream(BasicModel model,String name,Factory<? extends ModelAgent> factory, Stream<Integer>rate, 
 			boolean active, Stream<Long> frequency, long delay, long endTime) {
 		super(model, name, active, 0, frequency, delay, endTime,0);
 		this.model = model;

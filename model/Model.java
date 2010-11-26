@@ -2,6 +2,7 @@ package edu.upc.cnds.collectivesim.model;
 
 import java.util.List;
 
+import edu.upc.cnds.collectives.factory.Factory;
 import edu.upc.cnds.collectivesim.dataseries.DataSeries;
 import edu.upc.cnds.collectivesim.dataseries.SeriesFunction;
 import edu.upc.cnds.collectivesim.experiment.Experiment;
@@ -139,7 +140,7 @@ public interface Model <T extends ModelAgent> {
 	/**
 	 * Creates an agent from a factory. 
 	 */
-	public ModelAgent createAgent(AgentFactory factory) throws ModelException;
+	public ModelAgent createAgent(Factory<T> factory) throws ModelException;
 
 	
 
@@ -154,7 +155,7 @@ public interface Model <T extends ModelAgent> {
 	 * @param factory
 	 * @param args
 	 */
-	public void addAgentStream(String name,long delay,long endTime,Stream<Long>frequency,Stream<Integer> rate,AgentFactory factory);
+	public void addAgentStream(String name,long delay,long endTime,Stream<Long>frequency,Stream<Integer> rate,Factory<T> factory);
 
 
 	public void addAgentStream(String name,long delay,long endTime,Stream<Long>frequency,Stream<Integer> rate);
