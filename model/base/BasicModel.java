@@ -250,9 +250,17 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	}
 
 	
-	/* (non-Javadoc)
-	 * @see edu.upc.cnds.collectivesim.model.imp.ModelInterface#addObserver(java.lang.String, edu.upc.cnds.collectivesim.model.ModelObserver, java.lang.String, boolean, long)
-	 */
+/**
+ * 
+ * @param name
+ * @param sampler
+ * @param attributes
+ * @param values
+ * @param reset
+ * @param frequency
+ * @param delay
+ * @param priority
+ */
 	public final void addObserver(String name, AgentSampler sampler,String[] attributes,DataSeries values,boolean reset,long frequency,long delay,int priority) {
 
 		//the sampler is optional, if none specified, use a dummy one, 
