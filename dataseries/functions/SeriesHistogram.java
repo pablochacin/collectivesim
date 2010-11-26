@@ -126,7 +126,7 @@ public class SeriesHistogram implements SeriesFunction {
 
 		Table<Double> ditribution = new MemoryTable<Double>("distribution","0.1;0.1;0.1;0.1;0.1;0.1;0.1;0.1;0.1;0.1",";",Double.class);
 
-		Stream<Double> valueStream = new EmpiricalRandomStream("values",1.0,3.0,ditribution);
+		Stream<Double> valueStream = new EmpiricalRandomStream(1.0,3.0,ditribution);
 
 		//SeriesFunction histogramFunc = new SeriesHistogram("value",0.0,1.0,10,false);
 		SeriesFunction histogramFunc = new SeriesHistogram("value",1.0);
