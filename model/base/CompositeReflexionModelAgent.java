@@ -10,11 +10,13 @@ import edu.upc.cnds.collectives.util.ReflectionUtils;
 import edu.upc.cnds.collectivesim.model.ModelException;
 
 /**
- * Implements a Reflexion based Agent Model by composing a list of
- * target objects.
+ * Implements a Reflection based Agent Model by composing a list of target objects. 
  * 
  * Methods are invoked on this list of targets, in the order given in the constructor, 
  * until one is matched or an exception arises.
+ * 
+ * The resulting agent behaves as if it had inherited methods from multiple super-classes.
+ * Subclasses can override methods of the composite objects.
  * 
  * On the contrary to ReflexionModelAgent, which can take the name from the target's class name,
  * As this agent is created from multiple targets, the name must be explicitly given
