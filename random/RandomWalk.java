@@ -46,13 +46,13 @@ public class RandomWalk  {
 
 	public Double nextValue() {
 		
-		Double nextValue = value + variation*rand.nextDouble() + drift*trend;
+		Double nextValue = value + variation*(-1+2*rand.nextDouble()) + drift*trend;
 		
-		if(nextValue > 1.0){
-			nextValue = 1.0;
+		if(nextValue > maxLoad){
+			nextValue = maxLoad;
 		}
-		else if(nextValue < 0.0){
-			nextValue = 0.0;
+		else if(nextValue < minLoad){
+			nextValue = minLoad;
 		}
 		
 		value = nextValue;
