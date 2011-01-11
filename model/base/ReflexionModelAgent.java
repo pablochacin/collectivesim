@@ -219,7 +219,7 @@ public class ReflexionModelAgent implements ModelAgent {
 
 
 	@Override
-	public void init(Model model) {
+	public void init(Model model) throws ModelException {
 		this.model = model;
 	}
 

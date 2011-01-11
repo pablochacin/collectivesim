@@ -66,7 +66,7 @@ public interface ModelAgent {
 	 * any behavior is executed. 
 	 * 
 	 */
-	public void init(Model model);
+	public void init(Model model) throws ModelException;
 	
 	
 	/**

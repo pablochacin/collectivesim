@@ -389,7 +389,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	  * 
 	  * @param agent
 	  */
-	 protected final void addAgent(ModelAgent agent) {
+	 protected final void addAgent(ModelAgent agent) throws ModelException{
 		 
 		 	if(agentMap.containsKey(agent.getName())){
 		 		throw new IllegalArgumentException("Duplucated agent name: "+ agent.getName());
@@ -442,7 +442,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	  *  
 	  * @param target an Object to be exposed as a {@link ModelAgent}
 	  */
-	 protected final void addAgent(Object target){
+	 protected final void addAgent(Object target) throws ModelException{
 		 addAgent((T)(new ReflexionModelAgent(target)));
 	 }
 
@@ -452,7 +452,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	  * @param name a String with the name of the agent
 	  * @param target an Object to be exposed as a {@link ModelAgent}
 	  */
-	 protected final void addAgent(String name,Object target){
+	 protected final void addAgent(String name,Object target) throws ModelException{
 		 addAgent(new ReflexionModelAgent(name,target));
 	 }
 	 
@@ -478,7 +478,7 @@ public class BasicModel<T extends ModelAgent> implements Model<T> {
 	  * Convenience method to insert a batch of agents
 	  * @param agents
 	  */
-	 protected final void addAgents(List<ModelAgent>agents) {
+	 protected final void addAgents(List<ModelAgent>agents) throws ModelException {
 		for(ModelAgent a: agents) {
 			addAgent(a);
 		}
