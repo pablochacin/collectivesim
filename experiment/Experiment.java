@@ -93,10 +93,6 @@ public class Experiment implements Platform, ExecutionService {
 
 	private Map<String,DataSeries>series;
 
-	/**
-	 * DataSeries that shouldn't be reset between runs
-	 */
-	private Set<DataSeries> persistentDS;
 
 	private Map<String,Table>tables;
 
@@ -214,7 +210,6 @@ public class Experiment implements Platform, ExecutionService {
 		this.counters = new HashMap<String, Counter>();		
 		this.tables = new HashMap<String, Table>();
 		this.series = new HashMap<String, DataSeries>();
-		this.persistentDS = new HashSet<DataSeries>();
 		this.streams = new HashMap<String, Stream>();
 		this.parameters = new TypedMap();
 		this.observers = new ArrayList<EventObserver>();
@@ -406,7 +401,7 @@ public class Experiment implements Platform, ExecutionService {
 	 * @param size maximum size. When this size is reached, new items displace older one.
 	 * @return the newly created DataSeries
 	 */
-	public DataSeries addDataSeries(String name,int size,boolean persistent){
+	public DataSeries addDataSeries(String name,int size){
 
 		if(series.containsKey(name)){
 			throw new IllegalArgumentException("DataSeries " + name + " already exists");
@@ -415,16 +410,9 @@ public class Experiment implements Platform, ExecutionService {
 		DataSeries dataseries = new BaseDataSeries(name,size);
 		series.put(name, dataseries);
 
-		if(persistent){
-			persistentDS.add(dataseries);
-		}
-
 		return dataseries;
 	}
 
-	public DataSeries addDataSeries(String name,int size){
-		return addDataSeries(name,size,false);
-	}
 
 	/**
 	 * Convenience method, assumes non persistent dataseries
@@ -467,7 +455,7 @@ public class Experiment implements Platform, ExecutionService {
 
 		DataSeries resultSeries = getDataSeries(result);
 
-		DataSeriesObserverTask observer = new DataSeriesObserverTask(targetSeries,function,resultSeries,false,false);
+		DataSeriesObserverTask observer = new DataSeriesObserverTask(targetSeries,function,resultSeries,false,true);
 
 		scheduledTasks.add(new ExperimentTask(scheduler, observer,delay,frequency,0));
 	}
@@ -486,7 +474,7 @@ public class Experiment implements Platform, ExecutionService {
 
 		DataSeries resultSeries = getDataSeries(result);
 
-		DataSeriesObserverTask observer = new DataSeriesObserverTask(targetSeries,function,resultSeries,true,false);
+		DataSeriesObserverTask observer = new DataSeriesObserverTask(targetSeries,function,resultSeries,true,true);
 
 		//targetSeries.addObserver(observer);
 	}	
@@ -653,11 +641,9 @@ public class Experiment implements Platform, ExecutionService {
 			c.reset();
 		}
 
-		//reset non persistent DataSeries 
+		//reset DataSeries 
 		for(DataSeries d: series.values()){
-			if(!persistentDS.contains(d)){
 				d.reset();
-			}
 		}
 
 		//reset Streams
