@@ -137,6 +137,7 @@ public class BaseDataSeries implements DataSeries {
 
 	public void reset(){
 		dataItems.clear();
+		sequence = 0;
 	}
 	
 	public void setFilter(DataItemFilter filter) {
