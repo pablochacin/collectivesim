@@ -34,7 +34,7 @@ public class AttributeFilterSampler implements AgentSampler {
 		List<ModelAgent>selected = new ArrayList<ModelAgent>();
 		for(ModelAgent a: agents){
 			try {
-				if(a.getAttribute(attribute).equals(value)){
+				if(((String)a.inquire(attribute)).equals(value)){
 					selected.add(a);
 				}
 			} catch (ModelException e) {
