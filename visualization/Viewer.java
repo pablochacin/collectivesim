@@ -1,8 +1,18 @@
 package edu.upc.cnds.collectivesim.visualization;
 
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.beans.PropertyVetoException;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.swing.AbstractAction;
+import javax.swing.JDesktopPane;
+import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 
 
 import edu.upc.cnds.collectivesim.experiment.Experiment;
@@ -13,7 +23,7 @@ import edu.upc.cnds.collectivesim.experiment.Experiment;
  * @author Pablo Chacin
  *
  */
-public class Viewer {
+public class Viewer extends JFrame {
 	
 	/**
 	 * Takes a periodic snapshot. On each iteration, a new file is created on the experiment's 
@@ -64,11 +74,28 @@ public class Viewer {
 	
 	protected Experiment experiment;
 
+	protected JDesktopPane pane;
 	
 	public Viewer(Experiment experiment){
+		super(experiment.getDescription() + "running at " + experiment.getRootDirectory());
 		this.experiment = experiment;
 		this.views = new HashMap<String, ViewPanel>();
+		this.pane = new JDesktopPane();
+		add(pane);
+		
+		JMenuBar mb = new JMenuBar();
+	    JMenu menu = new JMenu("Views");
 
+	    menu.add(new TileAction(pane)); // add tiling capability
+
+	    setJMenuBar(mb);
+	    mb.add(menu);
+		 
+		    
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(600, 480);
+		setVisible( true );
+	
 	}
 
 	
@@ -96,6 +123,7 @@ public class Viewer {
 	public void addView(View view){
 		ViewPanel panel = new ViewPanel(view);
 		views.put(view.getName(), panel);
+		pane.add(panel);
 	}
 	
 	public View getView(String name){
@@ -129,4 +157,68 @@ public class Viewer {
 		
 		panel.takeSnapshot(format, file );
 	}
+	
+	/**
+	 * 
+	 * 
+	 * 
+	 * @author Pablo Chacin
+	 *
+	 */
+	class TileAction extends AbstractAction {
+		  private JDesktopPane desk; // the desktop to work with
+
+		  public TileAction(JDesktopPane desk) {
+		    super("Tile Frames");
+		    this.desk = desk;
+		  }
+
+		  public void actionPerformed(ActionEvent ev) {
+
+		    // How many frames do we have?
+		    JInternalFrame[] allframes = desk.getAllFrames();
+		    int count = allframes.length;
+		    if (count == 0)
+		      return;
+
+		    // Determine the necessary grid size
+		    int sqrt = (int) Math.sqrt(count);
+		    int rows = sqrt;
+		    int cols = sqrt;
+		    if (rows * cols < count) {
+		      cols++;
+		      if (rows * cols < count) {
+		        rows++;
+		      }
+		    }
+
+		    // Define some initial values for size & location.
+		    Dimension size = desk.getSize();
+
+		    int w = size.width / cols;
+		    int h = size.height / rows;
+		    int x = 0;
+		    int y = 0;
+
+		    // Iterate over the frames, deiconifying any iconified frames and then
+		    // relocating & resizing each.
+		    for (int i = 0; i < rows; i++) {
+		      for (int j = 0; j < cols && ((i * cols) + j < count); j++) {
+		        JInternalFrame f = allframes[(i * cols) + j];
+
+		        if (!f.isClosed() && f.isIcon()) {
+		          try {
+		            f.setIcon(false);
+		          } catch (PropertyVetoException ignored) {
+		          }
+		        }
+
+		        desk.getDesktopManager().resizeFrame(f, x, y, w, h);
+		        x += w;
+		      }
+		      y += h; // start the next row
+		      x = 0;
+		    }
+		  }
+		}
 }

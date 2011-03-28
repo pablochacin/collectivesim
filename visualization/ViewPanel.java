@@ -13,6 +13,7 @@ import java.io.OutputStream;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -34,29 +35,28 @@ import com.sun.image.codec.jpeg.JPEGImageEncoder;
  * @author Pablo Chacin
  *
  */
-public class ViewPanel implements Runnable {
+public class ViewPanel extends JInternalFrame implements Runnable {
 
 	
 	private View view;
 
 	private JMenuBar menuBar; 
 
-	private JFrame frame;
 
 	public ViewPanel(View view){
+		super(view.getName(),true, false, true, true );
+
 		this.view = view;
 
-		frame = new JFrame(view.getName());
-		frame.setSize(new Dimension(view.getHeight(),view.getWidth()));
+		setSize(new Dimension(view.getHeight(),view.getWidth()));
 		//place visual elements in the frame
-		frame.getContentPane().add(view.getViewableContent());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+		getContentPane().add(view.getViewableContent());
+	
 		menuBar = buildMenuBar();	
 
-		frame.setJMenuBar(menuBar);
+		setJMenuBar(menuBar);
 
-		frame.setVisible(true);
+		setVisible(true);
 	}
 
 	public View getView(){
@@ -98,7 +98,7 @@ public class ViewPanel implements Runnable {
 		}
 		catch(Exception e){
 			String message = "Export failed: " + e.getMessage();
-			JOptionPane.showMessageDialog(frame, message,
+			JOptionPane.showMessageDialog(this, message,
 					"Error", JOptionPane.ERROR_MESSAGE);
 			
 			return false;
@@ -166,7 +166,7 @@ public class ViewPanel implements Runnable {
 				// NOTE: The following should not be needed, but there jdk1.3beta
 				// appears to have a bug in swing where repainting doesn't
 				// properly occur.
-				frame.repaint();
+				repaint();
 			}
 
 
@@ -236,7 +236,7 @@ public class ViewPanel implements Runnable {
 		fileDialog.setSelectedFile(new File(fileDialog.getCurrentDirectory(),
 				"view."+ extension));
 
-		int returnVal = fileDialog.showDialog(frame, "Export");
+		int returnVal = fileDialog.showDialog(this, "Export");
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fileDialog.getSelectedFile();
