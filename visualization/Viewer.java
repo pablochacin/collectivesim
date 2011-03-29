@@ -94,7 +94,9 @@ public class Viewer extends JFrame {
 		    
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(600, 480);
-		setVisible( true );
+		
+		//initially invisible, unless views are added (see addView method)
+		setVisible( false );
 	
 	}
 
@@ -124,6 +126,9 @@ public class Viewer extends JFrame {
 		ViewPanel panel = new ViewPanel(view);
 		views.put(view.getName(), panel);
 		pane.add(panel);
+		
+		//make the desktop visible to show the view
+		setVisible( true );
 	}
 	
 	public View getView(String name){
@@ -160,7 +165,7 @@ public class Viewer extends JFrame {
 	
 	/**
 	 * 
-	 * 
+	 * Tiles all the components in the pane
 	 * 
 	 * @author Pablo Chacin
 	 *
