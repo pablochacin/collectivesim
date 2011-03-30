@@ -4,8 +4,12 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyVetoException;
 import java.io.File;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.JDesktopPane;
@@ -25,6 +29,14 @@ import edu.upc.cnds.collectivesim.experiment.Experiment;
  */
 public class Viewer extends JFrame {
 	
+	private static Comparator<ViewPanel> VIEW_COMPARATOR = new Comparator<ViewPanel>() {
+
+		@Override
+		public int compare(ViewPanel v0, ViewPanel v1) {
+			return v0.getName().compareTo(v1.getName());
+		}
+		
+	};
 	/**
 	 * Takes a periodic snapshot. On each iteration, a new file is created on the experiment's 
 	 * working directory under the "snapshots" subdirectory. 
@@ -70,7 +82,7 @@ public class Viewer extends JFrame {
 	
 	public static enum EXPORT_FORMAT  {EPS,JPEG};
 	
-	protected Map<String,ViewPanel>views;
+	protected SortedMap<String,ViewPanel>views;
 	
 	protected Experiment experiment;
 
@@ -79,7 +91,7 @@ public class Viewer extends JFrame {
 	public Viewer(Experiment experiment){
 		super(experiment.getDescription() + "running at " + experiment.getRootDirectory());
 		this.experiment = experiment;
-		this.views = new HashMap<String, ViewPanel>();
+		this.views = new TreeMap<String, ViewPanel>();
 		this.pane = new JDesktopPane();
 		add(pane);
 		
@@ -94,8 +106,6 @@ public class Viewer extends JFrame {
 		    
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(600, 480);
-		
-		//initially invisible, unless views are added (see addView method)
 		setVisible( false );
 	
 	}
@@ -126,8 +136,6 @@ public class Viewer extends JFrame {
 		ViewPanel panel = new ViewPanel(view);
 		views.put(view.getName(), panel);
 		pane.add(panel);
-		
-		//make the desktop visible to show the view
 		setVisible( true );
 	}
 	
@@ -181,7 +189,9 @@ public class Viewer extends JFrame {
 		  public void actionPerformed(ActionEvent ev) {
 
 		    // How many frames do we have?
-		    JInternalFrame[] allframes = desk.getAllFrames();
+		    ViewPanel[] allframes = views.values().toArray(new ViewPanel[views.size()]);
+
+		    
 		    int count = allframes.length;
 		    if (count == 0)
 		      return;
