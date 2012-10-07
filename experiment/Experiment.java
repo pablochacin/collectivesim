@@ -3,20 +3,15 @@ package edu.upc.cnds.collectivesim.experiment;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
-
-import edu.upc.cnds.collectives.Collectives;
-import edu.upc.cnds.collectives.configuration.Configuration;
 import edu.upc.cnds.collectives.events.Event;
 import edu.upc.cnds.collectives.events.EventFilter;
 import edu.upc.cnds.collectives.events.EventObserver;
@@ -24,7 +19,6 @@ import edu.upc.cnds.collectives.events.EventTypeFilter;
 import edu.upc.cnds.collectives.events.FilteringEventObserver;
 import edu.upc.cnds.collectives.execution.ExecutionService;
 import edu.upc.cnds.collectives.execution.Task;
-import edu.upc.cnds.collectives.platform.Platform;
 import edu.upc.cnds.collectives.util.FileUtils;
 import edu.upc.cnds.collectives.util.FormattingUtils;
 import edu.upc.cnds.collectives.util.TypedMap;
@@ -79,7 +73,7 @@ import edu.upc.cnds.collectivesim.table.TableException;
  * @author Pablo Chacin
  *
  */
-public class Experiment implements Platform, ExecutionService {
+public class Experiment implements ExecutionService {
 
 	private Logger log;
 
@@ -238,7 +232,6 @@ public class Experiment implements Platform, ExecutionService {
 			scheduledTasks.add(new ExperimentTask(scheduler,endTask,endTime));
 		}
 
-		Collectives.setPlaform(this);
 		CollectiveSim.setExperiment(this);
 		
 	}
@@ -888,25 +881,17 @@ public class Experiment implements Platform, ExecutionService {
 	}
 
 
-	@Override
-	public ExecutionService getExecutionService() {
-		return this;
-	}
-
-
 
 	@Override
 	public void doWait(long time) {
-		// TODO Auto-generated method stub
-
+		throw new UnsupportedOperationException();
 	}
 
 
 
 	@Override
 	public Task execute(Runnable task) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 
@@ -929,6 +914,9 @@ public class Experiment implements Platform, ExecutionService {
 	public Task scheduleTask(Runnable task, long delay) {
 		throw new UnsupportedOperationException();
 	}
+
+
+
 
 
 
